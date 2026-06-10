@@ -109,7 +109,7 @@ export default function TeamIssues() {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground leading-none">
-              My Team
+              Team_Name
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Issues</p>
           </div>

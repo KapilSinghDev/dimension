@@ -48,7 +48,6 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-
 const name = "Acme Corp";
 
 export function AppSidebar() {
