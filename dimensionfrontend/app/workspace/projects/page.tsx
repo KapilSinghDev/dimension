@@ -19,6 +19,14 @@ import {
   TableProperties,
   Target,
   Activity,
+  Icon,
+  CircleX,
+  SendHorizontal,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  CalendarDays,
+  ListChecks,
 } from "lucide-react";
 import NoProjects from "@/components/Noprojects";
 import { Separator } from "@/components/ui/separator";
@@ -27,7 +35,11 @@ import { Boxes } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-// import { Flame, Crown, Users, UsersRound, CircleDot, CircleAlert, CalendarClock, MessageSquare, Tag } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -48,7 +60,25 @@ import {
   TooltipTrigger,
   Tooltip,
 } from "@/components/ui/tooltip";
+import Propertiesbox from "@/components/Propertiesbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import ProjectTabs from "@/components/ProjectTabs";
+import Projectupdatemodal from "@/components/Projectupdatemodal";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 const Projects = () => {
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
   const { state } = useSidebar();
   return (
     <div className="h-screen w-full flex flex-col">
@@ -76,9 +106,7 @@ const Projects = () => {
 
       <div className="flex-1 w-full mt-8 flex flex-row overflow-hidden">
         <div
-          // Use this exact syntax
           className={`h-full w-full flex flex-col items-start ${state === "expanded" ? "px-15" : "px-30"} my-auto`}
-          // className="h-full w-full flex flex-col items-start px-30 my-auto"
         >
           <div className="h-fit w-fit  pt-5">
             <Boxes size={40} />
@@ -93,28 +121,23 @@ const Projects = () => {
             maxLength={50}
           />
           <div className="h-fit flex flex-wrap gap-2">
-            <div className="flex items-center gap-1.5">
-              <Flame size={14} className="text-red-500" />
-              <Badge variant="destructive">High Priority</Badge>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Crown size={14} className="text-violet-500" />
-              <Badge className="bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-400">
-                Team Lead
-              </Badge>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CalendarClock size={14} className="text-amber-500" />
-              <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-                Target Completion
-              </Badge>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CircleCheck size={14} className="text-green-500" />
-              <Badge className="bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400">
-                Status
-              </Badge>
-            </div>
+            {[
+              { icon: Flame, name: "High Priority", variant: "high" as const },
+              { icon: Crown, name: "Team Lead", variant: "lead" as const },
+              {
+                icon: CalendarClock,
+                name: "Target Completion",
+                variant: "completed" as const,
+              },
+              { icon: CircleCheck, name: "Status", variant: "normal" as const },
+            ].map((items, index) => (
+              <ProjectTabs
+                key={index}
+                icon={items.icon}
+                name={items.name}
+                style={items.variant}
+              />
+            ))}
           </div>
           <div className="h-fit flex items-center justify-between gap-2 mt-4">
             <Paperclip size={15} />
@@ -130,12 +153,7 @@ const Projects = () => {
               Add
             </Button>
           </div>
-          <Button
-            variant={"outline"}
-            className="w-full cursor-pointer py-2 mt-2"
-          >
-            Write update to projects <PenLine size={10} />
-          </Button>
+          <Projectupdatemodal />
           <Field className="mt-5">
             <FieldDescription>Description</FieldDescription>
             <Textarea
@@ -145,306 +163,135 @@ const Projects = () => {
             />
           </Field>
           <div className="w-full h-fit mt-5">
-            <Button variant={"outline"} className="border-none">
-              <Plus />
-              Targets
-            </Button>
+            {/* TODO : add the components to display the targets up here */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant={"outline"} className="border-none">
+                  <Plus />
+                  Targets
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-2" side="right">
+                <div className="flex items-center gap-3 p-2 bg-background  w-full">
+                  {/* 1. Icon */}
+                  <div className="w-2.5 h-2.5 rotate-45 border-2 border-muted-foreground/40 shrink-0" />
+
+                  {/* 2. Milestone Name Input */}
+                  <input
+                    className="w-32 text-xs font-medium bg-transparent border-none focus:outline-none placeholder:text-muted-foreground"
+                    placeholder="Milestone name"
+                  />
+
+                  {/* 3. Compact Description Input (Inline) */}
+                  <input
+                    className="flex-1 text-xs bg-transparent border-none focus:outline-none placeholder:text-muted-foreground"
+                    placeholder="Add description..."
+                  />
+
+                  {/* 4. Metadata Row */}
+                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground shrink-0">
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button
+                          variant={"outline"}
+                          className="flex items-center gap-1 text-sm border-none transition-colors"
+                        >
+                          <CalendarDays size={10} /> Set date
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-fit" align={"center"}>
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          defaultMonth={date}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <span className="flex items-center gap-1 text-sm">
+                      <ListChecks size={10} /> 0 issues
+                    </span>
+                  </div>
+
+                  {/* 5. 3-Dot Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0"
+                      >
+                        <MoreHorizontal size={14} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-32">
+                      <DropdownMenuItem className="gap-2 text-xs">
+                        <Pencil size={12} /> Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="gap-2 text-xs text-destructive">
+                        <Trash2 size={12} /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
-
         <div className="h-full w-2/5 pr-10">
           <div className="h-full w-full flex flex-col gap-1 p-4">
-            <Collapsible className="bg-gray-200 rounded-sm p-1">
-              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 px-2 hover:bg-muted/40 rounded-md transition-colors cursor-pointer">
-                <span className="text-xs font-medium text-foreground flex flex-row">
-                  <TableProperties size={15} className="mr-2" />
-                  Properties
-                  <ChevronDown
-                    size={13}
-                    className="text-muted-foreground my-auto"
-                  />
-                </span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="flex flex-col gap-0.5 mt-1">
-                {/* Reusable Item Template */}
-                {[
-                  {
-                    icon: CircleDot,
-                    label: "Status",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Flame,
-                    label: "Priority",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Crown,
-                    label: "Lead",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: Users,
-                    label: "Members",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: CircleAlert,
-                    label: "Issues",
-                    items: ["MT-101", "MT-102", "MT-103"],
-                  },
-                  {
-                    icon: CalendarClock,
-                    label: "Dates",
-                    items: ["This week", "This month", "Custom"],
-                  },
-                  {
-                    icon: UsersRound,
-                    label: "Teams",
-                    items: ["Engineering", "Design", "Product"],
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: "Slack",
-                    items: ["#general", "#engineering", "#design"],
-                  },
-                  {
-                    icon: Tag,
-                    label: "Label",
-                    items: ["Bug", "Feature", "Improvement", "Docs"],
-                  },
-                ].map((section, idx) => (
-                  <Tooltip key={idx}>
-                    <div className="flex w-full gap-10 justify-start py-2  px-2 rounded-md transition-colors cursor-pointer text-muted-foreground">
-                      <div className="flex w-1/5 items-center gap-2">
-                        <section.icon size={14} />
-                        <span className="text-xs">{section.label}</span>
-                      </div>
-                      <div className="w-full">
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant="secondary"
-                            className="text-[10px] px-1.5 py-0 h-5 font-normal rounded-md"
-                          >
-                            Active
-                          </Badge>
-                        </TooltipTrigger>
-                      </div>
-                    </div>
-                    <TooltipContent
-                      side="right"
-                      align="start"
-                      className="w-40 p-1"
-                    >
-                      <div className="flex flex-col">
-                        {section.items.map((item) => (
-                          <div
-                            key={item}
-                            className="hover:bg-muted px-3 py-1.5 rounded cursor-pointer text-xs font-medium"
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-            <Collapsible className="bg-gray-200 rounded-sm p-1">
-              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 px-2 hover:bg-muted/40 rounded-md transition-colors cursor-pointer">
-                <span className="text-xs font-medium text-foreground flex flex-row">
-                  <Target size={15} className="mr-2" />
-                  Targets
-                  <ChevronDown
-                    size={13}
-                    className="text-muted-foreground my-auto"
-                  />
-                </span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="flex flex-col gap-0.5 mt-1">
-                {/* Reusable Item Template */}
-                {[
-                  {
-                    icon: CircleDot,
-                    label: "Status",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Flame,
-                    label: "Priority",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Crown,
-                    label: "Lead",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: Users,
-                    label: "Members",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: CircleAlert,
-                    label: "Issues",
-                    items: ["MT-101", "MT-102", "MT-103"],
-                  },
-                  {
-                    icon: CalendarClock,
-                    label: "Dates",
-                    items: ["This week", "This month", "Custom"],
-                  },
-                  {
-                    icon: UsersRound,
-                    label: "Teams",
-                    items: ["Engineering", "Design", "Product"],
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: "Slack",
-                    items: ["#general", "#engineering", "#design"],
-                  },
-                  {
-                    icon: Tag,
-                    label: "Label",
-                    items: ["Bug", "Feature", "Improvement", "Docs"],
-                  },
-                ].map((section, idx) => (
-                  <Tooltip key={idx}>
-                    <div className="flex w-full gap-10 justify-start py-2  px-2 rounded-md transition-colors cursor-pointer text-muted-foreground">
-                      <div className="flex w-1/5 items-center gap-2">
-                        <section.icon size={14} />
-                        <span className="text-xs">{section.label}</span>
-                      </div>
-                      <div className="w-full">
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant="secondary"
-                            className="text-[10px] px-1.5 py-0 h-5 font-normal rounded-md"
-                          >
-                            Active
-                          </Badge>
-                        </TooltipTrigger>
-                      </div>
-                    </div>
-                    <TooltipContent
-                      side="right"
-                      align="start"
-                      className="w-40 p-1"
-                    >
-                      <div className="flex flex-col">
-                        {section.items.map((item) => (
-                          <div
-                            key={item}
-                            className="hover:bg-muted px-3 py-1.5 rounded cursor-pointer text-xs font-medium"
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-            <Collapsible className="bg-gray-200 rounded-sm p-1">
-              <CollapsibleTrigger className="flex w-full items-center justify-between py-2 px-2 hover:bg-muted/40 rounded-md transition-colors cursor-pointer">
-                <span className="text-xs font-medium text-foreground flex flex-row">
-                  <Activity size={15} className="mr-2" />
-                  Activity
-                  <ChevronDown
-                    size={13}
-                    className="text-muted-foreground my-auto"
-                  />
-                </span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="flex flex-col gap-0.5 mt-1">
-                {/* Reusable Item Template */}
-                {[
-                  {
-                    icon: CircleDot,
-                    label: "Status",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Flame,
-                    label: "Priority",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Crown,
-                    label: "Lead",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: Users,
-                    label: "Members",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: CircleAlert,
-                    label: "Issues",
-                    items: ["MT-101", "MT-102", "MT-103"],
-                  },
-                  {
-                    icon: CalendarClock,
-                    label: "Dates",
-                    items: ["This week", "This month", "Custom"],
-                  },
-                  {
-                    icon: UsersRound,
-                    label: "Teams",
-                    items: ["Engineering", "Design", "Product"],
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: "Slack",
-                    items: ["#general", "#engineering", "#design"],
-                  },
-                  {
-                    icon: Tag,
-                    label: "Label",
-                    items: ["Bug", "Feature", "Improvement", "Docs"],
-                  },
-                ].map((section, idx) => (
-                  <Tooltip key={idx}>
-                    <div className="flex w-full gap-10 justify-start py-2  px-2 rounded-md transition-colors cursor-pointer text-muted-foreground">
-                      <div className="flex w-1/5 items-center gap-2">
-                        <section.icon size={14} />
-                        <span className="text-xs">{section.label}</span>
-                      </div>
-                      <div className="w-full">
-                        <TooltipTrigger asChild>
-                          <Badge
-                            variant="secondary"
-                            className="text-[10px] px-1.5 py-0 h-5 font-normal rounded-md"
-                          >
-                            Active
-                          </Badge>
-                        </TooltipTrigger>
-                      </div>
-                    </div>
-                    <TooltipContent
-                      side="right"
-                      align="start"
-                      className="w-40 p-1"
-                    >
-                      <div className="flex flex-col">
-                        {section.items.map((item) => (
-                          <div
-                            key={item}
-                            className="hover:bg-muted px-3 py-1.5 rounded cursor-pointer text-xs font-medium"
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+            <Propertiesbox
+              Tableicon={TableProperties}
+              name="Properties"
+              badge="Active"
+              properties={[
+                {
+                  icon: CircleDot,
+                  label: "Status",
+                  items: ["Urgent", "High", "Medium", "Low"],
+                },
+                {
+                  icon: Flame,
+                  label: "Priority",
+                  items: ["Urgent", "High", "Medium", "Low"],
+                },
+                {
+                  icon: Crown,
+                  label: "Lead",
+                  items: ["Alice", "Bob", "Charlie"],
+                },
+                {
+                  icon: Users,
+                  label: "Members",
+                  items: ["Alice", "Bob", "Charlie"],
+                },
+                {
+                  icon: CircleAlert,
+                  label: "Issues",
+                  items: ["MT-101", "MT-102", "MT-103"],
+                },
+                {
+                  icon: CalendarClock,
+                  label: "Dates",
+                  items: ["This week", "This month", "Custom"],
+                },
+                {
+                  icon: UsersRound,
+                  label: "Teams",
+                  items: ["Engineering", "Design", "Product"],
+                },
+                {
+                  icon: MessageSquare,
+                  label: "Slack",
+                  items: ["#general", "#engineering", "#design"],
+                },
+                {
+                  icon: Tag,
+                  label: "Label",
+                  items: ["Bug", "Feature", "Improvement", "Docs"],
+                },
+              ]}
+            />
           </div>
         </div>
       </div>

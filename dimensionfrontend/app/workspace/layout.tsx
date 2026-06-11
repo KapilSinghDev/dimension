@@ -8,7 +8,7 @@ const Workspacelayout = ({
   return (
     <>
       {/* <SidebarProvider> */}
-      <div className="flex h-screen w-full overflow-hidden ">
+      <div className="flex h-screen w-full overflow-hidden bg-gray-100">
         <AppSidebar />
         <main className="flex-1 min-w-0 overflow-auto">{children}</main>
       </div>
