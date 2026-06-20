@@ -13,11 +13,11 @@ const Mainpanel = ({
 }: Mainpanelprops) => {
   return (
     <div
-      className={
-        (cn("h-full w-3/5 overflow-y-hidden flex flex-col items-start"),
+      className={cn(
+        "h-full w-3/5 flex flex-col items-start",
         state === "expanded" ? "px-15" : "px-30",
-        className)
-      }
+        className,
+      )}
     >
       {children}
     </div>

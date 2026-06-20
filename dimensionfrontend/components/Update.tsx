@@ -13,6 +13,7 @@ import {
   CircleAlert,
   CircleX,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
@@ -23,7 +24,7 @@ type UpdateBoxProps = {
 const Update = ({ variant = "display" }: UpdateBoxProps) => {
   return (
     <Card className="w-full">
-      <CardContent className="p-4 pb-2">
+      <CardContent className="p-4 pb-1">
         {variant === "update" ? (
           <div className="relative">
             <Tooltip>
@@ -92,18 +93,27 @@ const Update = ({ variant = "display" }: UpdateBoxProps) => {
       </CardContent>
 
       {variant === "update" ? (
-        <CardFooter className="px-4 py-2 border-t border-border justify-end">
+        <CardFooter className="px-4 py-1 border-t border-border justify-end">
           <Button
             variant="default"
             size="sm"
             className="gap-1.5 text-xs cursor-pointer"
+            onClick={() =>
+              toast("Update Posted successfully", {
+                description: "Sunday, December 03, 2023 at 9:00 AM",
+                action: {
+                  label: "Undo",
+                  onClick: () => console.log("Undo"),
+                },
+              })
+            }
           >
             <SendHorizontal size={13} />
             Post Update
           </Button>
         </CardFooter>
       ) : (
-        <CardFooter className="px-4 py-2 border-t border-border">
+        <CardFooter className="px-4 py-1 border-t border-border">
           <div className="flex items-center gap-2 w-full">
             <Input
               placeholder="Leave a reply..."

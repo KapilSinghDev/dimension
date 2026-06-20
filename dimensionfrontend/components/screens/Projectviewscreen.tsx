@@ -16,21 +16,19 @@ import { Boxes } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-
 import { useSidebar } from "@/components/ui/sidebar";
-
 import ProjectTabs from "@/components/ProjectTabs";
-
 import Update from "@/components/Update";
 import Addtarget from "@/components/Addtarget";
 import Issuedisplay from "@/components/Issuedisplay";
-
+import { useQueryState } from "nuqs";
 const Projectviewscreen = () => {
   const { state } = useSidebar();
+  const [tab, setTab] = useQueryState("tab");
   return (
     <>
       <div
-        className={`h-full w-3/5 overflow-y-auto flex flex-col items-start ${state === "expanded" ? "px-15" : "px-30"}`}
+        className={`h-full w-3/5 flex flex-col items-start ${state === "expanded" ? "px-15" : "px-30"} overflow-y-auto`}
       >
         <div className="h-fit w-fit  pt-5">
           <Boxes size={40} />
@@ -72,6 +70,7 @@ const Projectviewscreen = () => {
             variant="outline"
             size="sm"
             className="gap-1.5 text-xs text-muted-foreground hover:text-foreground border-none"
+            onClick={() => setTab("document")}
           >
             <Plus size={13} />
             Add
@@ -79,7 +78,7 @@ const Projectviewscreen = () => {
         </div>
         <Update variant="update" />
         {/* <Projectupdatemodal /> */}
-        <Field className="mt-4">
+        <Field className="mt-3">
           <FieldDescription>Description</FieldDescription>
           <Textarea
             placeholder="Add description"
@@ -87,20 +86,20 @@ const Projectviewscreen = () => {
             maxLength={200}
           />
         </Field>
-        <div className="w-full h-fit mt-5 min-w-0 overflow-x-auto">
+        <div className="w-full h-fit  min-w-0 overflow-x-auto px-1">
           {/* TODO : add the components to display the targets up here */}
           <div className="flex items-center justify-between">
-            <p className="text-std">Priority Targets</p>
+            <Addtarget />
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs text-muted-foreground hover:text-foreground gap-1.5 cursor-pointer"
+              className="text-xs  hover:text-foreground gap-1.5 cursor-pointer"
             >
               View all
               <ArrowRight size={13} />
             </Button>
           </div>
-          <div className="flex  items-start gap-2 w-full overflow-x-auto py-1 ">
+          <div className="flex  items-start gap-1.5 w-full overflow-x-auto py-1 ">
             {[
               {
                 milestone: "Design Review",
@@ -127,7 +126,6 @@ const Projectviewscreen = () => {
             ))}
           </div>
         </div>
-        <Addtarget />
       </div>
     </>
   );

@@ -4,6 +4,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Toaster } from "@/components/ui/sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -34,7 +36,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <SidebarProvider>
           <main className="flex-1">
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              <NuqsAdapter>{children}</NuqsAdapter>
+              <Toaster />
+            </TooltipProvider>
           </main>
         </SidebarProvider>
       </body>

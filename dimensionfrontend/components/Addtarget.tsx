@@ -32,7 +32,7 @@ const Addtarget = () => {
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
-            className="border-none mt-2"
+            className="border-none mt-2 bg-gray-100 hover:cursor-pointer"
             onClick={() => handleTarget()}
           >
             <Plus />

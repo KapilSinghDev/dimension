@@ -1,15 +1,10 @@
 "use client";
-import React, { useState } from "react";
 import {
   CalendarClock,
   CircleCheck,
   Crown,
   Flame,
   LayoutGrid,
-  Plus,
-  Paperclip,
-  PenLine,
-  ChevronDown,
   CircleDot,
   MessageSquare,
   UsersRound,
@@ -17,43 +12,35 @@ import {
   Users,
   Tag,
   TableProperties,
-  Target,
   Activity,
   UserPlus,
-  ArrowRight,
 } from "lucide-react";
-import NoProjects from "@/components/Noprojects";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { Boxes } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-
 import { useSidebar } from "@/components/ui/sidebar";
-// import {  } from "radix-ui";
-
 import Propertiesbox from "@/components/Propertiesbox";
-
-import ProjectTabs from "@/components/ProjectTabs";
-
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import Update from "@/components/Update";
-import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
-import Addtarget from "@/components/Addtarget";
-import Issuedisplay from "@/components/Issuedisplay";
-import Projectviewscreen from "@/components/screens/Projectviewscreen";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Activityviewscreen from "@/components/screens/Activityviewscreen";
+import Projectviewscreen from "@/components/screens/Projectviewscreen";
+import Documentscreen from "@/components/screens/Documentscreen";
+import { parseAsString, useQueryState } from "nuqs";
+import { useEffect } from "react";
 const Projects = () => {
   const { state } = useSidebar();
+  const [tab, setTab] = useQueryState(
+    "tab",
+    parseAsString
+      .withDefault("activity")
+      .withOptions({ clearOnDefault: false }),
+  );
+
+  useEffect(() => {
+    if (tab === "activity") {
+      setTab("activity");
+    }
+  }, []);
+
   return (
-    <div className="h-screen w-full flex flex-col">
+    <div className="h-screen w-full flex flex-col overflow-hidden ">
       <div className="flex items-center gap-3 pt-5 px-8 sticky top-0 z-10 bg-white ">
         <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-950 flex items-center justify-center flex-shrink-0">
           <LayoutGrid
@@ -71,28 +58,41 @@ const Projects = () => {
       <div
         className={`w-full sticky top-16 z-10 mt-4 ${state === "expanded" ? "px-16" : "px-12"} flex gap-2`}
       >
-        <Menubar className="border-none shadow-none bg-transparent p-0 h-fit w-full sticky top-16 z-10">
-          <MenubarMenu>
-            <MenubarTrigger className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal">
+        <Tabs
+          defaultValue={tab || "activity"}
+          className="w-full sticky top-16 z-10"
+        >
+          <TabsList className="bg-transparent p-0 px-0 h-fit w-fit justify-start gap-1.5 border-none">
+            <TabsTrigger
+              value="activity"
+              className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
+              onClick={() => setTab("activity")}
+            >
               Activity
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger className="text-xs px-2.5 py-0.5 h-fit rounded-full border-none bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer font-normal">
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="overview"
+              className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
+              onClick={() => setTab("overview")}
+            >
               Overview
-            </MenubarTrigger>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal">
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="issues"
+              className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
+            >
               Issues
-            </MenubarTrigger>
-          </MenubarMenu>
-        </Menubar>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
-      <div className="h-full flex-1 w-full mt-8 flex flex-row ">
-        {/* <Projectviewscreen /> */}
-        <Activityviewscreen />
+      <div className="flex-1 w-full mt-2 flex flex-row  ">
+        {tab === "activity" && <Projectviewscreen />}
+        {tab === "overview" && <Activityviewscreen />}
+        {tab === "document" && <Documentscreen />}
         <div className="h-full w-2/5 pr-10">
           <div className="h-full w-full flex flex-col gap-1 p-4">
             <Propertiesbox

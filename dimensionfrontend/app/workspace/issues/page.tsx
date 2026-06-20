@@ -1,11 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Users } from "lucide-react";
+import {
+  Activity,
+  CalendarClock,
+  CircleAlert,
+  CircleCheck,
+  CircleDot,
+  Crown,
+  Flame,
+  MessageSquare,
+  TableProperties,
+  Tag,
+  UserPlus,
+  Users,
+  UsersRound,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Issuebox from "@/components/Issuebox";
+import Issuescreen from "@/components/screens/Issuescreen";
+import Propertiesbox from "@/components/Propertiesbox";
 type Priority = "high" | "medium" | "low";
 type Status = "active" | "backlog";
 
@@ -100,9 +116,9 @@ export default function TeamIssues() {
     filter === "all" ? issues : issues.filter((i) => i.status === filter);
 
   return (
-    <div className="h-screen w-full bg-gray-200 flex items-start justify-start p-4">
-      <div className="w-full h-full rounded-2xl border border-border bg-card p-6 flex flex-col gap-5 overflow-hidden">
-        {/* Header */}
+    <div className="h-screen w-full  flex flex-row items-start justify-start p-4">
+      {/* <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
+        
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
             <Users size={16} className="text-blue-600 dark:text-blue-400" />
@@ -115,7 +131,6 @@ export default function TeamIssues() {
           </div>
         </div>
 
-        {/* Filter tabs */}
         <div className="flex gap-2">
           {(["all", "active", "backlog"] as Filter[]).map((f) => (
             <Button
@@ -135,7 +150,6 @@ export default function TeamIssues() {
           ))}
         </div>
 
-        {/* Issue list */}
         <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
           {filtered.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-8">
@@ -153,6 +167,127 @@ export default function TeamIssues() {
               />
             ))
           )}
+        </div>
+      </div> */}
+      <Issuescreen />
+      <div className="w-3/5 h-full py-16 px-10">
+        <Propertiesbox
+          Tableicon={TableProperties}
+          name="Properties"
+          badge="Active"
+          properties={[
+            {
+              icon: CircleDot,
+              label: "Status",
+              items: ["Urgent", "High", "Medium", "Low"],
+            },
+            {
+              icon: Flame,
+              label: "Priority",
+              items: ["Urgent", "High", "Medium", "Low"],
+            },
+            {
+              icon: Crown,
+              label: "Lead",
+              items: ["Alice", "Bob", "Charlie"],
+            },
+            {
+              icon: Users,
+              label: "Members",
+              items: ["Alice", "Bob", "Charlie"],
+            },
+            {
+              icon: CircleAlert,
+              label: "Issues",
+              items: ["MT-101", "MT-102", "MT-103"],
+            },
+            {
+              icon: CalendarClock,
+              label: "Dates",
+              items: ["This week", "This month", "Custom"],
+            },
+            {
+              icon: UsersRound,
+              label: "Teams",
+              items: ["Engineering", "Design", "Product"],
+            },
+            {
+              icon: MessageSquare,
+              label: "Slack",
+              items: ["#general", "#engineering", "#design"],
+            },
+            {
+              icon: Tag,
+              label: "Label",
+              items: ["Bug", "Feature", "Improvement", "Docs"],
+            },
+          ]}
+        />
+        <div className="h-fit max-h-full w-full flex flex-col gap-3 mt-2 p-2 bg-gray-200">
+          <div className="flex items-center gap-2">
+            <Activity size={13} className="text-muted-foreground" />
+            <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
+              Activity
+            </p>
+          </div>
+
+          <div className="flex flex-col ">
+            {[
+              {
+                icon: CircleCheck,
+                text: "Status changed to In Progress",
+                time: "2m ago",
+                color: "text-emerald-500",
+              },
+              {
+                icon: UserPlus,
+                text: "Alice was added as lead",
+                time: "1h ago",
+                color: "text-blue-500",
+              },
+              {
+                icon: MessageSquare,
+                text: "New comment by Bob",
+                time: "3h ago",
+                color: "text-violet-500",
+              },
+              {
+                icon: Tag,
+                text: "Label Bug was added",
+                time: "5h ago",
+                color: "text-amber-500",
+              },
+              {
+                icon: CalendarClock,
+                text: "Due date set to Jun 28",
+                time: "Yesterday",
+                color: "text-muted-foreground",
+              },
+              {
+                icon: Flame,
+                text: "Priority changed to High",
+                time: "2d ago",
+                color: "text-red-500",
+              },
+            ].map((a, i) => (
+              <div key={i} className="flex gap-3 group ">
+                <div className="flex flex-col items-center px-auto">
+                  <div className={`mt-1 flex-shrink-0 ${a.color}`}>
+                    <a.icon size={13} />
+                  </div>
+                  <div className="w-px flex-1 bg-border/50 mt-1 group-last:hidden" />
+                </div>
+                <div className="pb-4">
+                  <p className="text-xs text-foreground leading-snug">
+                    {a.text}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    {a.time}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

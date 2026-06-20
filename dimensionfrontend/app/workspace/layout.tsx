@@ -1,7 +1,6 @@
 import React from "react";
-import { SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-
+import { Suspense } from "react";
 const Workspacelayout = ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
@@ -10,7 +9,9 @@ const Workspacelayout = ({
       {/* <SidebarProvider> */}
       <div className="flex h-screen w-full bg-gray-100">
         <AppSidebar />
-        <main className="flex-1 min-w-0 ">{children}</main>
+        <main className="flex-1 min-w-0 ">
+          <Suspense>{children}</Suspense>
+        </main>
       </div>
       {/* </SidebarProvider> */}
     </>
