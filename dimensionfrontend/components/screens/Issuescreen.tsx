@@ -3,7 +3,7 @@ import React from "react";
 import { Textarea } from "../ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Button } from "../ui/button";
-import { Atom, Paperclip, Smile } from "lucide-react";
+import { ArrowLeft, Atom, Paperclip, Smile } from "lucide-react";
 import FastCreateIssue from "../Fastcreateissue";
 import { Separator } from "@/components/ui/separator";
 import IssueActivity from "../Issueactivity";
@@ -55,7 +55,7 @@ const Issuescreen = () => {
       </div>
       <div className="w-full h-fit mt-5">
         <FastCreateIssue />
-        <Separator className="mt-2 bg-gray-400" />
+        <Separator className="mt-2 mb-2 bg-gray-400" />
       </div>
       <div className="w-full h-full ">
         <IssueActivity />

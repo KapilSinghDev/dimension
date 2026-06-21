@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Activity,
   CalendarClock,
@@ -9,19 +9,37 @@ import {
   CircleDot,
   Crown,
   Flame,
+  Funnel,
+  ListCollapse,
   MessageSquare,
+  PanelRight,
   TableProperties,
   Tag,
   UserPlus,
   Users,
   UsersRound,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import Issuebox from "@/components/Issuebox";
 import Issuescreen from "@/components/screens/Issuescreen";
 import Propertiesbox from "@/components/Propertiesbox";
+import { parseAsString, useQueryState } from "nuqs";
+import { Button } from "@/components/ui/button";
+import Issuebox from "@/components/Issuebox";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarGroup,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 type Priority = "high" | "medium" | "low";
 type Status = "active" | "backlog";
 
@@ -111,65 +129,114 @@ type Filter = "all" | "active" | "backlog";
 
 export default function TeamIssues() {
   const [filter, setFilter] = useState<Filter>("all");
+  const [id, setTabid] = useQueryState(
+    "id",
+    parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
+  );
+
+  // useEffect(() => {
+  //   if (id !== "") {
+  //     setTabid("432345");
+  //   }
+  // }, [id, setTabid]);
 
   const filtered =
     filter === "all" ? issues : issues.filter((i) => i.status === filter);
 
   return (
     <div className="h-screen w-full  flex flex-row items-start justify-start p-4">
-      {/* <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
-        
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
-            <Users size={16} className="text-blue-600 dark:text-blue-400" />
+      {!id && (
+        <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
+              <Users size={16} className="text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground leading-none">
+                Team_Name
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">Issues</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-foreground leading-none">
-              Team_Name
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Issues</p>
+
+          <div className="flex  justify-between">
+            <div className="h-fit w-full">
+              {(["all", "active", "backlog"] as Filter[]).map((f) => (
+                <Button
+                  key={f}
+                  variant={filter === f ? "secondary" : "ghost"}
+                  size="sm"
+                  className={cn(
+                    "text-xs capitalize",
+                    filter === f && "font-medium",
+                  )}
+                  onClick={() => setFilter(f)}
+                >
+                  {f === "all"
+                    ? "All issues"
+                    : f.charAt(0).toUpperCase() + f.slice(1)}
+                </Button>
+              ))}
+            </div>
+            {[Funnel, ListCollapse, PanelRight].map((Icon, index) => (
+              <Menubar
+                className="w-fit flex border-none bg-transparent p-0 shadow-none"
+                key={index}
+              >
+                <MenubarMenu>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <MenubarTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0" // Added standard sizing for icon buttons
+                        >
+                          <Icon className="h-4 w-4" />
+                        </Button>
+                      </MenubarTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>description</TooltipContent>
+                  </Tooltip>
+                  <MenubarContent>
+                    <MenubarGroup>
+                      <MenubarItem>
+                        New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+                      </MenubarItem>
+                      <MenubarItem>New Window</MenubarItem>
+                    </MenubarGroup>
+                    <MenubarSeparator />
+                    <MenubarGroup>
+                      <MenubarItem>Share</MenubarItem>
+                      <MenubarItem>Print</MenubarItem>
+                    </MenubarGroup>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
+            {filtered.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">
+                No issues found
+              </p>
+            ) : (
+              filtered.map((issue) => (
+                <Issuebox
+                  key={issue.id}
+                  id={issue.id}
+                  assignee={issue.assignee}
+                  title={issue.title}
+                  priority={issue.priority}
+                  status={issue.status}
+                />
+              ))
+            )}
           </div>
         </div>
-
-        <div className="flex gap-2">
-          {(["all", "active", "backlog"] as Filter[]).map((f) => (
-            <Button
-              key={f}
-              variant={filter === f ? "secondary" : "ghost"}
-              size="sm"
-              className={cn(
-                "text-xs capitalize",
-                filter === f && "font-medium",
-              )}
-              onClick={() => setFilter(f)}
-            >
-              {f === "all"
-                ? "All issues"
-                : f.charAt(0).toUpperCase() + f.slice(1)}
-            </Button>
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
-          {filtered.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-8">
-              No issues found
-            </p>
-          ) : (
-            filtered.map((issue) => (
-              <Issuebox
-                key={issue.id}
-                id={issue.id}
-                assignee={issue.assignee}
-                title={issue.title}
-                priority={issue.priority}
-                status={issue.status}
-              />
-            ))
-          )}
-        </div>
-      </div> */}
-      <Issuescreen />
+      )}
+      {id && <Issuescreen />}
       <div className="w-3/5 h-full py-16 px-10">
         <Propertiesbox
           Tableicon={TableProperties}
