@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
@@ -17,7 +18,7 @@ import {
   SignalLow,
   SignalMedium,
 } from "lucide-react";
-import { useQueryState } from "nuqs";
+import { parseAsString, useQueryStates } from "nuqs";
 
 type issueProps = {
   id: string;
@@ -53,10 +54,15 @@ const priorityMap: Record<
 };
 
 const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
-  const [issueID, setTabid] = useQueryState("id");
-  const updateIssueid = () => {
-    setTabid(id);
+  // const [issueID, setTabid] = useQueryState("id");
+  const [query, setQuery] = useQueryStates({
+    id: parseAsString,
+    project: parseAsString,
+  });
+  const updateIssueid = (id: string) => {
+    setQuery({ id: id, project: null });
   };
+
   const assigneeColor = assigneeColors[assignee] || {
     bg: "#6b7280",
     text: "#ffffff",
@@ -69,7 +75,7 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
     <div
       key={id}
       className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
-      onClick={() => updateIssueid()}
+      onClick={() => updateIssueid(id)}
     >
       <DropdownMenu>
         <Tooltip delayDuration={300}>

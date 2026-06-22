@@ -48,13 +48,15 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import { issue_route, project_route } from "@/lib/routes";
 const name = "Acme Corp";
 
 export function AppSidebar() {
   const [teamsOpen, setTeamsOpen] = useState(true);
   const [myTeamOpen, setMyTeamOpen] = useState(true);
   const [workspaceOpen, setWorkspaceOpen] = useState(true);
-
+  const router = useRouter();
   return (
     <Sidebar className="bg-black">
       {/* ─── Header ─── */}
@@ -191,14 +193,18 @@ export function AppSidebar() {
 
                       <CollapsibleContent>
                         <SidebarMenu className="pl-4 mt-0.5">
-                          <SidebarMenuItem>
+                          <SidebarMenuItem
+                            onClick={() => router.push(issue_route)}
+                          >
                             <SidebarMenuButton className="text-muted-foreground hover:text-foreground">
                               <AlertCircle size={14} />
                               Issues
                             </SidebarMenuButton>
                           </SidebarMenuItem>
 
-                          <SidebarMenuItem>
+                          <SidebarMenuItem
+                            onClick={() => router.push(project_route)}
+                          >
                             <SidebarMenuButton className="text-muted-foreground hover:text-foreground">
                               <LayoutGrid size={14} />
                               Projects
