@@ -2,10 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { issue_status_enum, priority_enum } from "../../enums";
 import { Teams } from "./Teams";
 import { User } from "./User";
+import { Projects } from "./Project";
 
 @Entity()
 export class Issues {
   @PrimaryGeneratedColumn()
+  @ManyToOne(() => Projects, (projects) => projects.id, { nullable: true })
   issue_id: number;
 
   @Column()
