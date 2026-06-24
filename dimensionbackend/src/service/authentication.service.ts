@@ -18,15 +18,15 @@ import { Credentials } from "../entity/Credentials";
 class authenticationService {
   private userRepository = AppDataSource.getRepository(User);
   private issueRepository = AppDataSource.getRepository(Issues);
-  private credentialsRepository = AppDataSource.getRepository(Credentials)
+  private credentialsRepository = AppDataSource.getRepository(Credentials);
   salt_rounds = 10;
-  SECRET_KEY = process.env.SECRET_KEY
+  SECRET_KEY = process.env.SECRET_KEY;
 
   async searchUser(user_email: string) {
     const existingUser = await this.userRepository.findOneBy({
       email: user_email,
     });
-    delete existingUser.password
+    delete existingUser.password;
     return existingUser;
   }
 
@@ -66,12 +66,14 @@ class authenticationService {
     role?: string,
     organisation?: string,
   ) {
-    const profile = await this.credentialsRepository.findOneBy({ email: user_email });
+    const profile = await this.credentialsRepository.findOneBy({
+      email: user_email,
+    });
     const profileUpdate = this.userRepository.create({
       ...profile,
       role: role || null,
-      organisation: organisation || null
-    })
+      organisation: organisation || null,
+    });
     const update = await this.userRepository.save(profileUpdate);
     return update;
   }

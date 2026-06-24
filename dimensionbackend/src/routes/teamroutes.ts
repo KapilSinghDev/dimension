@@ -10,19 +10,19 @@ export class teamRoute {
   }
 
   private teamRoutesRegister() {
-    this.getTeams(),
+    (this.getTeams(),
       this.getAllTeams(),
       this.createNewTeamRoute(),
       this.updateTeamRoute(),
-      this.deleteTeamRoute();
+      this.deleteTeamRoute());
   }
 
   private getTeams = () => {
     this.teamRouter.get("/team/:id", this.teamController.getTeam);
   };
   private getAllTeams = () => {
-    this.teamRouter.get("/team", this.teamController.getAllTeams)
-  }
+    this.teamRouter.get("/team", this.teamController.getAllTeams);
+  };
   private createNewTeamRoute = () => {
     this.teamRouter.post("/team/create", this.teamController.createNewTeam);
   };

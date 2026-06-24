@@ -18,12 +18,12 @@ export const create_team_dto = z.object({
   name: z.string(),
   members: z.array(z.string()).optional(),
   issues: z.array(z.string()).optional(),
-  target: z.string()
+  target: z.string(),
 });
 export type create_team_dto_type = {
   name: string;
   members: string[];
   issues: number[];
-  target: string
+  target: string;
 };
 export { team_dto, team_dto_type };

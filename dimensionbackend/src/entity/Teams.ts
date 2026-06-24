@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { Issues } from "./Issue";
 import { User } from "./User";
-import { Credentials } from './Credentials'
+import { Credentials } from "./Credentials";
 @Entity()
 export class Teams {
   @PrimaryGeneratedColumn()

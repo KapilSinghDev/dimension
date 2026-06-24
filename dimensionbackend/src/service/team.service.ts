@@ -14,33 +14,37 @@ export class teamService {
     const member =
       team.members.length != 0
         ? await Promise.all(
-          team.members.map((email) => this.authService.searchUser(email)),
-        )
+            team.members.map((email) => this.authService.searchUser(email)),
+          )
         : [];
     const issues =
       team.issues.length != 0
         ? await Promise.all(
-          team.issues.map((issueId) => this.issueService.findIssue(issueId)),
-        )
+            team.issues.map((issueId) => this.issueService.findIssue(issueId)),
+          )
         : [];
 
-    const newTeam = this.teamRepostiory.create({ name: team.name, issue_assigned: issues, members: member });
+    const newTeam = this.teamRepostiory.create({
+      name: team.name,
+      issue_assigned: issues,
+      members: member,
+    });
     const saveTeam = await this.teamRepostiory.save(newTeam);
-    return saveTeam
+    return saveTeam;
   };
 
   updateTeam = async (team: create_team_dto_type, id: number) => {
     const member =
       team.members.length != 0
         ? await Promise.all(
-          team.members.map((email) => this.authService.searchUser(email)),
-        )
+            team.members.map((email) => this.authService.searchUser(email)),
+          )
         : [];
     const issues =
       team.issues.length != 0
         ? await Promise.all(
-          team.issues.map((issueId) => this.issueService.findIssue(issueId)),
-        )
+            team.issues.map((issueId) => this.issueService.findIssue(issueId)),
+          )
         : [];
     const teamUpdate = await this.teamRepostiory.findOneBy({ team_id: id });
     teamUpdate.name = team.name;
@@ -51,14 +55,15 @@ export class teamService {
   };
 
   findTeam = async (id: number) => {
-    const team = await this.teamRepostiory.findOneBy({ team_id: id })
+    const team = await this.teamRepostiory.findOneBy({ team_id: id });
     return team;
   };
   findallTeams = async () => {
-    const teamList = await this.teamRepostiory.find()
+    const teamList = await this.teamRepostiory.find();
     return teamList;
-  }
+  };
   deleteTeam = async (id: number) => {
     const deleteTeam = await this.teamRepostiory.delete({ team_id: id });
+    return deleteTeam;
   };
 }

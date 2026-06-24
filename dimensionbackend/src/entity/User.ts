@@ -11,9 +11,8 @@ import { Issues } from "./Issue";
 import { Credentials } from "./Credentials";
 @Entity()
 export class User extends Credentials {
-
   @Column({ nullable: true })
-  picture: string
+  picture: string;
 
   @Column({ nullable: true })
   role: string;
@@ -25,7 +24,7 @@ export class User extends Credentials {
   team: Teams;
 
   @ManyToOne(() => Teams, (team) => team.admin)
-  team_administer: Teams[]
+  team_administer: Teams[];
 
   @OneToMany(() => Issues, (issue) => issue.assignee)
   issue: Issues[];

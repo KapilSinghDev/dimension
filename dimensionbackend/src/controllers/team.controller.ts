@@ -38,13 +38,13 @@ export class teamController {
 
   getAllTeams = async (req: Request, res: Response) => {
     try {
-      const team = await this.teamService.findallTeams()
+      const team = await this.teamService.findallTeams();
       res.send({ response: team }).status(201);
     } catch (err) {
-      console.error(err)
-      res.send({ "message": "Error occured" }).status(500)
+      console.error(err);
+      res.send({ message: "Error occured" }).status(500);
     }
-  }
+  };
 
   deleteTeam = async (req: Request, res: Response) => {
     try {
