@@ -1,5 +1,7 @@
 import {
   Column,
+  CreateDateColumn,
+  Entity,
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -11,10 +13,11 @@ import {
 } from "../../enums";
 import { Issues } from "./Issue";
 
+@Entity()
 export class Projects {
   @PrimaryGeneratedColumn()
-  @OneToMany(() => Issues, (issues) => issues.issue_id)
-  id: string;
+  // @OneToMany(() => Issues, (issues) => issues.issue_id)
+  id: number;
 
   @Column()
   title: string;
@@ -22,10 +25,10 @@ export class Projects {
   @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @CreateDateColumn({ type: "timestamp" }) // Automatically captures exact date + time
   create_date: Date;
 
-  @Column()
+  @CreateDateColumn({ type: "timestamp" })
   taget_date: Date;
 
   @Column()
@@ -37,6 +40,9 @@ export class Projects {
   @Column()
   priority: project_priority_enum;
 
-  @OneToMany(() => Issues, (issue) => issue.issue_id, { nullable: true })
+  @OneToMany(() => Issues, (issue) => issue.project, {
+    nullable: true,
+    cascade: true,
+  })
   issues: Issues[];
 }

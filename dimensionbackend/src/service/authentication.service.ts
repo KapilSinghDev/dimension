@@ -26,7 +26,7 @@ class authenticationService {
     const existingUser = await this.userRepository.findOneBy({
       email: user_email,
     });
-    delete existingUser.password;
+
     return existingUser;
   }
 
@@ -43,6 +43,7 @@ class authenticationService {
       const hashpassword = await bcrypt.hash(member.password, this.salt_rounds);
       member.password = hashpassword;
       const newUser = await this.credentialsRepository.save(member);
+      const savedUser = await this.userRepository.save(newUser);
       const token = this.generateToken(newUser.email);
       return token;
     }
@@ -50,7 +51,9 @@ class authenticationService {
   }
 
   async verifyUser(login_member: user_login_dto_type) {
-    const existingUser = await this.searchUser(login_member.email);
+    const existingUser = await this.credentialsRepository.findOneBy({
+      email: login_member.email,
+    });
     if (existingUser) {
       const verified = await bcrypt.compare(
         login_member.password,

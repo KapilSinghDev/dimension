@@ -7,7 +7,6 @@ import { Projects } from "./Project";
 @Entity()
 export class Issues {
   @PrimaryGeneratedColumn()
-  @ManyToOne(() => Projects, (projects) => projects.id, { nullable: true })
   issue_id: number;
 
   @Column()
@@ -41,4 +40,10 @@ export class Issues {
     default: issue_status_enum.ACTIVE,
   })
   status: issue_status_enum;
+
+  @ManyToOne(() => Projects, (projects) => projects.issues, {
+    nullable: true,
+    // cascade: true,
+  })
+  project: Projects;
 }

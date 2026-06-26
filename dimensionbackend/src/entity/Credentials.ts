@@ -6,8 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity()
-export class Credentials {
+export class BaseCredentials {
   @PrimaryGeneratedColumn()
   user_id: number;
 
@@ -20,9 +19,11 @@ export class Credentials {
   @Column()
   email: string;
 
-  @Column()
-  password: string;
-
   @CreateDateColumn()
   created_at: Date;
+}
+@Entity()
+export class Credentials extends BaseCredentials {
+  @Column()
+  password: string;
 }

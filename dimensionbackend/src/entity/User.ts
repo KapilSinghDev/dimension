@@ -8,9 +8,9 @@ import {
 } from "typeorm";
 import { Teams } from "./Teams";
 import { Issues } from "./Issue";
-import { Credentials } from "./Credentials";
+import { BaseCredentials } from "./Credentials";
 @Entity()
-export class User extends Credentials {
+export class User extends BaseCredentials {
   @Column({ nullable: true })
   picture: string;
 
@@ -23,7 +23,7 @@ export class User extends Credentials {
   @ManyToOne(() => Teams, (team) => team.members)
   team: Teams;
 
-  @ManyToOne(() => Teams, (team) => team.admin)
+  @OneToMany(() => Teams, (team) => team.admin)
   team_administer: Teams[];
 
   @OneToMany(() => Issues, (issue) => issue.assignee)

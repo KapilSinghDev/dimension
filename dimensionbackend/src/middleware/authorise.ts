@@ -19,7 +19,7 @@ export async function authorise(
   const user = await auth.searchUser(email);
   if (req.body.taget === "teams") {
     const targetTeam = await teamServices.findTeam(req.body.team_id);
-    if (user === targetTeam.admin) {
+    if (user.user_id === targetTeam.admin.user_id) {
       next();
     }
     res.status(404).send({ message: "Un Authorised " });

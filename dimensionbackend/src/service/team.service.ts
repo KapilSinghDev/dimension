@@ -7,14 +7,16 @@ import authenticationService from "./authentication.service";
 import { issueService } from "./issues.service";
 export class teamService {
   teamRepostiory = AppDataSource.getRepository(Teams);
-  //userRepository = AppDataSource.getRepository(User)
+  userRepository = AppDataSource.getRepository(User);
   authService = new authenticationService();
   issueService = new issueService();
   createTeam = async (team: create_team_dto_type) => {
     const member =
       team.members.length != 0
         ? await Promise.all(
-            team.members.map((email) => this.authService.searchUser(email)),
+            team.members.map((email) =>
+              this.userRepository.findOneBy({ email: email }),
+            ),
           )
         : [];
     const issues =

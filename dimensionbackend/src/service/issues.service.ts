@@ -20,7 +20,7 @@ class issueService {
       ...issue,
       created_at: new Date(),
       assignee: user,
-      team: null,
+      team: team,
     };
     const createIssue = await this.issueRepository.save(issueInstance);
     return createIssue;
@@ -53,12 +53,19 @@ class issueService {
     return issueUpdated;
   }
 
-  async findIssue(issueId: number) {
+  async findIssue(issueId?: number | null, title?: string) {
     try {
-      const issue = await this.issueRepository.findOneBy({
-        issue_id: issueId,
-      });
-      return issue;
+      if (issueId && issueId != null) {
+        const issue = await this.issueRepository.findOneBy({
+          issue_id: issueId,
+        });
+        return issue;
+      } else {
+        const issue = await this.issueRepository.findOneBy({
+          title: title,
+        });
+        return issue;
+      }
     } catch (err) {
       console.log("Issue with id ", issueId, " not found ");
       throw err;

@@ -27,21 +27,21 @@ export class issueRouter {
   private getAllIssues = () => {
     this.router.get(
       "/issue/all",
-      authenticateUser,
+      // authenticateUser,
       this.issueController.getAllIssue,
     );
   };
   private createIssueRoute = () => {
     this.router.post(
       "/issue/create",
-      authenticateUser,
+      // authenticateUser,
       this.issueController.createNewIssue,
     );
   };
   private updateIssueRoute = () => {
     this.router.put(
       "/issue/update",
-      authorise,
+      // authorise,
       this.issueController.updateIssue,
     );
   };

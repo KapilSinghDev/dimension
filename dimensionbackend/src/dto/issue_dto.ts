@@ -37,5 +37,6 @@ export const create_issue_dto = z.object({
   status: z.nativeEnum(issue_status_enum),
   target: z.string(),
 });
+
 export type create_issue_dto_type = z.infer<typeof create_issue_dto>;
 export { issue_dto };

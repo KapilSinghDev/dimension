@@ -17,10 +17,12 @@ export class Teams {
   @Column()
   name: string;
 
-  @OneToMany(() => User, (user) => user.team_administer, { nullable: true })
+  @ManyToOne(() => User, (user: User) => user.team_administer, {
+    nullable: true,
+  })
   admin: User;
 
-  @OneToMany(() => User, (user) => user.team)
+  @OneToMany(() => User, (user: User) => user.team, { cascade: true })
   members: User[];
 
   @OneToMany(() => Issues, (issue) => issue.team)

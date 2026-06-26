@@ -24,6 +24,6 @@ export type create_team_dto_type = {
   name: string;
   members: string[];
   issues: number[];
-  target: string;
+  // target: string;
 };
 export { team_dto, team_dto_type };
