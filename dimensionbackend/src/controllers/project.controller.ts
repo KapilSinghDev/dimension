@@ -20,8 +20,12 @@ export class ProjectController {
 
   updateProject = async (req: Request, res: Response) => {
     const body = req.body;
+    console.log("Body => ", body);
     try {
-      const update = this.projectservices.updateProject(body.id, body.project);
+      const update = this.projectservices.updateProject(
+        body.project_id,
+        body.project,
+      );
       res.status(200).send({ message: update });
     } catch (err) {
       res.status(500).send({
@@ -33,9 +37,11 @@ export class ProjectController {
   };
 
   deleteProject = async (req: Request, res: Response) => {
-    const delete_id = req.body;
+    const delete_id = req.query.delete_id;
+    const id = Number(delete_id);
+    console.log("delete project ", delete_id);
     try {
-      const deleteProject = await this.projectservices.deleteProject(delete_id);
+      const deleteProject = await this.projectservices.deleteProject(id);
       res.status(200).send({ message: deleteProject });
     } catch (err) {
       res.status(500).send({

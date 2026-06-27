@@ -13,7 +13,10 @@ export class Projectroutes {
   private projectRoutesRegister() {
     this.project_router.post("/create", this.projectController.createProject);
 
-    this.project_router.put("/update", this.projectController.updateProject);
+    this.project_router.put(
+      "/project/update",
+      this.projectController.updateProject,
+    );
 
     this.project_router.delete("/delete", this.projectController.deleteProject);
 

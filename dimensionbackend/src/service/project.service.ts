@@ -65,12 +65,22 @@ export class ProjectService {
     project: z.infer<typeof project_dto>,
   ) => {
     const target_project = await this.searchProject(project_id);
-    const update = { ...target_project, ...project };
-    const update_project = await this.projectRepository.save(update);
+    target_project.priority = project.priority;
+    if (project.issue) {
+      target_project.issues = await Promise.all(
+        project.issue.map(async (item) => {
+          const issue = await this.issueService.createIssue(item);
+          return issue;
+        }),
+      );
+    }
+
+    const update_project = await this.projectRepository.save(target_project);
+    console.log("update project = >", update_project);
     return update_project.id;
   };
 
-  deleteProject = async (project_id: string) => {
+  deleteProject = async (project_id: number) => {
     const deleteProject = await this.projectRepository.delete(project_id);
     return deleteProject;
   };
