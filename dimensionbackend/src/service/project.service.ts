@@ -13,32 +13,6 @@ export class ProjectService {
     return target_project;
   };
 
-  //   const date = new Date();
-  //   let new_project = { ...project, create_date: date };
-  //   const projectIssues = new_project.issue;
-  //   const issues = [];
-  //   await Promise.all(
-  //     projectIssues.map(async (items, id) => {
-  //       const issue = await this.issueService.findIssue(null, items.title);
-  //       if (issue) {
-  //         console.log("issue found");
-  //         issues.push(issue);
-  //       }
-  //       if (!issue) {
-  //         console.log("issue not found");
-  //         const newIssue = await this.issueService.createIssue(items);
-  //         issues.push(newIssue);
-  //       }
-  //     }),
-  //   );
-  //   delete new_project.issue;
-  //   const finalProject = { ...new_project, issues: issues };
-  //   // new_project.issue = issues;
-  //   console.log("Project = ", new_project);
-  //   const save_project = await this.projectRepository.save(finalProject);
-  //   console.log("save_project = ", save_project);
-  //   return save_project.id;
-  // };
   createProject = async (project: z.infer<typeof project_dto>) => {
     const issues = await Promise.all(
       (project.issue ?? []).map(async (items) => {

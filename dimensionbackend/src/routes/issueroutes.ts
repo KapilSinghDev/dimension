@@ -34,25 +34,37 @@ export class issueRouter {
   private createIssueRoute = () => {
     this.router.post(
       "/issue/create",
-      // authenticateUser,
+      authenticateUser,
       this.issueController.createNewIssue,
     );
   };
   private updateIssueRoute = () => {
     this.router.put(
       "/issue/update",
-      // authorise,
+      authorise,
       this.issueController.updateIssue,
     );
   };
   private userIssueListRoute = () => {
-    this.router.get("/issue/user", this.issueController.getUserIssueList);
+    this.router.get(
+      "/issue/user",
+      authenticateUser,
+      this.issueController.getUserIssueList,
+    );
   };
   private teamIssueListRoute = () => {
-    this.router.get("/issue/team", this.issueController.getTeamIssueList);
+    this.router.get(
+      "/issue/team",
+      authenticateUser,
+      this.issueController.getTeamIssueList,
+    );
   };
   private deleteIssue = () => {
-    this.router.delete("/issue", this.issueController.deleteIssue);
+    this.router.delete(
+      "/issue",
+      authenticateUser,
+      this.issueController.deleteIssue,
+    );
   };
 
   public publishIssueRouter() {

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ProjectController } from "../controllers/project.controller";
+import { authenticateUser } from "../middleware/authenticate";
 
 export class Projectroutes {
   project_router: Router;
@@ -11,16 +12,29 @@ export class Projectroutes {
   }
 
   private projectRoutesRegister() {
-    this.project_router.post("/create", this.projectController.createProject);
+    this.project_router.post(
+      "/project/create",
+      authenticateUser,
+      this.projectController.createProject,
+    );
 
     this.project_router.put(
       "/project/update",
+      authenticateUser,
       this.projectController.updateProject,
     );
 
-    this.project_router.delete("/delete", this.projectController.deleteProject);
+    this.project_router.delete(
+      "/project/delete",
+      authenticateUser,
+      this.projectController.deleteProject,
+    );
 
-    this.project_router.get("/batch-get", this.projectController.getProject);
+    this.project_router.get(
+      "/project/batch-get",
+      authenticateUser,
+      this.projectController.getProject,
+    );
   }
 
   public publishProjectRoutes() {

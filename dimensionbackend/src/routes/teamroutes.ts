@@ -1,6 +1,7 @@
 import * as express from "express";
 import { Router } from "express";
 import { teamController } from "../controllers/team.controller";
+import { authenticateUser } from "../middleware/authenticate";
 export class teamRoute {
   private teamRouter: Router;
   private teamController = new teamController();
@@ -18,19 +19,39 @@ export class teamRoute {
   }
 
   private getTeams = () => {
-    this.teamRouter.get("/team/:id", this.teamController.getTeam);
+    this.teamRouter.get(
+      "/team/:id",
+      authenticateUser,
+      this.teamController.getTeam,
+    );
   };
   private getAllTeams = () => {
-    this.teamRouter.get("/team", this.teamController.getAllTeams);
+    this.teamRouter.get(
+      "/team",
+      authenticateUser,
+      this.teamController.getAllTeams,
+    );
   };
   private createNewTeamRoute = () => {
-    this.teamRouter.post("/team/create", this.teamController.createNewTeam);
+    this.teamRouter.post(
+      "/team/create",
+      authenticateUser,
+      this.teamController.createNewTeam,
+    );
   };
   private updateTeamRoute = () => {
-    this.teamRouter.put("/team/update", this.teamController.updateTeam);
+    this.teamRouter.put(
+      "/team/update",
+      authenticateUser,
+      this.teamController.updateTeam,
+    );
   };
   private deleteTeamRoute = () => {
-    this.teamRouter.delete("/team/:id", this.teamController.deleteTeam);
+    this.teamRouter.delete(
+      "/team/:id",
+      authenticateUser,
+      this.teamController.deleteTeam,
+    );
   };
 
   public publishTeamRoutes() {
