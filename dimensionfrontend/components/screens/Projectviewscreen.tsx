@@ -22,9 +22,12 @@ import Update from "@/components/Update";
 import Addtarget from "@/components/Addtarget";
 import Issuedisplay from "@/components/Issuedisplay";
 import { useQueryState } from "nuqs";
+import { useGetProjects } from "@/hooks/apihooks";
 const Projectviewscreen = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState("tab");
+  // fetech project id from query state in url
+  // const projectsdata = useGetProjects([""]);
   return (
     <>
       <div

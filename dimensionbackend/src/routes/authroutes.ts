@@ -18,7 +18,7 @@ export class authRoutes {
   }
 
   private loginRoute = () => {
-    this.authRouter.get("/login", this.authController.userLogin);
+    this.authRouter.post("/login", this.authController.userLogin);
   };
 
   private signupRoute = () => {

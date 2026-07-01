@@ -28,8 +28,6 @@ export type issue_dto_type = {
 export const create_issue_dto = z.object({
   title: z.string(),
   created_by: z.number(),
-  //  assignee: z.custom<user_profile_dto_type>().optional(),
-  //  team: z.custom<team_dto_type>().optional(),
   assignee: z.email().optional(),
   team: z.string().optional(),
   deadline: z.coerce.date(),
