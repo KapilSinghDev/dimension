@@ -32,7 +32,7 @@ export class Projectroutes {
 
     this.project_router.get(
       "/project/batch-get",
-      authenticateUser,
+      // authenticateUser,
       this.projectController.getProject,
     );
   }

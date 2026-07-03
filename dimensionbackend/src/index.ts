@@ -7,10 +7,17 @@ import { authRoutes } from "./routes/authroutes";
 import { issueRouter } from "./routes/issueroutes";
 import { teamRoute } from "./routes/teamroutes";
 import { Projectroutes } from "./routes/projectroutes";
-const PORT = 3000;
+import * as cors from "cors";
+const PORT = 8000;
 AppDataSource.initialize()
   .then(async () => {
     const app = express();
+    app.use(
+      cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+      }),
+    );
     app.use(json());
     const routes_user = new authRoutes();
     app.use(routes_user.publishAuthRoutes());

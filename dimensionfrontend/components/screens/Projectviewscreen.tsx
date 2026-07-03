@@ -26,8 +26,31 @@ import { useGetProjects } from "@/hooks/apihooks";
 const Projectviewscreen = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState("tab");
-  // fetech project id from query state in url
-  // const projectsdata = useGetProjects([""]);
+  const [project, setProject] = useQueryState("project");
+
+  const projectDetails = {
+    name: "Dimension web app",
+    issues: [
+      {
+        milestone: "Design Review",
+        desc: "Finalise all UI mockups",
+        date: "Jun 15",
+      },
+      {
+        milestone: "API Integration",
+        desc: "Connect backend endpoints",
+        date: "Jun 22",
+      },
+      {
+        milestone: "Beta Launch",
+        desc: "Ship to early access users",
+        date: "Jul 01",
+      },
+    ],
+    summary: "",
+  };
+  const result = useGetProjects(project as string);
+  //
   return (
     <>
       <div
@@ -37,7 +60,7 @@ const Projectviewscreen = () => {
           <Boxes size={40} />
         </div>
         <h1 className="text-xl font-semibold text-gray-800">
-          Dimension web app
+          {projectDetails.name}
           <Separator className="mt-2 bg-border/80" />
         </h1>
         <Textarea
@@ -87,6 +110,9 @@ const Projectviewscreen = () => {
             placeholder="Add description"
             className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
             maxLength={200}
+            defaultValue={
+              projectDetails.summary.length !== 0 ? projectDetails.summary : ""
+            }
           />
         </Field>
         <div className="w-full h-fit  min-w-0 overflow-x-auto px-1">
@@ -103,23 +129,7 @@ const Projectviewscreen = () => {
             </Button>
           </div>
           <div className="flex  items-start gap-1.5 w-full overflow-x-auto py-1 ">
-            {[
-              {
-                milestone: "Design Review",
-                desc: "Finalise all UI mockups",
-                date: "Jun 15",
-              },
-              {
-                milestone: "API Integration",
-                desc: "Connect backend endpoints",
-                date: "Jun 22",
-              },
-              {
-                milestone: "Beta Launch",
-                desc: "Ship to early access users",
-                date: "Jul 01",
-              },
-            ].map((t, i) => (
+            {projectDetails.issues.map((t, i) => (
               <Issuedisplay
                 key={i}
                 date={t.date}

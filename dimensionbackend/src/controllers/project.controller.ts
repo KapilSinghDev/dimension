@@ -53,14 +53,13 @@ export class ProjectController {
   };
 
   getProject = async (req: Request, res: Response) => {
-    const project_ids = req.body;
+    const project_ids = req.query.project_ids;
     const projects = [];
     try {
-      project_ids.forEach((id) => {
-        const curr_project = this.projectservices.searchProject(id);
-        projects.push(curr_project);
-        res.status(200).send({ message: projects });
-      });
+      const curr_project = await this.projectservices.searchProject(
+        project_ids as string,
+      );
+      res.status(200).send({ message: curr_project });
     } catch (err) {
       res.status(500).send({
         message: "An unknown error occured",

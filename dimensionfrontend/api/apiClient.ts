@@ -1,5 +1,5 @@
 import * as axios from "axios";
-const base_url = "http://localhost:3000/dimension/api";
+const base_url = "http://localhost:8000/dimension/api";
 export const apiclient: axios.AxiosInstance = axios.create({
   baseURL: base_url,
   timeout: 5000,

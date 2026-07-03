@@ -18,7 +18,7 @@ export class projectApi {
     });
   }
 
-  getProjects(project_ids: string[]) {
+  getProjects(project_ids: string) {
     return apiclient.get("/project/batch-get", {
       params: {
         project_ids,

@@ -1,10 +1,10 @@
+"use client";
 import { projectApi } from "@/api/projectsApi";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const projectApiClient = new projectApi();
 
-// READ — fetch all projects
-export const useGetProjects = (projectId: string[]) => {
+export const useGetProjects = (projectId: string) => {
   const {
     data: projects,
     isLoading,
@@ -13,6 +13,7 @@ export const useGetProjects = (projectId: string[]) => {
     queryKey: ["projects", projectId],
     queryFn: () =>
       projectApiClient.getProjects(projectId).then((res) => res.data),
+    retry: 1,
   });
   return { projects, isLoading, error };
 };
