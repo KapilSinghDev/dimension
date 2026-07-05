@@ -3,6 +3,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -32,15 +33,25 @@ import {
   ContextMenuShortcut,
   ContextMenuTrigger,
 } from "../ui/context-menu";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { issue_route, project_route } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useGetProjectsbyBatch } from "@/hooks/apihooks";
 
 // Defining types for project rows
 interface ProjectItem {
-  srNo: number;
-  name: string;
-  targetDate: string;
+  id: number;
+  title: string;
+  taget_date: string;
   createdBy: {
     name: string;
     avatarUrl?: string;
@@ -58,31 +69,29 @@ interface ProjectItem {
 // Mock structural data mirroring the setup
 const mockProjects: ProjectItem[] = [
   {
-    srNo: 1,
-    name: "Complete Issue Page Layout",
-    targetDate: "Jun 30, 2026",
+    id: 1,
+    title: "Complete Issue Page Layout",
+    taget_date: "Jun 30, 2026",
     createdBy: { name: "Kaps Singh" },
     health: "on-track",
     lead: { name: "Amrit Pal", initials: "AP" },
     issuesCount: 4,
     status: "in-progress",
   },
-  {
-    srNo: 2,
-    name: "Database Migration v2",
-    targetDate: "Jul 15, 2026",
-    createdBy: { name: "Amrit Pal" },
-    health: "at-risk",
-    lead: { name: "Kaps Singh", initials: "KS" },
-    issuesCount: 12,
-    status: "backlog",
-  },
 ];
-
 export default function ProjectTable() {
   const router = useRouter();
   const [projectId, setProjectId] = useQueryState("project");
+  const [page, setPage] = useQueryState("page");
 
+  useEffect(() => {
+    if (!page) {
+      setPage("1");
+    }
+  }, [page, setPage]);
+
+  const { projects, isLoading, error } = useGetProjectsbyBatch(page as string);
+  console.log(projects);
   // Helper for tracking project health rings
   const getHealthStyles = (health: ProjectItem["health"]) => {
     switch (health) {
@@ -96,12 +105,12 @@ export default function ProjectTable() {
   };
 
   return (
-    <div className="w-full h-full px-16 py-5 overflow-y-auto">
+    <div className="w-full h-full px-14 py-5 overflow-y-auto flex flex-col">
       <Table>
         <TableHeader className="px-10">
           <TableRow>
             <TableHead className="w-[60px] font-medium text-slate-500 text-xs">
-              Sr No
+              Id
             </TableHead>
 
             <TableHead className="font-medium text-slate-500 text-xs min-w-[200px]">
@@ -146,35 +155,34 @@ export default function ProjectTable() {
               </div>
             </TableHead>
 
-            <TableHead className="font-medium text-slate-500 text-xs">
+            <TableHead className="font-medium text-slate-500 text-xs ">
               {/* Kept right alignment clean by using justify-end */}
-              <div className="flex items-center justify-end gap-1.5">
+              <div className="flex items-center justify-center gap-1">
                 <UserCheck size={14} className="shrink-0" />
                 <span>Created By</span>
               </div>
             </TableHead>
           </TableRow>
         </TableHeader>
-
         <TableBody>
-          {mockProjects.map((project, key) => {
+          {projects?.map((project, key) => {
             const healthMeta = getHealthStyles(project.health);
 
             return (
               <ContextMenu key={key}>
                 <ContextMenuTrigger asChild>
                   <TableRow
-                    className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 cursor-pointer transition-colors group"
-                    onClick={() => setProjectId(project.srNo.toString())}
+                    className="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 cursor-pointer transition-colors group h-12"
+                    onClick={() => setProjectId(project.id.toString())}
                   >
                     {/* 1. Sr No */}
                     <TableCell className="font-mono text-xs text-slate-400 select-none w-[60px]">
-                      {project.srNo}
+                      {project.id}
                     </TableCell>
 
                     {/* 2. Project Name */}
                     <TableCell className="font-medium text-slate-900 dark:text-slate-100 text-sm tracking-tight max-w-[300px] truncate">
-                      {project.name}
+                      {project.title}
                     </TableCell>
 
                     {/* 3. Status */}
@@ -206,7 +214,7 @@ export default function ProjectTable() {
                     </TableCell>
 
                     {/* 5. Team Lead */}
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-5 w-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                           <AvatarImage src={project.lead.avatarUrl} />
@@ -218,24 +226,24 @@ export default function ProjectTable() {
                           {project.lead.name}
                         </span>
                       </div>
-                    </TableCell>
+                    </TableCell> */}
 
                     {/* 6. Issues Counter */}
-                    <TableCell className="text-center">
+                    {/* <TableCell className="text-center">
                       <span className="inline-flex items-center justify-center font-mono text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded-md min-w-[22px] border border-slate-200/30 dark:border-slate-700/30">
                         {project.issuesCount}
                       </span>
-                    </TableCell>
+                    </TableCell> */}
 
                     {/* 7. Target Date */}
                     <TableCell className="text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
-                      {project.targetDate}
+                      {project.taget_date}
                     </TableCell>
 
                     {/* 8. Created By */}
-                    <TableCell className="text-right text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {/* <TableCell className="text-center text-xs text-slate-500 dark:text-slate-400 font-medium ">
                       {project.createdBy.name}
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </ContextMenuTrigger>
 
@@ -244,7 +252,7 @@ export default function ProjectTable() {
                   <ContextMenuItem
                     className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium cursor-pointer rounded-md"
                     onClick={() => {
-                      setProjectId(project.srNo.toString());
+                      setProjectId(project.id.toString());
                       router.push(project_route);
                     }}
                   >
@@ -258,7 +266,7 @@ export default function ProjectTable() {
                   <ContextMenuItem
                     className="flex items-center gap-2 px-2.5 py-2 text-xs font-medium cursor-pointer rounded-md"
                     onClick={() => {
-                      const targetRoute = `${issue_route}?project=${project.srNo}`;
+                      const targetRoute = `${issue_route}?project=${project.id}`;
                       router.push(targetRoute);
                     }}
                   >
@@ -300,6 +308,34 @@ export default function ProjectTable() {
             );
           })}
         </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={8} className="text-center py-3">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious href="#" />
+                  </PaginationItem>
+                  <PaginationItem onClick={() => setPage("1")}>
+                    <PaginationLink>1</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem onClick={() => setPage("2")}>
+                    <PaginationLink isActive>2</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink href="#">3</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext href="#" />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
       </Table>
     </div>
   );

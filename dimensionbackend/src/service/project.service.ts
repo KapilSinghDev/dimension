@@ -58,4 +58,14 @@ export class ProjectService {
     const deleteProject = await this.projectRepository.delete(project_id);
     return deleteProject;
   };
+
+  fetchProjectByBatch = async (page: number) => {
+    const batch_size = 13;
+    const skip = (page - 1) * batch_size;
+    const projects = await this.projectRepository.findAndCount({
+      take: batch_size,
+      skip: skip,
+    });
+    return projects;
+  };
 }

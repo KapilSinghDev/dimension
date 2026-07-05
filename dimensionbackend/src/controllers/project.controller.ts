@@ -67,4 +67,19 @@ export class ProjectController {
       throw err;
     }
   };
+
+  getProjectbyBatch = async (req: Request, res: Response) => {
+    const page = req.query.page;
+    try {
+      const projectlist = await this.projectservices.fetchProjectByBatch(
+        Number(page),
+      );
+      res.status(200).send({ projects: projectlist[0] });
+    } catch (err) {
+      res.status(500).send({
+        message: "An unknown error occured",
+      });
+      throw err;
+    }
+  };
 }

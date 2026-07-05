@@ -17,3 +17,31 @@ export const useGetProjects = (projectId: string) => {
   });
   return { projects, isLoading, error };
 };
+interface ProjectApiItem {
+  id: number;
+  title: string;
+  description: string;
+  taget_date: string;
+  create_date: string;
+  health: "on-track" | "at-risk" | "off-track";
+  status: "backlog" | "in-progress" | "completed";
+  priority: string;
+}
+
+interface ProjectBatchResponse {
+  projects: ProjectApiItem[];
+}
+
+export const useGetProjectsbyBatch = (page: string) => {
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery<ProjectBatchResponse>({
+    queryKey: ["projects-batch", page],
+    queryFn: () =>
+      projectApiClient.getProjectsbyBatch(page).then((res) => res.data),
+    retry: false,
+  });
+  return { projects: response?.projects, isLoading, error };
+};

@@ -31,9 +31,15 @@ export class Projectroutes {
     );
 
     this.project_router.get(
-      "/project/batch-get",
+      "/project/get",
       // authenticateUser,
       this.projectController.getProject,
+    );
+
+    this.project_router.get(
+      "/project-batch/get",
+      // authenticateUser,
+      this.projectController.getProjectbyBatch,
     );
   }
 
