@@ -7,16 +7,23 @@ import { ArrowLeft, Atom, Paperclip, Smile } from "lucide-react";
 import FastCreateIssue from "../Fastcreateissue";
 import { Separator } from "@/components/ui/separator";
 import IssueActivity from "../Issueactivity";
+import { useGetSingleIssue } from "@/hooks/apihooks";
+import { useQueryState } from "nuqs";
+import { IssueItems } from "@/lib/response.types";
 const Issuescreen = () => {
+  const [issueId] = useQueryState("id");
+  const { data, isLoading, error } = useGetSingleIssue(issueId as string);
+  // const issueDetails: IssueItems = data.message;
   return (
     <div className="w-full h-full px-10 overflow-y-auto py-10">
       <Textarea
         placeholder="Add an issue title..."
-        // value={""}
+        // defaultValue={issueDetails.title}
         className="resize-none pt-4 min-h-16 font-semibold text-2xl! tracking-tight border-none focus-visible:ring-0 placeholder:text-muted-foreground/60"
       />
       <Textarea
         placeholder="Add an issue description..."
+        // defaultValue={issueDetails.}
         className="resize-none pt-2 min-h-10 text-xl font-semibold focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
       />
       <div className="w-full h-fit flex-row gap-2">

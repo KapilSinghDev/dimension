@@ -40,11 +40,15 @@ export class issueController {
 
   getIssue = async (req: Request, res: Response) => {
     try {
-      const targetIssue = await this.issueService.findIssue(req.body.issueId);
-      res.send({ message: targetIssue }).status(201);
+      const targetIssue = await this.issueService.findIssue(
+        Number(req.query.issueId),
+      );
+      res.status(201).json({ message: targetIssue });
+      return;
     } catch (err) {
       console.error(err);
-      res.send({ message: "An error occured" }).status(500);
+      res.status(500).json({ message: "An error occured" });
+      return;
     }
   };
 

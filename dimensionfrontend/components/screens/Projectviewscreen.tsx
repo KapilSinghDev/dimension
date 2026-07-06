@@ -49,8 +49,9 @@ const Projectviewscreen = () => {
     ],
     summary: "",
   };
-  const result = useGetProjects(project as string);
-  //
+  const { projects, isLoading, error } = useGetProjects(project as string);
+  const projectDetail = projects;
+
   return (
     <>
       <div
@@ -60,7 +61,7 @@ const Projectviewscreen = () => {
           <Boxes size={40} />
         </div>
         <h1 className="text-xl font-semibold text-gray-800">
-          {projectDetails.name}
+          {projectDetail?.title}
           <Separator className="mt-2 bg-border/80" />
         </h1>
         <Textarea
@@ -111,7 +112,9 @@ const Projectviewscreen = () => {
             className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
             maxLength={200}
             defaultValue={
-              projectDetails.summary.length !== 0 ? projectDetails.summary : ""
+              projectDetail?.description.length !== 0
+                ? projectDetail?.description
+                : ""
             }
           />
         </Field>
@@ -129,12 +132,12 @@ const Projectviewscreen = () => {
             </Button>
           </div>
           <div className="flex  items-start gap-1.5 w-full overflow-x-auto py-1 ">
-            {projectDetails.issues.map((t, i) => (
+            {projectDetail?.issues.map((t, i) => (
               <Issuedisplay
                 key={i}
-                date={t.date}
-                milestone={t.milestone}
-                desc={t.desc}
+                date={t.created_at}
+                milestone={t.title}
+                // desc={t.desc}
               />
             ))}
           </div>

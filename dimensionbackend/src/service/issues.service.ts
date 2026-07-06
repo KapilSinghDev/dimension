@@ -89,5 +89,14 @@ class issueService {
       .getMany();
     return userIssueList;
   }
+
+  async findIssuePerProject(projectId: number) {
+    const projectIssueList = await this.issueRepository
+      .createQueryBuilder("issues")
+      .leftJoin("issues.project", "project")
+      .where("project.id = :projectId", { projectId })
+      .getMany();
+    return projectIssueList;
+  }
 }
 export { issueService };

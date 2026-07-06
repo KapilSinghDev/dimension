@@ -3,11 +3,8 @@ import { apiclient } from "./apiClient";
 
 export class issueApi {
   getIssue(payload: { issueId: string }) {
-    // TODO: payload shape — likely issue id or title, sent as query param
     return apiclient.get("/issue", {
-      params: {
-        payload,
-      },
+      params: payload,
     });
   }
 

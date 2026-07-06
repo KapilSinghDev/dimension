@@ -40,6 +40,8 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useGetIssues } from "@/hooks/apihooks";
+import { IssueItems } from "@/lib/response.types";
 type Priority = "high" | "medium" | "low";
 type Status = "active" | "backlog";
 
@@ -133,18 +135,14 @@ export default function TeamIssues() {
     "id",
     parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
   );
+  const { data, isLoading, error } = useGetIssues("1");
 
-  // useEffect(() => {
-  //   if (id !== "") {
-  //     setTabid("432345");
-  //   }
-  // }, [id, setTabid]);
-
-  const filtered =
-    filter === "all" ? issues : issues.filter((i) => i.status === filter);
+  const issues: IssueItems[] = data || [];
+  const issueList: IssueItems[] =
+    filter === "all" ? issues : issues.filter((item) => item.status === filter);
 
   return (
-    <div className="h-screen w-full  flex flex-row items-start justify-start p-4">
+    <div className="h-screen w-full overflow-hidden  flex flex-row items-start justify-start p-4">
       {!id && (
         <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
           <div className="flex items-center gap-3">
@@ -217,16 +215,16 @@ export default function TeamIssues() {
           </div>
 
           <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
-            {filtered.length === 0 ? (
+            {issueList?.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-8">
                 No issues found
               </p>
             ) : (
-              filtered.map((issue) => (
+              issueList?.map((issue: IssueItems, key) => (
                 <Issuebox
-                  key={issue.id}
-                  id={issue.id}
-                  assignee={issue.assignee}
+                  key={key}
+                  id={issue.issue_id.toString()}
+                  assignee={issue.created_by.toString()}
                   title={issue.title}
                   priority={issue.priority}
                   status={issue.status}

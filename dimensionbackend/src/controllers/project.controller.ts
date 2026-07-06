@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { ProjectService } from "../service/project.service";
+import { issueService } from "../service/issues.service";
 
 export class ProjectController {
   projectservices = new ProjectService();
-
+  issueServices = new issueService();
   createProject = async (req: Request, res: Response) => {
     const body = req.body;
     try {
@@ -59,7 +60,11 @@ export class ProjectController {
       const curr_project = await this.projectservices.searchProject(
         project_ids as string,
       );
-      res.status(200).send({ message: curr_project });
+      const project_issues = await this.issueServices.findIssuePerProject(
+        Number(project_ids),
+      );
+      const projectResponse = { ...curr_project, issues: project_issues };
+      res.status(200).send({ message: projectResponse });
     } catch (err) {
       res.status(500).send({
         message: "An unknown error occured",

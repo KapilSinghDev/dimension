@@ -21,14 +21,18 @@ export class issueRouter {
     this.getAllIssues();
   }
 
-  private getIssue = () => {
-    this.router.get("/issue", authenticateUser, this.issueController.getIssue);
-  };
   private getAllIssues = () => {
     this.router.get(
       "/issue/all",
       // authenticateUser,
       this.issueController.getAllIssue,
+    );
+  };
+  private getIssue = () => {
+    this.router.get(
+      "/issue",
+      // authenticateUser,
+      this.issueController.getIssue,
     );
   };
   private createIssueRoute = () => {
