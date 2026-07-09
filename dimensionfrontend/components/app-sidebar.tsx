@@ -17,6 +17,7 @@ import {
   Eye,
   MoreHorizontal,
   MonitorCloud,
+  UserRound,
 } from "lucide-react";
 
 import {
@@ -49,7 +50,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { issue_route, project_route } from "@/lib/routes";
+import { issue_route, project_route, user_profile_route } from "@/lib/routes";
 const name = "Acme Corp";
 
 export function AppSidebar() {
@@ -149,6 +150,12 @@ export function AppSidebar() {
                 <SidebarMenuButton>
                   <CircleUser size={15} />
                   My Issues
+                </SidebarMenuButton>
+                <SidebarMenuButton
+                  onClick={() => router.push(user_profile_route)}
+                >
+                  <UserRound size={15} />
+                  <span>My Profile</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
