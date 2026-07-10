@@ -6,7 +6,10 @@ function validate(schema: z.ZodObject<any>) {
     descriptor.value = async function (req: Request, res: Response) {
       const result = schema.safeParse(req.body);
       if (!result.success) {
-        res.send("Bad request").status(400);
+        return res.status(400).send({
+          message: "Bad request",
+          errors: result.error,
+        });
       }
       req.body = result.data;
       return originalMethod.apply(this, [req, res]);

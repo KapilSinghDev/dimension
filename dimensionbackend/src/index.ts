@@ -8,6 +8,7 @@ import { issueRouter } from "./routes/issueroutes";
 import { teamRoute } from "./routes/teamroutes";
 import { Projectroutes } from "./routes/projectroutes";
 import * as cors from "cors";
+// import "multer";
 const PORT = 8000;
 AppDataSource.initialize()
   .then(async () => {
@@ -18,6 +19,7 @@ AppDataSource.initialize()
         credentials: true,
       }),
     );
+    // app.use(express.urlencoded({ extended: true }));
     app.use(json());
     const routes_user = new authRoutes();
     app.use(routes_user.publishAuthRoutes());

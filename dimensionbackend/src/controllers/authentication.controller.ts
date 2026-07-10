@@ -9,17 +9,21 @@ import {
 export class authenticationController {
   @validate(user_credentials_dto)
   async userSignUp(req: Request, res: Response) {
+    console.log("INSIDE userSignUp, req.body:", req.body);
     try {
       const authService = new authenticationService();
-      const signupResposne = await authService.createAndSaveUser(req.body);
-      res.send(signupResposne).status(201);
+      console.log("request body => ", req.body);
+      const signupResponse = await authService.createAndSaveUser(
+        req.body,
+        req.file,
+      );
+      res.status(201).send(signupResponse);
       return;
     } catch (err) {
-      console.error(err);
-      res.send({
-        message: "An error occured",
+      console.error("caught an error", err);
+      res.status(500).send({
+        message: "An error occurred",
       });
-      throw err;
     }
   }
   @validate(user_login_dto)

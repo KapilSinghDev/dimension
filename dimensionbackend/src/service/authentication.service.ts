@@ -15,13 +15,16 @@ import { issue_dto_type } from "../dto/issue_dto";
 import { Issues } from "../entity/Issue";
 import { validate } from "../decorators/validator.decorator";
 import { Credentials } from "../entity/Credentials";
+import { s3ServiceClient } from "./s3.service";
+// import Multer from "multer";
+import * as multer from "multer";
 class authenticationService {
   private userRepository = AppDataSource.getRepository(User);
   private issueRepository = AppDataSource.getRepository(Issues);
   private credentialsRepository = AppDataSource.getRepository(Credentials);
   salt_rounds = 10;
   SECRET_KEY = process.env.SECRET_KEY;
-
+  s3Service = new s3ServiceClient();
   async searchUser(user_email: string) {
     const existingUser = await this.userRepository.findOneBy({
       email: user_email,
@@ -37,13 +40,31 @@ class authenticationService {
     return token;
   }
 
-  async createAndSaveUser(member: user_credentials_dto_type) {
+  async createAndSaveUser(
+    member: user_credentials_dto_type,
+    file?: Express.Multer.File,
+  ) {
     const existingUser = await this.searchUser(member.email);
     if (!existingUser) {
+      const blob = file;
+      let image_url;
+
+      if (blob) {
+        const image_response = await this.s3Service.uploadObject(
+          blob.buffer,
+          `${member.firstname}.jpg`,
+          blob.mimetype,
+        );
+        image_url = image_response.fileKey;
+      }
+
       const hashpassword = await bcrypt.hash(member.password, this.salt_rounds);
       member.password = hashpassword;
       const newUser = await this.credentialsRepository.save(member);
-      const savedUser = await this.userRepository.save(newUser);
+      const savedUser = await this.userRepository.save({
+        ...newUser,
+        picture: image_url,
+      });
       const token = this.generateToken(newUser.email);
       return token;
     }

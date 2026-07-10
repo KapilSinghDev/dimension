@@ -7,6 +7,11 @@ const user_credentials_dto = z.object({
   lastname: z.string(),
   email: z.string(),
   password: z.string(),
+  image: z
+    .file()
+    .mime(["image/jpeg", "image/png"])
+    .max(5 * 1024 * 1024)
+    .optional(),
 });
 type user_credentials_dto_type = z.infer<typeof user_credentials_dto>;
 
