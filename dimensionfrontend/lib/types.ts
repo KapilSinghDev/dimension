@@ -40,6 +40,7 @@ export type userUpdateProfile_type = {
   user_email: string;
   role?: string;
   organisation?: string;
+  url?: string;
 };
 
 export type issue_type = {

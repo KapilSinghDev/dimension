@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -33,38 +33,61 @@ import {
   Pencil,
   LogOut,
   Trash2,
+  Camera,
 } from "lucide-react";
+import {
+  useGetTeamPerUser,
+  useGetUser,
+  useUpdateUser,
+  useUploadImage,
+} from "@/hooks/apihooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Initial Mock State
 const initialUserData = {
-  username: "Kapil Singh",
+  firstname: "Kapil Singh",
   email: "kapil@dimension.io",
-  profilePicture:
+  picture:
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
   role: "Lead Software Engineer",
   organisation: "Dimension HQ",
-  teams: ["Backend Engine", "Core DevOps", "UI Platform"],
-  joinedDate: "Joined July 2025",
+  teams: {
+    team_id: 2,
+    name: "Frontend Engineering",
+  },
+  created_at: "Joined July 2025",
 };
+interface Team {
+  team_id: number;
+  name: string;
+}
 
+interface UserProfile {
+  firstname: string;
+  lastname: string;
+  email: string;
+  picture: string;
+  role: string;
+  organisation: string;
+  teams: Team;
+  created_at: string;
+}
 export default function EnhancedVerticalProfilePage() {
-  const [user, setUser] = useState(initialUserData);
-
+  const { data, isLoading, error } = useGetUser("aanya.mehta@example.com");
+  const [user, setUser] = useState<UserProfile>(data?.data);
+  console.log(user.role);
   // Temporary Form States for Modals
-  const [newRole, setNewRole] = useState(user.role);
+  const [newRole, setNewRole] = useState<string>(user.role);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [orgLeaveOpen, setOrgLeaveOpen] = useState(false);
   const [teamLeaveOpen, setTeamLeaveOpen] = useState(false);
   const [selectedTeamToLeave, setSelectedTeamToLeave] = useState("");
 
-  const initials = user.username
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  const initials =
+    user.firstname + user.lastname.split(" ").join("").toUpperCase();
 
   // Handlers
-  const handleUpdateRole = (e: React.FormEvent) => {
+  const handleUpdateRole = (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUser((prev) => ({ ...prev, role: newRole }));
     setRoleModalOpen(false);
@@ -76,32 +99,75 @@ export default function EnhancedVerticalProfilePage() {
   };
 
   const handleLeaveTeam = () => {
-    setUser((prev) => ({
-      ...prev,
-      teams: prev.teams.filter((t) => t !== selectedTeamToLeave),
-    }));
+    // setUser((prev) => ({
+    //   ...prev,
+    //   teams: prev.teams.filter((t) => t !== selectedTeamToLeave),
+    // }));
     setTeamLeaveOpen(false);
   };
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const uploadImage = useUploadImage();
+  const updateUser = useUpdateUser();
+  const queryClient = useQueryClient();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadImage.mutate(file, {
+      onSuccess: (fileKey: string) => {
+        updateUser.mutate(
+          {
+            user_email: user.email,
+            url: fileKey,
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ["user"] });
+            },
+          },
+        );
+      },
+    });
+  };
   return (
     <div className="max-w-xl mx-auto p-4 md:p-6 space-y-4">
-      {/* 1. HERO IDENTITY MODULE */}
       <div className="flex flex-col items-center text-center pt-4 pb-2 space-y-4">
-        <div className="relative group">
+        <div className="relative group w-28 h-28">
           <Avatar className="w-28 h-28 border-4 border-background shadow-md">
             <AvatarImage
-              src={user.profilePicture}
-              alt={user.username}
+              src={user.picture}
+              alt={user.firstname}
               className="object-cover"
             />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
+
+          {/* Hover overlay */}
+          <label
+            htmlFor="avatar-upload"
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center gap-1 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+          >
+            <Camera size={20} className="text-white" />
+            <span className="text-[10px] font-medium text-white leading-none">
+              Change photo
+            </span>
+          </label>
+          <input
+            id="avatar-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            ref={imageInputRef}
+            onChange={handleImageUpload}
+          />
+
           <span className="absolute bottom-1 right-2 w-4 h-4 bg-emerald-500 border-2 border-background rounded-full" />
         </div>
 
         <div className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight">
-            {user.username}
+            {user.firstname}
           </h1>
           <p className="text-sm text-muted-foreground">{user.role}</p>
         </div>
@@ -114,7 +180,7 @@ export default function EnhancedVerticalProfilePage() {
           <span className="text-muted-foreground/40">•</span>
           <div className="flex items-center gap-1">
             <Calendar size={13} />
-            <span>{user.joinedDate}</span>
+            <span>{user.created_at}</span>
           </div>
         </div>
       </div>
@@ -190,7 +256,7 @@ export default function EnhancedVerticalProfilePage() {
                 className="gap-1 font-medium text-xs py-0.5"
               >
                 <ShieldCheck size={12} className="text-primary" />
-                {user.role}
+                {user?.role}
               </Badge>
             </div>
 
@@ -261,35 +327,36 @@ export default function EnhancedVerticalProfilePage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-2">
-            {user.teams.length === 0 ? (
+            {user.teams?.name.length === 0 ? (
               <p className="text-xs text-muted-foreground italic py-2">
                 No active assigned teams.
               </p>
             ) : (
               <div className="flex flex-col gap-2 mt-1">
-                {user.teams.map((team, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-2 border border-border/50 bg-muted/20 hover:bg-muted/40 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Users2 size={14} className="text-muted-foreground" />
-                      <span>{team}</span>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={() => {
-                        setSelectedTeamToLeave(team);
-                        setTeamLeaveOpen(true);
-                      }}
-                    >
-                      <Trash2 size={13} />
-                    </Button>
+                {/* {user.teams.map((team, idx) => (
+                  
+                ))} */}
+                <div
+                  // key={idx}
+                  className="flex items-center justify-between p-2 border border-border/50 bg-muted/20 hover:bg-muted/40 rounded-lg transition-colors text-sm font-medium"
+                >
+                  <div className="flex items-center gap-2">
+                    <Users2 size={14} className="text-muted-foreground" />
+                    <span>{user.teams.name}</span>
                   </div>
-                ))}
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    onClick={() => {
+                      // setSelectedTeamToLeave(team);
+                      setTeamLeaveOpen(true);
+                    }}
+                  >
+                    <Trash2 size={13} />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>

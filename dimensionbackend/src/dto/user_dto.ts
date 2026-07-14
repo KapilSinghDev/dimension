@@ -50,6 +50,7 @@ export const update_profile_dto = z.object({
   user_email: z.email(),
   role: z.string().optional(),
   organisation: z.string().optional(),
+  url: z.string().optional(),
 });
 export {
   user_credentials_dto,

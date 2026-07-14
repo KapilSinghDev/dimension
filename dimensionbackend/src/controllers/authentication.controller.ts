@@ -9,7 +9,6 @@ import {
 export class authenticationController {
   @validate(user_credentials_dto)
   async userSignUp(req: Request, res: Response) {
-    console.log("INSIDE userSignUp, req.body:", req.body);
     try {
       const authService = new authenticationService();
       console.log("request body => ", req.body);
@@ -49,11 +48,11 @@ export class authenticationController {
       throw err;
     }
   }
-  @validate(search_user_dto)
+  // @validate(search_user_dto)
   async getUserDetails(req: Request, res: Response) {
     try {
       const authService = new authenticationService();
-      const user = await authService.searchUser(req.body.email);
+      const user = await authService.searchUser(req.query.email as string);
       res.send(user).status(201);
       return;
     } catch (err) {
@@ -70,6 +69,7 @@ export class authenticationController {
         req.body.email,
         req.body.role,
         req.body.organisation,
+        req.body.url,
       );
       res
         .send({ message: "User updated successfully", user: user })

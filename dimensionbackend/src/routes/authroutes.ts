@@ -26,16 +26,7 @@ export class authRoutes {
     const upload = multer({ storage: multer.memoryStorage() });
     this.authRouter.post(
       "/signup",
-      (req, res, next) => {
-        console.log("Content-Type:", req.headers["content-type"]);
-        next();
-      },
       upload.single("image"),
-      (req, res, next) => {
-        console.log("req.body after multer:", req.body);
-        console.log("req.file after multer:", req.file);
-        next();
-      },
       this.authController.userSignUp,
     );
   };
@@ -43,7 +34,7 @@ export class authRoutes {
   private userDetailRoute = () => {
     this.authRouter.get(
       "/user",
-      authenticateUser,
+      // authenticateUser,
       this.authController.getUserDetails,
     );
   };

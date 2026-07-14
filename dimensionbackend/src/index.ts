@@ -8,6 +8,7 @@ import { issueRouter } from "./routes/issueroutes";
 import { teamRoute } from "./routes/teamroutes";
 import { Projectroutes } from "./routes/projectroutes";
 import * as cors from "cors";
+import { s3MediaRoutes } from "./routes/s3.routes";
 // import "multer";
 const PORT = 8000;
 AppDataSource.initialize()
@@ -29,17 +30,20 @@ AppDataSource.initialize()
     app.use(routes_team.publishTeamRoutes());
     const routes_projects = new Projectroutes();
     app.use(routes_projects.publishProjectRoutes());
-
+    const media_routes = new s3MediaRoutes();
+    app.use(media_routes.publishMediaRoutes());
     const dimension_app_router = express.Router();
     dimension_app_router.use(routes_user.publishAuthRoutes());
     dimension_app_router.use(routes_issue.publishIssueRouter());
     dimension_app_router.use(routes_team.publishTeamRoutes());
     dimension_app_router.use(routes_projects.publishProjectRoutes());
+    dimension_app_router.use(media_routes.publishMediaRoutes());
 
     dimension_app_router.get("/", (req, res) => {
       res.send("Dimension backend running");
     });
     app.use("/dimension/api", dimension_app_router);
+
     app.listen(PORT, () => {
       console.log("Dimension app running on port ", PORT);
     });

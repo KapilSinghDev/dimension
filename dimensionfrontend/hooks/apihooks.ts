@@ -1,11 +1,33 @@
 "use client";
+import { authApi } from "@/api/authApi";
 import { issueApi } from "@/api/issueApi";
 import { projectApi } from "@/api/projectsApi";
+import { s3Api } from "@/api/s3Api";
+import { teamApi } from "@/api/teamApi";
 import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
-import { useQuery } from "@tanstack/react-query";
+import { userUpdateProfile_type } from "@/lib/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const projectApiClient = new projectApi();
 const issueApiClient = new issueApi();
+const s3ApiClient = new s3Api();
+const authApiClient = new authApi();
+const teamApiClient = new teamApi();
+export const useGetUser = (email: string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["user", email],
+    queryFn: () => authApiClient.userDetail(email),
+    retry: 1,
+  });
+  return { data, isLoading, error };
+};
+
+export const useUpdateUser = () => {
+  return useMutation({
+    mutationFn: (payload: userUpdateProfile_type) =>
+      authApiClient.updateUser(payload),
+  });
+};
 
 export const useGetProjects = (projectId: string) => {
   const {
@@ -55,6 +77,35 @@ export const useGetSingleIssue = (issueId: string) => {
     queryFn: () =>
       issueApiClient.getIssue({ issueId }).then((res) => res.data.message),
     retry: false,
+  });
+  return { data, isLoading, error };
+};
+
+export const useUploadToS3 = () => {
+  return useMutation({
+    mutationFn: ({ url, file }: { url: string; file: File }) =>
+      s3ApiClient.redirectUpload(url, file, file.type),
+  });
+};
+
+export const useUploadImage = () => {
+  const uploadToS3 = useUploadToS3();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const res = await s3ApiClient.uploadMedia(file.name, file.type);
+      const { url, fileKey } = res.data as { url: string; fileKey: string };
+
+      await uploadToS3.mutateAsync({ url, file });
+
+      return fileKey;
+    },
+  });
+};
+// team hooks
+export const useGetTeamPerUser = (teamId: string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["user-team", teamId],
+    queryFn: () => teamApiClient.getTeam(teamId),
   });
   return { data, isLoading, error };
 };

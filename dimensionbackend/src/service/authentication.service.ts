@@ -26,10 +26,12 @@ class authenticationService {
   SECRET_KEY = process.env.SECRET_KEY;
   s3Service = new s3ServiceClient();
   async searchUser(user_email: string) {
-    const existingUser = await this.userRepository.findOneBy({
-      email: user_email,
+    const existingUser = await this.userRepository.findOne({
+      where: { email: user_email },
+      relations: {
+        team: true,
+      },
     });
-
     return existingUser;
   }
 
@@ -55,7 +57,7 @@ class authenticationService {
           `${member.firstname}.jpg`,
           blob.mimetype,
         );
-        image_url = image_response.fileKey;
+        image_url = image_response.url;
       }
 
       const hashpassword = await bcrypt.hash(member.password, this.salt_rounds);
@@ -84,11 +86,12 @@ class authenticationService {
     }
     return false;
   }
-  @validate(update_profile_dto)
+  // @validate(update_profile_dto)
   async updateUserProfile(
     user_email: string,
     role?: string,
     organisation?: string,
+    url?: string,
   ) {
     const profile = await this.credentialsRepository.findOneBy({
       email: user_email,
@@ -97,6 +100,7 @@ class authenticationService {
       ...profile,
       role: role || null,
       organisation: organisation || null,
+      picture: url,
     });
     const update = await this.userRepository.save(profileUpdate);
     return update;

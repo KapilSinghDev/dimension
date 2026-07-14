@@ -5,6 +5,7 @@ import {
   PrimaryColumn,
   OneToMany,
   ManyToOne,
+  Relation,
 } from "typeorm";
 import { Issues } from "./Issue";
 import { User } from "./User";
@@ -23,7 +24,7 @@ export class Teams {
   admin: User;
 
   @OneToMany(() => User, (user: User) => user.team, { cascade: true })
-  members: User[];
+  members: Relation<User[]>;
 
   @OneToMany(() => Issues, (issue) => issue.team)
   issue_assigned: Issues[];

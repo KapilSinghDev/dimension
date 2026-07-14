@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
+  Relation,
 } from "typeorm";
 import { Teams } from "./Teams";
 import { Issues } from "./Issue";
@@ -21,7 +22,7 @@ export class User extends BaseCredentials {
   organisation: string;
 
   @ManyToOne(() => Teams, (team) => team.members)
-  team: Teams;
+  team: Relation<Teams>;
 
   @OneToMany(() => Teams, (team) => team.admin)
   team_administer: Teams[];
