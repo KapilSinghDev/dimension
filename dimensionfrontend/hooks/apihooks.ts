@@ -5,7 +5,11 @@ import { projectApi } from "@/api/projectsApi";
 import { s3Api } from "@/api/s3Api";
 import { teamApi } from "@/api/teamApi";
 import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
-import { userUpdateProfile_type } from "@/lib/types";
+import {
+  userCredentials_type,
+  userSignup_type,
+  userUpdateProfile_type,
+} from "@/lib/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const projectApiClient = new projectApi();
@@ -20,6 +24,13 @@ export const useGetUser = (email: string) => {
     retry: 1,
   });
   return { data, isLoading, error };
+};
+
+export const useUserSignup = () => {
+  return useMutation({
+    mutationFn: (payload: userSignup_type) => authApiClient.userSignup(payload),
+    retry: false,
+  });
 };
 
 export const useUpdateUser = () => {

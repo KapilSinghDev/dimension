@@ -1,4 +1,8 @@
 "use client";
+import { useUserSignup } from "@/hooks/apihooks";
+import { project_route, workspace_route } from "@/lib/routes";
+import { userCredentials_type, userSignup_type } from "@/lib/types";
+import { useRouter } from "next/navigation";
 import React, {
   useEffect,
   useRef,
@@ -228,45 +232,71 @@ type RoleOption =
   | "Other";
 
 interface FormValues {
-  firstName: string;
-  lastName: string;
+  firstname: string;
+  lastname: string;
   email: string;
-  org: string;
-  role: RoleOption;
+  password: string;
+  role?: string;
+  organisation?: string;
+  team?: string;
+  issue?: number[];
 }
 
-type FieldName = keyof FormValues;
+type FieldName = keyof userSignup_type;
 
 type FormErrors = Partial<Record<FieldName, boolean>>;
 
 export default function OnboardingPage() {
-  const [values, setValues] = useState<FormValues>({
-    firstName: "",
-    lastName: "",
+  const router = useRouter();
+  const [values, setValues] = useState<userSignup_type>({
+    firstname: "",
+    lastname: "",
     email: "",
-    org: "",
+    password: "",
+    organisation: "",
     role: "",
+    team: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
 
   function update<K extends FieldName>(field: K, value: FormValues[K]) {
-    setValues((v) => ({ ...v, [field]: value }));
+    setValues((v) => ({ ...v, [field]: value }) as userSignup_type);
   }
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  // checking the type of password on every stroke
+  const password_arr = ["@", "#", "!", "*"];
+  const has_special_char =
+    password_arr.includes(values.password[values.password.length - 1]) &&
+    values.password.length != 0;
+  const has_length = values.password.length >= 8;
+  const passwordWarning = !has_length
+    ? "Password must be at least 8 characters long"
+    : !has_special_char
+      ? "Password must contain a special character"
+      : "Password good to go";
+  const singup = useUserSignup();
+  function handleSubmit(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim());
     const nextErrors: FormErrors = {
-      firstName: values.firstName.trim() === "",
-      lastName: values.lastName.trim() === "",
-      org: values.org.trim() === "",
+      firstname: values.firstname.trim() === "",
+      lastname: values.lastname.trim() === "",
+      password: !has_length || !has_special_char,
+      organisation: values?.organisation?.trim() === "",
       role: values.role === "",
       email: !emailOk,
     };
     setErrors(nextErrors);
     const hasError = Object.values(nextErrors).some(Boolean);
     setSubmitted(!hasError);
+    singup.mutate(values, {
+      onSuccess: () => {
+        router.push(project_route);
+      },
+      onError: () => {
+        // pop up some error occured and try again
+      },
+    });
   }
 
   return (
@@ -301,42 +331,61 @@ export default function OnboardingPage() {
           <div className="grid grid-cols-2 gap-4">
             <Field
               label="First name"
-              htmlFor="firstName"
-              invalid={errors.firstName}
+              htmlFor="firstname"
+              invalid={errors.firstname}
               errorText="First name is required."
             >
               <input
-                id="firstName"
+                id="firstname"
                 type="text"
                 placeholder="Ada"
                 autoComplete="given-name"
-                value={values.firstName}
+                value={values.firstname}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  update("firstName", e.target.value)
+                  update("firstname", e.target.value)
                 }
-                className={errors.firstName ? inputInvalidClass : inputClass}
+                className={errors.firstname ? inputInvalidClass : inputClass}
               />
             </Field>
             <Field
               label="Last name"
-              htmlFor="lastName"
-              invalid={errors.lastName}
+              htmlFor="lastname"
+              invalid={errors.lastname}
               errorText="Last name is required."
             >
               <input
-                id="lastName"
+                id="lastname"
                 type="text"
                 placeholder="Lovelace"
                 autoComplete="family-name"
-                value={values.lastName}
+                value={values.lastname}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  update("lastName", e.target.value)
+                  update("lastname", e.target.value)
                 }
-                className={errors.lastName ? inputInvalidClass : inputClass}
+                className={errors.lastname ? inputInvalidClass : inputClass}
               />
             </Field>
           </div>
 
+          <Field
+            label="Password"
+            htmlFor="password"
+            invalid={errors.password}
+            errorText={passwordWarning}
+            // hintText={passwordWarning}
+          >
+            <input
+              id="password"
+              type="password"
+              // placeholder="ada@company.com"
+              autoComplete="password"
+              value={values.password}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                update("password", e.target.value)
+              }
+              className={errors.password ? inputInvalidClass : inputClass}
+            />
+          </Field>
           <Field
             label="Work email"
             htmlFor="email"
@@ -359,20 +408,20 @@ export default function OnboardingPage() {
 
           <Field
             label="Organisation"
-            htmlFor="org"
-            invalid={errors.org}
+            htmlFor="organisation"
+            invalid={errors.organisation}
             errorText="Organisation is required."
           >
             <input
-              id="org"
+              id="organisation"
               type="text"
               placeholder="Analytical Engines Inc."
               autoComplete="organization"
-              value={values.org}
+              value={values.organisation}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                update("org", e.target.value)
+                update("organisation", e.target.value)
               }
-              className={errors.org ? inputInvalidClass : inputClass}
+              className={errors.organisation ? inputInvalidClass : inputClass}
             />
           </Field>
 
@@ -514,3 +563,5 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2VtYWlsIjoiYW5pcnVkaEB6ZWVwdHkuY29tIiwiaWF0IjoxNzg0MTU4Mjc1LCJleHAiOjE3ODY3NTAyNzV9.PIuFKuAH4WcNeUAFPXuTDhwseLUPQrwlhJLy54nlIsg

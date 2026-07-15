@@ -14,10 +14,10 @@ export type userCredentials_type = {
 };
 
 export type userSignup_type = userCredentials_type & {
-  role: string;
-  organisation: string;
-  team: string;
-  issue: number[];
+  role?: string;
+  organisation?: string;
+  team?: string;
+  issue?: number[];
 };
 
 export type userLogin_type = {
