@@ -27,7 +27,9 @@ export class projectApi {
   }
 
   getProjectsbyBatch(page: string) {
+    const token = localStorage.getItem("TOKEN");
     return apiclient.get("/project-batch/get", {
+      headers: { Authorization: `Bearer ${token}` },
       params: {
         page,
       },
