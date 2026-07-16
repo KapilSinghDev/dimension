@@ -290,7 +290,11 @@ export default function OnboardingPage() {
     const hasError = Object.values(nextErrors).some(Boolean);
     setSubmitted(!hasError);
     singup.mutate(values, {
-      onSuccess: () => {
+      // pending check why no response is being printed
+      onSuccess: (response) => {
+        // console.log("The signup response");
+        // console.log(response);
+        // console.log(response.data);
         router.push(project_route);
       },
       onError: () => {

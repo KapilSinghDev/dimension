@@ -15,10 +15,21 @@ apiclient.interceptors.request.use((config) => {
 });
 
 apiclient.interceptors.response.use(
-  (response) => response,
-  (error: axios.AxiosError) => {
+  (response) => {
+    let token = null;
+    if (typeof response.data === "string" && response.data.trim() !== "") {
+      token = response.data;
+    } else if (response.data?.token) {
+      token = response.data.token;
+    }
+    if (token) {
+      localStorage.setItem("TOKEN", token);
+    }
+    return response;
+  },
+  (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
+      localStorage.removeItem("TOKEN");
       window.location.href = "/login";
     }
     return Promise.reject(error);
