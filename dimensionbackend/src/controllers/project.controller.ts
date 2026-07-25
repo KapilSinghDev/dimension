@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import { ProjectService } from "../service/project.service";
 import { issueService } from "../service/issues.service";
+import jwt from "jsonwebtoken";
+import { userPayloadInterface } from "../middleware/authenticate";
+import authenticationService from "../service/authentication.service";
 
 export class ProjectController {
   projectservices = new ProjectService();
   issueServices = new issueService();
+  authService = new authenticationService();
   createProject = async (req: Request, res: Response) => {
     const body = req.body;
     try {
@@ -75,9 +79,12 @@ export class ProjectController {
 
   getProjectbyBatch = async (req: Request, res: Response) => {
     const page = req.query.page;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
     try {
       const projectlist = await this.projectservices.fetchProjectByBatch(
         Number(page),
+        decodeToken.user_email as string,
       );
       res.status(200).send({ projects: projectlist[0] });
     } catch (err) {

@@ -2,7 +2,7 @@ import * as express from "express";
 import { authenticateUser } from "../middleware/authenticate";
 import { Router, Request, Response } from "express";
 import { authenticationController } from "../controllers/authentication.controller";
-import * as multer from "multer";
+import multer from "multer";
 export class authRoutes {
   private authRouter: Router;
   authController = new authenticationController();
@@ -15,7 +15,8 @@ export class authRoutes {
     (this.loginRoute(),
       this.signupRoute(),
       this.userDetailRoute(),
-      this.userUpdateRoute());
+      this.userUpdateRoute(),
+      this.userVerifcationRoute());
   }
 
   private loginRoute = () => {
@@ -45,7 +46,9 @@ export class authRoutes {
       this.authController.userProfileUpdate,
     );
   };
-
+  private userVerifcationRoute = () => {
+    this.authRouter.get("/me/verify", this.authController.userVerification);
+  };
   public publishAuthRoutes = () => {
     return this.authRouter;
   };

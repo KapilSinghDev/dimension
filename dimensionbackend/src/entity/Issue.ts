@@ -7,43 +7,43 @@ import { Projects } from "./Project";
 @Entity()
 export class Issues {
   @PrimaryGeneratedColumn()
-  issue_id: number;
+  issue_id!: number;
 
   @Column()
-  title: string;
+  title!: string;
 
   @Column()
-  created_at: Date;
+  created_at!: Date;
 
   @Column()
-  created_by: number;
+  created_by!: number;
 
   @ManyToOne(() => User, (user) => user.issue, { nullable: true })
-  assignee: User;
+  assignee!: User;
 
   @ManyToOne(() => Teams, (teams) => teams.issue_assigned, { nullable: true })
-  team: Teams;
+  team!: Teams;
 
   @Column()
-  deadline: Date;
+  deadline!: Date;
 
   @Column({
     type: "enum",
     enum: priority_enum,
     default: priority_enum.MEDIUM,
   })
-  priority: priority_enum;
+  priority!: priority_enum;
 
   @Column({
     type: "enum",
     enum: issue_status_enum,
     default: issue_status_enum.ACTIVE,
   })
-  status: issue_status_enum;
+  status!: issue_status_enum;
 
   @ManyToOne(() => Projects, (projects) => projects.issues, {
     nullable: true,
     // cascade: true,
   })
-  project: Projects;
+  project!: Projects;
 }

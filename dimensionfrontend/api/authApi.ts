@@ -23,4 +23,8 @@ export class authApi {
   updateUser(payload: userUpdateProfile_type) {
     return apiclient.put("/update", payload);
   }
+
+  verifyUser() {
+    return apiclient.get("/me/verify");
+  }
 }

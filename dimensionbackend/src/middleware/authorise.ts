@@ -16,7 +16,7 @@ export async function authorise(
   const teamServices = new teamService();
   const token = req.headers.authorization.split(" ")[1];
   const email = jwt.verify(token, auth.SECRET_KEY);
-  const user = await auth.searchUser(email);
+  const user = await auth.searchUser(email as string);
   if (req.body.taget === "teams") {
     const targetTeam = await teamServices.findTeam(req.body.team_id);
     if (user.user_id === targetTeam.admin.user_id) {

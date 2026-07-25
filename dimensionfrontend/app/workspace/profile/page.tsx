@@ -75,16 +75,17 @@ interface UserProfile {
 export default function EnhancedVerticalProfilePage() {
   const { data, isLoading, error } = useGetUser("aanya.mehta@example.com");
   const [user, setUser] = useState<UserProfile>(data?.data);
-  // console.log(user.role);
+  console.log(data?.data.firstname);
   // Temporary Form States for Modals
-  const [newRole, setNewRole] = useState<string>(user?.role);
+  const [newRole, setNewRole] = useState<string>(data?.data.role);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [orgLeaveOpen, setOrgLeaveOpen] = useState(false);
   const [teamLeaveOpen, setTeamLeaveOpen] = useState(false);
   const [selectedTeamToLeave, setSelectedTeamToLeave] = useState("");
 
   const initials =
-    user?.firstname + user?.lastname.split(" ").join("").toUpperCase();
+    data?.data.firstname +
+    data?.data.lastname.split(" ").join("").toUpperCase();
 
   // Handlers
   const handleUpdateRole = (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -130,14 +131,15 @@ export default function EnhancedVerticalProfilePage() {
       },
     });
   };
+  console.log("user name => ", user);
   return (
     <div className="max-w-xl mx-auto p-4 md:p-6 space-y-4">
       <div className="flex flex-col items-center text-center pt-4 pb-2 space-y-4">
         <div className="relative group w-28 h-28">
           <Avatar className="w-28 h-28 border-4 border-background shadow-md">
             <AvatarImage
-              src={user?.picture}
-              alt={user?.firstname}
+              src={data?.data.picture}
+              alt={data?.data.firstname}
               className="object-cover"
             />
             <AvatarFallback>{initials}</AvatarFallback>
@@ -167,20 +169,20 @@ export default function EnhancedVerticalProfilePage() {
 
         <div className="space-y-1">
           <h1 className="text-xl font-semibold tracking-tight">
-            {user?.firstname}
+            {data?.data.firstname}
           </h1>
-          <p className="text-sm text-muted-foreground">{user?.role}</p>
+          <p className="text-sm text-muted-foreground">{data?.data.role}</p>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <Mail size={13} />
-            <span>{user?.email}</span>
+            <span>{data?.data.email}</span>
           </div>
           <span className="text-muted-foreground/40">•</span>
           <div className="flex items-center gap-1">
             <Calendar size={13} />
-            <span>{user?.created_at}</span>
+            <span>{data?.data.created_at}</span>
           </div>
         </div>
       </div>
@@ -197,7 +199,7 @@ export default function EnhancedVerticalProfilePage() {
                 Organisation
               </span>
               <span className="text-sm font-medium text-foreground">
-                {user?.organisation}
+                {data?.data.organisation}
               </span>
             </div>
 
@@ -218,8 +220,8 @@ export default function EnhancedVerticalProfilePage() {
                     <LogOut size={18} /> Leave Organisation?
                   </DialogTitle>
                   <DialogDescription className="pt-2 text-sm">
-                    Are you sure you want to exit **{user?.organisation}**? You
-                    will instantly lose read and write clearances across all
+                    Are you sure you want to exit **{data?.data.organisation}**?
+                    You will instantly lose read and write clearances across all
                     nested source repositories.
                   </DialogDescription>
                 </DialogHeader>
@@ -256,7 +258,7 @@ export default function EnhancedVerticalProfilePage() {
                 className="gap-1 font-medium text-xs py-0.5"
               >
                 <ShieldCheck size={12} className="text-primary" />
-                {user?.role}
+                {data?.data.role}
               </Badge>
             </div>
 
@@ -327,7 +329,7 @@ export default function EnhancedVerticalProfilePage() {
             </div>
           </CardHeader>
           <CardContent className="p-4 pt-2">
-            {user?.teams?.name.length === 0 ? (
+            {data?.data.teams?.name.length === 0 ? (
               <p className="text-xs text-muted-foreground italic py-2">
                 No active assigned teams.
               </p>
@@ -342,7 +344,7 @@ export default function EnhancedVerticalProfilePage() {
                 >
                   <div className="flex items-center gap-2">
                     <Users2 size={14} className="text-muted-foreground" />
-                    <span>{user?.teams.name}</span>
+                    <span>{data?.data.team.name}</span>
                   </div>
 
                   <Button

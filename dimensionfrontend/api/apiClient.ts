@@ -7,7 +7,7 @@ export const apiclient: axios.AxiosInstance = axios.create({
 });
 
 apiclient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("TOKEN");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,7 +30,7 @@ apiclient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("TOKEN");
-      window.location.href = "/login";
+      window.location.href = "/welcome?tab=signup";
     }
     return Promise.reject(error);
   },

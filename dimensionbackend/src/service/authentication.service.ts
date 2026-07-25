@@ -18,6 +18,7 @@ import { Credentials } from "../entity/Credentials";
 import { s3ServiceClient } from "./s3.service";
 // import Multer from "multer";
 import * as multer from "multer";
+import { userPayloadInterface } from "../middleware/authenticate";
 class authenticationService {
   private userRepository = AppDataSource.getRepository(User);
   private issueRepository = AppDataSource.getRepository(Issues);
@@ -36,9 +37,13 @@ class authenticationService {
   }
 
   async generateToken(user_email: string) {
-    const token = jwt.sign({ user_email }, this.SECRET_KEY, {
-      expiresIn: "720h",
-    });
+    const token = jwt.sign(
+      { user_email } as userPayloadInterface,
+      this.SECRET_KEY as string,
+      {
+        expiresIn: "720h",
+      },
+    );
     return token;
   }
 

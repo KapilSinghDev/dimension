@@ -6,6 +6,7 @@ import {
   user_credentials_dto,
   user_login_dto,
 } from "../dto/user_dto";
+import * as jwt from "jsonwebtoken";
 export class authenticationController {
   @validate(user_credentials_dto)
   async userSignUp(req: Request, res: Response) {
@@ -30,10 +31,14 @@ export class authenticationController {
     try {
       const authService = new authenticationService();
       const loginResponse = await authService.verifyUser(req.body);
+      let token;
+      if (loginResponse === true) {
+        token = await authService.generateToken(req.body.email);
+      }
       res
         .send(
           loginResponse === true
-            ? { message: "User Verified", token: " " }
+            ? { message: "User Verified", token: token }
             : { message: "Invalid user" },
         )
         .status(201);
@@ -79,5 +84,36 @@ export class authenticationController {
       res.send({ message: "An error occured" }).status(500);
     }
     return;
+  }
+
+  async userVerification(req: Request, res: Response) {
+    interface UserTokenPayload {
+      user_email: string;
+      iat: number;
+      exp: number;
+    }
+    try {
+      const authService = new authenticationService();
+      const token = req.headers.authorization?.split(" ")[1];
+      if (!token) {
+        res.status(401).send({ message: "No token provided" });
+        return;
+      }
+      const decodeToken = jwt.verify(
+        token,
+        authService.SECRET_KEY as string,
+      ) as UserTokenPayload;
+
+      const user = await authService.searchUser(decodeToken.user_email);
+
+      if (!user) {
+        res.status(401).send({ message: "Unauthorised" });
+        return;
+      }
+      res.set("Cache-Control", "no-store");
+      res.status(200).send({ message: "Session active", user });
+    } catch (err) {
+      res.status(401).send({ message: "Invalid or expired session" });
+    }
   }
 }

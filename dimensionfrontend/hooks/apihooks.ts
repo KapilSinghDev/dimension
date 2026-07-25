@@ -1,4 +1,5 @@
 "use client";
+import { apiclient } from "@/api/apiClient";
 import { authApi } from "@/api/authApi";
 import { issueApi } from "@/api/issueApi";
 import { projectApi } from "@/api/projectsApi";
@@ -7,6 +8,7 @@ import { teamApi } from "@/api/teamApi";
 import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
 import {
   userCredentials_type,
+  userLogin_type,
   userSignup_type,
   userUpdateProfile_type,
 } from "@/lib/types";
@@ -25,10 +27,32 @@ export const useGetUser = (email: string) => {
   });
   return { data, isLoading, error };
 };
-
+export const useVerifyUser = (enabled: boolean) => {
+  console.log("useVerifyUser hook called");
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["session-verify"],
+    queryFn: () => {
+      console.log("Fetching verifyUser", new Error().stack);
+      return authApiClient.verifyUser();
+    },
+    enabled: enabled,
+    // staleTime: 0,
+    // gcTime: 0,
+    // refetchOnMount: "always",
+    retry: false,
+  });
+  return { data, isLoading, error };
+};
 export const useUserSignup = () => {
   return useMutation({
     mutationFn: (payload: userSignup_type) => authApiClient.userSignup(payload),
+    retry: false,
+  });
+};
+
+export const useLoginUser = () => {
+  return useMutation({
+    mutationFn: (payload: userLogin_type) => authApiClient.userLogin(payload),
     retry: false,
   });
 };

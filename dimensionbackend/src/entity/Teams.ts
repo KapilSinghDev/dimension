@@ -13,19 +13,19 @@ import { Credentials } from "./Credentials";
 @Entity()
 export class Teams {
   @PrimaryGeneratedColumn()
-  team_id: number;
+  team_id!: number;
 
   @Column()
-  name: string;
+  name!: string;
 
   @ManyToOne(() => User, (user: User) => user.team_administer, {
     nullable: true,
   })
-  admin: User;
+  admin!: User;
 
   @OneToMany(() => User, (user: User) => user.team, { cascade: true })
-  members: Relation<User[]>;
+  members!: Relation<User[]>;
 
   @OneToMany(() => Issues, (issue) => issue.team)
-  issue_assigned: Issues[];
+  issue_assigned!: Issues[];
 }

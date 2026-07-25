@@ -1,13 +1,13 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import * as express from "express";
+import express from "express";
 import { AppDataSource } from "./data-source";
 import { json } from "express";
 import { authRoutes } from "./routes/authroutes";
 import { issueRouter } from "./routes/issueroutes";
 import { teamRoute } from "./routes/teamroutes";
 import { Projectroutes } from "./routes/projectroutes";
-import * as cors from "cors";
+import cors from "cors";
 import { s3MediaRoutes } from "./routes/s3.routes";
 // import "multer";
 const PORT = 8000;

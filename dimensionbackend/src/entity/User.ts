@@ -13,20 +13,20 @@ import { BaseCredentials } from "./Credentials";
 @Entity()
 export class User extends BaseCredentials {
   @Column({ nullable: true })
-  picture: string;
+  picture!: string;
 
   @Column({ nullable: true })
-  role: string;
+  role!: string;
 
   @Column({ nullable: true })
-  organisation: string;
+  organisation!: string;
 
   @ManyToOne(() => Teams, (team) => team.members)
-  team: Relation<Teams>;
+  team!: Relation<Teams>;
 
   @OneToMany(() => Teams, (team) => team.admin)
-  team_administer: Teams[];
+  team_administer!: Teams[];
 
   @OneToMany(() => Issues, (issue) => issue.assignee)
-  issue: Issues[];
+  issue!: Issues[];
 }
