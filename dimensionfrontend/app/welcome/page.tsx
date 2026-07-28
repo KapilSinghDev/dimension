@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useLoginUser, useUserSignup, useVerifyUser } from "@/hooks/apihooks";
 import { issue_route, project_route, workspace_route } from "@/lib/routes";
 import { userCredentials_type, userSignup_type } from "@/lib/types";
+import { AxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsString, useQueryState } from "nuqs";
@@ -67,8 +68,6 @@ function Field({
   );
 }
 
-// Full static class strings (not built via string concatenation of partial
-// utility names) so Tailwind's JIT scanner picks them both up.
 const inputClass =
   "w-full rounded-lg border border-neutral-800 bg-neutral-900 px-[13px] py-[11px] text-[14.5px] text-neutral-100 outline-none placeholder:text-neutral-600 transition-colors focus:border-[#8B7FF0] focus:bg-neutral-900 focus:ring-2 focus:ring-[#6E62E5]/30";
 const inputInvalidClass =
@@ -106,10 +105,10 @@ export default function OnboardingPage() {
   );
   const verification = useVerifyUser(tab === "login");
   useEffect(() => {
-    if (verification.data?.status === 200) {
+    if (verification.data) {
       router.push(issue_route);
     }
-  }, [verification?.data?.status]);
+  }, [verification.data, verification.error]);
 
   const changeAction = () => {
     setTab(tab === "login" ? "signup" : "login");
@@ -169,27 +168,28 @@ export default function OnboardingPage() {
       },
     });
   }
-  interface loginInterface {
-    email: string;
-    password: string;
-  }
-  const [credentials, setCredentials] = useState<loginInterface>({
-    email: "",
-    password: "",
-  });
+  const emailref = useRef<HTMLInputElement>(null);
+  const passwordref = useRef<HTMLInputElement>(null);
   const login = useLoginUser();
 
-  function handleLogin(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setCredentials((prev) => {
-      return { ...prev, [name]: value };
-    });
-    login.mutate(credentials, {
-      onSuccess: (response) => {
-        // redirect to new page after saving login info
-        router.push(project_route);
+  function handleLogin(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    login.mutate(
+      {
+        email: emailref.current?.value as string,
+        password: passwordref.current?.value as string,
       },
-    });
+      {
+        onSuccess: (response) => {
+          console.log(response?.data["message"]);
+          if (response?.data["message"] === "Invalid user") {
+            alert("User does not exist");
+          } else {
+            router.push(project_route);
+          }
+        },
+      },
+    );
   }
   return (
     <div className="flex h-screen w-full bg-black font-sans">
@@ -388,7 +388,7 @@ export default function OnboardingPage() {
                 Log in to your account
               </h1>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form onSubmit={handleLogin} className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                   <Label
                     htmlFor="email"
@@ -402,8 +402,8 @@ export default function OnboardingPage() {
                     placeholder="ada@company.com"
                     autoComplete="email"
                     required
-                    value={values.email}
-                    onChange={handleLogin}
+                    ref={emailref}
+                    // onChange={handleLogin}
                     className="border-neutral-800 bg-neutral-900 text-neutral-100 placeholder:text-neutral-600 focus-visible:border-[#8B7FF0] focus-visible:ring-[#6E62E5]/30"
                   />
                 </div>
@@ -429,7 +429,8 @@ export default function OnboardingPage() {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     required
-                    onChange={handleLogin}
+                    ref={passwordref}
+                    // onChange={handleLogin}
                     className="border-neutral-800 bg-neutral-900 text-neutral-100 placeholder:text-neutral-600 focus-visible:border-[#8B7FF0] focus-visible:ring-[#6E62E5]/30"
                   />
                 </div>

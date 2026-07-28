@@ -30,7 +30,7 @@ apiclient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("TOKEN");
-      window.location.href = "/welcome?tab=signup";
+      // window.location.href = "/welcome?tab=signup";
     }
     return Promise.reject(error);
   },
