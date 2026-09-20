@@ -10,6 +10,7 @@ import {
 import { Teams } from "./Teams";
 import { Issues } from "./Issue";
 import { BaseCredentials } from "./Credentials";
+import { Projects } from "./Project";
 @Entity()
 export class User extends BaseCredentials {
   @Column({ nullable: true })
@@ -24,9 +25,17 @@ export class User extends BaseCredentials {
   @ManyToOne(() => Teams, (team) => team.members)
   team!: Relation<Teams>;
 
-  @OneToMany(() => Teams, (team) => team.admin)
+  @OneToMany(() => Teams, (team) => team.admin, { cascade: true })
   team_administer!: Teams[];
 
-  @OneToMany(() => Issues, (issue) => issue.assignee)
+  @OneToMany(() => Issues, (issue) => issue.assignee, { cascade: true })
   issue!: Issues[];
+
+  @OneToMany(() => Projects, (projects) => projects.created_by, {
+    nullable: true,
+  })
+  projects_created: Relation<Projects[]>;
+
+  @OneToMany(() => Projects, (projects) => projects.manager)
+  leading_projects: Relation<Projects[]>;
 }

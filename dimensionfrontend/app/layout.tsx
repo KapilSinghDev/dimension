@@ -8,6 +8,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryProvider } from "@/hooks/queryProvider";
+import { Suspense } from "react";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -40,7 +41,9 @@ export default function RootLayout({
           <main className="flex-1">
             <TooltipProvider>
               <NuqsAdapter>
-                <QueryProvider>{children}</QueryProvider>
+                <QueryProvider>
+                  <Suspense>{children}</Suspense>
+                </QueryProvider>
               </NuqsAdapter>
               <Toaster />
             </TooltipProvider>

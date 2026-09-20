@@ -3,11 +3,12 @@ import { Issues } from "../entity/Issue";
 import type { create_issue_dto, create_issue_dto_type } from "../dto/issue_dto";
 import { Teams } from "../entity/Teams";
 import { User } from "../entity/User";
+import { Projects } from "../entity/Project";
 class issueService {
   private issueRepository = AppDataSource.getRepository(Issues);
   private teamRepository = AppDataSource.getRepository(Teams);
   private userRepository = AppDataSource.getRepository(User);
-
+  private projectRepository = AppDataSource.getRepository(Projects);
   async createIssue(issue: create_issue_dto_type) {
     //    const issueInstance = this.issueRepository.create(issue);
     const user = issue.assignee
@@ -16,11 +17,17 @@ class issueService {
     const team = issue.team
       ? await this.teamRepository.findOneBy({ name: issue.team })
       : null;
+    const project = await this.projectRepository.findOneBy({
+      id: Number(issue.project),
+    });
     const issueInstance = {
       ...issue,
       created_at: new Date(),
+      // description: issue.description,
+      // lable: issue.label,
       assignee: user,
       team: team,
+      project: project,
     };
     const createIssue = await this.issueRepository.save(issueInstance);
     return createIssue;

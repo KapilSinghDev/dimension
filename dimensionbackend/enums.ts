@@ -8,6 +8,13 @@ export enum issue_status_enum {
   CLOSED = "closed",
 }
 
+export enum issue_lable_enum {
+  BUG = "bug",
+  FEATURE = "feature",
+  IMPROVEMENT = "improvement",
+  NOLABLE = "no_lable",
+}
+
 export enum project_status_enum {
   BACKLOG = "backlog",
   IN_PROGRESS = "in-progress",

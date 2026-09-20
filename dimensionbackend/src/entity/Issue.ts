@@ -1,5 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { issue_status_enum, priority_enum } from "../../enums";
+import {
+  issue_lable_enum,
+  issue_status_enum,
+  priority_enum,
+} from "../../enums";
 import { Teams } from "./Teams";
 import { User } from "./User";
 import { Projects } from "./Project";
@@ -11,6 +15,16 @@ export class Issues {
 
   @Column()
   title!: string;
+
+  @Column({ nullable: true })
+  description: string;
+
+  @Column({
+    type: "enum",
+    enum: issue_lable_enum,
+    default: issue_lable_enum.NOLABLE,
+  })
+  lable: issue_lable_enum;
 
   @Column()
   created_at!: Date;

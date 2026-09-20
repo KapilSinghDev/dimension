@@ -58,12 +58,15 @@ export type issue_type = {
 export type issueCreate_type = {
   title: string;
   created_by: number;
+  description?: string;
+  label?: string;
   assignee?: string;
   team?: string;
   deadline: Date;
   priority: priority_enum;
   status: issue_status_enum;
   target: string;
+  project?: string;
 };
 
 export type project_type = {
@@ -87,3 +90,12 @@ export type create_team_dto_type = {
   members: string[];
   issues: number[];
 };
+
+export interface issueInterface {
+  status: string;
+  priority: string;
+  assignee: string;
+  label: string;
+  project_id: string;
+  dueDate: Date;
+}

@@ -31,6 +31,8 @@ class authenticationService {
       where: { email: user_email },
       relations: {
         team: true,
+        projects_created: true,
+        leading_projects: true,
       },
     });
     return existingUser;

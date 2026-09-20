@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -24,8 +25,11 @@ export class Projects {
   @Column()
   title!: string;
 
-  @OneToMany(() => User, (user) => user.email)
+  @ManyToOne(() => User, (user) => user.projects_created, { cascade: true })
   created_by: Relation<User>;
+
+  @ManyToOne(() => User, (user) => user.leading_projects)
+  manager: Relation<User>;
 
   @Column({ nullable: true })
   description!: string;

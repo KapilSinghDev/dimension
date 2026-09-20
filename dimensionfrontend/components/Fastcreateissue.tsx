@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +33,11 @@ import {
   LucideIcon,
   Menu,
 } from "lucide-react";
+import { useCreateIssue, useGetProjects, useGetUser } from "@/hooks/apihooks";
+import { issue_status_enum, priority_enum } from "@/lib/enums";
+import { DatePickerSimple } from "./Pickdates";
+import { issueInterface } from "@/lib/types";
+import { getDecodedToken } from "@/lib/jwt.utils";
 
 // Types for structural loop clarity
 interface MetadataConfig {
@@ -44,32 +49,56 @@ interface MetadataConfig {
 
 export default function FastCreateIssue() {
   const [isOpen, setIsOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const metaDataRef = useRef<HTMLDivElement>(null);
   // Dynamic state container mapping individual properties
-  const [issueData, setIssueData] = useState({
+
+  const [issueData, setIssueData] = useState<issueInterface>({
     status: "Todo",
     priority: "No Priority",
     assignee: "No assignee",
     label: "No label",
-    project: "None",
-    dueDate: "None",
+    project_id: "None",
+    dueDate: new Date(),
   });
+  function updateIssueStates(name: keyof issueInterface, value: string) {
+    // console.log("the field and values are ", name, value);
+    setIssueData((oldstate) => ({ ...oldstate, [name]: value }));
+  }
 
+  const createIssue = useCreateIssue();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting Functional Issue Canvas Data:", {
-      title,
-      description,
-      ...issueData,
-    });
-    // Reset Canvas State
-    setTitle("");
-    setDescription("");
+    createIssue.mutate(
+      {
+        title: titleRef.current?.value as string,
+        description: descriptionRef.current?.value as string, // description to be added
+        created_by: NaN,
+        status: issueData.status as issue_status_enum,
+        priority: issueData.priority as priority_enum,
+        target: "",
+        assignee: "",
+        team: "",
+        label: issueData.label,
+        project: issueData.project_id,
+        deadline: new Date(),
+      },
+      {
+        onSuccess: () => {
+          // notification issue created successfully
+        },
+        onError: () => {
+          // error notification try again
+        },
+      },
+    );
     setIsOpen(false);
   };
 
+  // fetch projects so that it can be spawned in the project field in fast create issue
+  // const token = getDecodedToken();
+  // const { data } = useGetUser(token?.user_email); //todo
   // Helper mapping values to corresponding icons for the primary Status Selector
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -98,7 +127,7 @@ export default function FastCreateIssue() {
       id: "assignee",
       icon: User2,
       tooltip: "Assignee",
-      items: ["No assignee", "John Doe", "Jane Smith"],
+      items: ["No assignee", "John Doe", "Jane Smith"], // put the team members here
     },
     {
       id: "label",
@@ -209,8 +238,8 @@ export default function FastCreateIssue() {
 
                   <div className="flex-1">
                     <Textarea
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      ref={titleRef}
+                      // onChange={(e) => setTitle(e.target.value)}
                       placeholder="Issue title"
                       rows={1}
                       className="resize-none min-h-fit py-1.5 px-0 font-semibold text-base border-none focus-visible:ring-0 placeholder:text-muted-foreground/40 tracking-tight"
@@ -222,8 +251,7 @@ export default function FastCreateIssue() {
                 {/* DESCRIPTION AREA */}
                 <div className="pl-10">
                   <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    ref={descriptionRef}
                     placeholder="Add description..."
                     className="resize-none min-h-15 py-1 px-0 text-sm border-none focus-visible:ring-0 placeholder:text-muted-foreground/40 leading-relaxed"
                   />
@@ -270,6 +298,7 @@ export default function FastCreateIssue() {
                                 </Button>
                               </DropdownMenuTrigger>
                             </TooltipTrigger>
+                            {/* this the value that will menu.id */}
                             <TooltipContent side="bottom">
                               {menu.tooltip}: {activeValue}
                             </TooltipContent>
@@ -278,16 +307,18 @@ export default function FastCreateIssue() {
                               align="start"
                               className="w-40"
                             >
+                              {/* these are the values that will be the options */}
                               {menu.items.map((item) => (
                                 <DropdownMenuItem
                                   key={item}
                                   onClick={() =>
-                                    setIssueData((prev) => ({
-                                      ...prev,
-                                      [menu.id]: item,
-                                    }))
+                                    updateIssueStates(
+                                      menu.id as keyof issueInterface,
+                                      item,
+                                    )
                                   }
                                   className="cursor-pointer"
+                                  ref={metaDataRef}
                                 >
                                   {item}
                                 </DropdownMenuItem>
@@ -335,18 +366,10 @@ export default function FastCreateIssue() {
                             <span>Projects</span>
                             <StepForward className="h-3.5 w-3.5 text-muted-foreground" />
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="justify-between cursor-pointer"
-                            onClick={() =>
-                              setIssueData((prev) => ({
-                                ...prev,
-                                dueDate: "Tomorrow",
-                              }))
-                            }
-                          >
-                            <span>Due date</span>
-                            <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-                          </DropdownMenuItem>
+                          <DatePickerSimple
+                            date={issueData.dueDate}
+                            setDate={setIssueData}
+                          />
                         </DropdownMenuContent>
                       </Tooltip>
                     </DropdownMenu>
@@ -364,6 +387,7 @@ export default function FastCreateIssue() {
                         >
                           <Paperclip className="h-4 w-4" />
                         </Button>
+                        {/* todo : add the s3 url here  */}
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
                         Attach images, files, or videos
@@ -381,7 +405,6 @@ export default function FastCreateIssue() {
 
                     <Button
                       type="submit"
-                      disabled={!title.trim()}
                       className="h-8 px-3 text-sm bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded shadow-sm transition-all"
                     >
                       Create

@@ -1,2 +1,2 @@
 /dimensionbackend/ .env
-/dimensionfrontend/ .env
+/dimensionfrontend/ .env.local

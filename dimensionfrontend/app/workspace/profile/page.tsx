@@ -131,7 +131,7 @@ export default function EnhancedVerticalProfilePage() {
       },
     });
   };
-  console.log("user name => ", user);
+  // console.log("user name => ", user);
   return (
     <div className="max-w-xl mx-auto p-4 md:p-6 space-y-4">
       <div className="flex flex-col items-center text-center pt-4 pb-2 space-y-4">

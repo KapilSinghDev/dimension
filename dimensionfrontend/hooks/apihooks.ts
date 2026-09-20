@@ -7,6 +7,7 @@ import { s3Api } from "@/api/s3Api";
 import { teamApi } from "@/api/teamApi";
 import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
 import {
+  issueCreate_type,
   userCredentials_type,
   userLogin_type,
   userSignup_type,
@@ -143,4 +144,12 @@ export const useGetTeamPerUser = (teamId: string) => {
     queryFn: () => teamApiClient.getTeam(teamId),
   });
   return { data, isLoading, error };
+};
+
+// issue hooks
+
+export const useCreateIssue = () => {
+  return useMutation({
+    mutationFn: (issue: issueCreate_type) => issueApiClient.createIssue(issue),
+  });
 };

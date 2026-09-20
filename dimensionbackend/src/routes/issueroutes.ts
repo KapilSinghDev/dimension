@@ -38,7 +38,7 @@ export class issueRouter {
   private createIssueRoute = () => {
     this.router.post(
       "/issue/create",
-      authenticateUser,
+      // authenticateUser,
       this.issueController.createNewIssue,
     );
   };

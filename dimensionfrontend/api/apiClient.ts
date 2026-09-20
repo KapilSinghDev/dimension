@@ -1,4 +1,5 @@
 import * as axios from "axios";
+import Cookies from "js-cookie";
 const base_url = "http://localhost:8000/dimension/api";
 export const apiclient: axios.AxiosInstance = axios.create({
   baseURL: base_url,
@@ -7,7 +8,7 @@ export const apiclient: axios.AxiosInstance = axios.create({
 });
 
 apiclient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("TOKEN");
+  const token = Cookies.get("TOKEN");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -23,13 +24,14 @@ apiclient.interceptors.response.use(
       token = response.data.token;
     }
     if (token) {
-      localStorage.setItem("TOKEN", token);
+      Cookies.set("TOKEN", token);
+      // localStorage.setItem("TOKEN", token);
     }
     return response;
   },
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("TOKEN");
+      Cookies.remove("TOKEN");
       // window.location.href = "/welcome?tab=signup";
     }
     return Promise.reject(error);
