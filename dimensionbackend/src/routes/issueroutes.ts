@@ -24,7 +24,7 @@ export class issueRouter {
   private getAllIssues = () => {
     this.router.get(
       "/issue/all",
-      // authenticateUser,
+      authenticateUser,
       this.issueController.getAllIssue,
     );
   };

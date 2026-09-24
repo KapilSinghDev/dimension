@@ -1,16 +1,7 @@
-export enum IssueStatus_enums {
-  Todo = "Todo",
-  Urgent = "Urgent",
-  Bug = "Bug",
-  Feature = "Feature",
-}
 export enum IssuePriority_enums {
-  NoPriority = "No Priority",
-  Urgent = "Urgent",
-  High = "High",
-  Medium = "Medium",
-  Low = "Low",
-  Priority = "Priority",
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
 }
 export enum IssueLabel_enums {
   NoLabel = "No label",

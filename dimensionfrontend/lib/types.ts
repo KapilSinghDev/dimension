@@ -66,7 +66,7 @@ export type issueCreate_type = {
   priority: priority_enum;
   status: issue_status_enum;
   target: string;
-  project?: string;
+  project?: number;
 };
 
 export type project_type = {
@@ -96,6 +96,23 @@ export interface issueInterface {
   priority: string;
   assignee: string;
   label: string;
-  project_id: string;
+  project_id: number;
   dueDate: Date;
+}
+
+export interface updateOrganisationDto {
+  name?: string;
+  description?: string | null;
+  joiningDate?: Date;
+}
+
+export interface organisationIdParamDto {
+  id: number;
+}
+
+export interface organisationResponseDto {
+  organisationId: number;
+  name: string;
+  description?: string | null;
+  joiningDate: Date;
 }

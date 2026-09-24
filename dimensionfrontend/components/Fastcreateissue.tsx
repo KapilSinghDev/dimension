@@ -46,20 +46,35 @@ interface MetadataConfig {
   tooltip: string;
   items: string[];
 }
-
-export default function FastCreateIssue() {
+interface FastCreateIssueProps {
+  onCancel?: () => void;
+  onOpen?: () => void;
+}
+export default function FastCreateIssue({
+  onCancel,
+  onOpen,
+}: FastCreateIssueProps) {
   const [isOpen, setIsOpen] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const metaDataRef = useRef<HTMLDivElement>(null);
   // Dynamic state container mapping individual properties
 
+  // Cancel handling inside this
+  const handleCancellation = () => {
+    onCancel?.();
+    setIsOpen(false);
+  };
+  const handleOpening = () => {
+    onOpen?.();
+    setIsOpen(true);
+  };
   const [issueData, setIssueData] = useState<issueInterface>({
     status: "Todo",
     priority: "No Priority",
     assignee: "No assignee",
     label: "No label",
-    project_id: "None",
+    project_id: -1,
     dueDate: new Date(),
   });
   function updateIssueStates(name: keyof issueInterface, value: string) {
@@ -70,6 +85,7 @@ export default function FastCreateIssue() {
   const createIssue = useCreateIssue();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     createIssue.mutate(
       {
         title: titleRef.current?.value as string,
@@ -102,13 +118,9 @@ export default function FastCreateIssue() {
   // Helper mapping values to corresponding icons for the primary Status Selector
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Todo":
-        return <CheckSquare className="h-3.5 w-3.5 text-slate-400" />;
-      case "Urgent":
-        return <Flame className="h-3.5 w-3.5 text-amber-500" />;
-      case "Bug":
+      case "closed":
         return <Flame className="h-3.5 w-3.5 text-red-500" />;
-      case "Feature":
+      case "active":
         return <Circle className="h-3.5 w-3.5 fill-blue-500 text-blue-500" />;
       default:
         return <Circle className="h-3.5 w-3.5 text-muted-foreground" />;
@@ -121,7 +133,7 @@ export default function FastCreateIssue() {
       id: "priority",
       icon: Flag,
       tooltip: "Priority",
-      items: ["Urgent", "High", "Medium", "Low", "No Priority"],
+      items: ["high", "medium", "low"],
     },
     {
       id: "assignee",
@@ -133,7 +145,7 @@ export default function FastCreateIssue() {
       id: "label",
       icon: Tag,
       tooltip: "Labels",
-      items: ["Bug", "Feature", "Improvement", "No label"],
+      items: ["bug", "feature", "improvement", "no_label"],
     },
   ];
 
@@ -152,7 +164,7 @@ export default function FastCreateIssue() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => setIsOpen(true)}
+                    onClick={() => handleOpening()}
                     variant="secondary"
                     className="bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 text-[14px] font-medium transition-all"
                   >
@@ -202,18 +214,12 @@ export default function FastCreateIssue() {
                         <DropdownMenuSeparator />
                         {[
                           {
-                            name: "Todo",
-                            icon: CheckSquare,
-                            color: "text-gray-400",
-                          },
-                          {
-                            name: "Urgent",
+                            name: "closed",
                             icon: Flame,
-                            color: "text-amber-500",
+                            color: "text-red-500",
                           },
-                          { name: "Bug", icon: Flame, color: "text-red-500" },
                           {
-                            name: "Feature",
+                            name: "active",
                             icon: Circle,
                             color: "text-blue-500 fill-blue-500",
                           },
@@ -397,7 +403,7 @@ export default function FastCreateIssue() {
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => setIsOpen(false)}
+                      onClick={handleCancellation}
                       className="h-8 px-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       Cancel

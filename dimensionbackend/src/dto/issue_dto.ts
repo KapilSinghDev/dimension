@@ -40,7 +40,7 @@ export const create_issue_dto = z.object({
   priority: z.enum(priority_enum),
   status: z.enum(issue_status_enum),
   target: z.string(),
-  project: z.string().optional().nullable(),
+  project: z.number().optional().nullable(),
 });
 
 export type create_issue_dto_type = z.infer<typeof create_issue_dto>;

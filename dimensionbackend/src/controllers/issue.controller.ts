@@ -1,11 +1,20 @@
+import authenticationService from "@/service/authentication.service";
 import { issueService } from "../service/issues.service";
 import { Request, Response } from "express";
-
+import * as jwt from "jsonwebtoken";
 export class issueController {
   issueService = new issueService();
-
+  authService = new authenticationService();
   createNewIssue = async (req: Request, res: Response) => {
     try {
+      const token = req.headers.authorization?.split(" ")[1];
+      const decodeToken = jwt.verify(
+        token,
+        this.authService.SECRET_KEY as string,
+      );
+      console.log("the decoded token => ", decodeToken);
+      req.body.created_by = 1;
+      console.log("the body received in creating a new issue is => ", req.body);
       const issue = await this.issueService.createIssue(req.body);
       res.send({ message: "success", "issue id": issue }).status(201);
     } catch (err) {
@@ -55,10 +64,10 @@ export class issueController {
   getAllIssue = async (req: Request, res: Response) => {
     try {
       const issueList = await this.issueService.getAllIssues();
-      res.send({ message: issueList }).send(200);
+      res.status(200).send({ message: issueList });
     } catch (err) {
       console.error(err);
-      res.send({ message: "An error occured" }).status(500);
+      res.status(500).send({ message: "An error occured" });
       throw err;
     }
     return;

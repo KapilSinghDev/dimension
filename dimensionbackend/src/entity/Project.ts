@@ -15,6 +15,7 @@ import {
 } from "../../enums";
 import { Issues } from "./Issue";
 import { User } from "./User";
+import { Organisation } from "./Organisation";
 
 @Entity()
 export class Projects {
@@ -54,4 +55,7 @@ export class Projects {
     cascade: true,
   })
   issues!: Issues[];
+
+  @ManyToOne(() => Organisation, (orgs) => orgs.projects)
+  organisation: Organisation;
 }

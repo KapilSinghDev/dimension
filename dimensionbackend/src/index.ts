@@ -9,6 +9,7 @@ import { teamRoute } from "./routes/teamroutes";
 import { Projectroutes } from "./routes/projectroutes";
 import cors from "cors";
 import { s3MediaRoutes } from "./routes/s3.routes";
+import organisationRouter from "@/routes/orgroutes";
 // import "multer";
 const PORT = 8000;
 AppDataSource.initialize()
@@ -38,6 +39,7 @@ AppDataSource.initialize()
     dimension_app_router.use(routes_team.publishTeamRoutes());
     dimension_app_router.use(routes_projects.publishProjectRoutes());
     dimension_app_router.use(media_routes.publishMediaRoutes());
+    dimension_app_router.use(organisationRouter);
 
     dimension_app_router.get("/", (req, res) => {
       res.send("Dimension backend running");

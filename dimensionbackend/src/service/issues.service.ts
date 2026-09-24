@@ -17,18 +17,28 @@ class issueService {
     const team = issue.team
       ? await this.teamRepository.findOneBy({ name: issue.team })
       : null;
-    const project = await this.projectRepository.findOneBy({
-      id: Number(issue.project),
-    });
+    console.log(
+      "the type of issue.project = ",
+      typeof issue.project,
+      "and the value ",
+      issue.project,
+    );
+    const project =
+      issue.project !== -1
+        ? await this.projectRepository.findOneBy({
+            id: Number(issue.project),
+          })
+        : null;
     const issueInstance = {
       ...issue,
       created_at: new Date(),
-      // description: issue.description,
-      // lable: issue.label,
+      description: issue.description,
+      lable: issue.label,
       assignee: user,
       team: team,
       project: project,
     };
+    console.log("the issue that is being saved => ", issueInstance);
     const createIssue = await this.issueRepository.save(issueInstance);
     return createIssue;
   }

@@ -12,6 +12,7 @@ const user_credentials_dto = z.object({
     .mime(["image/jpeg", "image/png"])
     .max(5 * 1024 * 1024)
     .optional(),
+  organisation: z.string(),
 });
 type user_credentials_dto_type = z.infer<typeof user_credentials_dto>;
 

@@ -11,6 +11,7 @@ import { Teams } from "./Teams";
 import { Issues } from "./Issue";
 import { BaseCredentials } from "./Credentials";
 import { Projects } from "./Project";
+import { Organisation } from "./Organisation";
 @Entity()
 export class User extends BaseCredentials {
   @Column({ nullable: true })
@@ -19,8 +20,8 @@ export class User extends BaseCredentials {
   @Column({ nullable: true })
   role!: string;
 
-  @Column({ nullable: true })
-  organisation!: string;
+  @ManyToOne(() => Organisation, (orgs) => orgs.users)
+  organisation: Organisation;
 
   @ManyToOne(() => Teams, (team) => team.members)
   team!: Relation<Teams>;

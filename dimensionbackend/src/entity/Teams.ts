@@ -10,6 +10,7 @@ import {
 import { Issues } from "./Issue";
 import { User } from "./User";
 import { Credentials } from "./Credentials";
+import { Organisation } from "./Organisation";
 @Entity()
 export class Teams {
   @PrimaryGeneratedColumn()
@@ -28,4 +29,7 @@ export class Teams {
 
   @OneToMany(() => Issues, (issue) => issue.team)
   issue_assigned!: Issues[];
+
+  @ManyToOne(() => Organisation, (orgs) => orgs.teams)
+  organisation: Organisation;
 }

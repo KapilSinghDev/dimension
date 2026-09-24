@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useLoginUser, useUserSignup, useVerifyUser } from "@/hooks/apihooks";
+import {
+  useGetAllOrganisations,
+  useLoginUser,
+  useUserSignup,
+  useVerifyUser,
+} from "@/hooks/apihooks";
 import { issue_route, project_route, workspace_route } from "@/lib/routes";
 import { userCredentials_type, userSignup_type } from "@/lib/types";
 import { AxiosError } from "axios";
@@ -161,7 +166,7 @@ export default function OnboardingPage() {
         // console.log("The signup response");
         // console.log(response);
         // console.log(response.data);
-        router.push(project_route);
+        router.push(project_route + "?page=1");
       },
       onError: () => {
         // pop up some error occured and try again
@@ -185,12 +190,15 @@ export default function OnboardingPage() {
           if (response?.data["message"] === "Invalid user") {
             alert("User does not exist");
           } else {
-            router.push(project_route);
+            router.push(project_route + "?page=1");
           }
         },
       },
     );
   }
+
+  const { data, isLoading, error } = useGetAllOrganisations();
+  console.log(data);
   return (
     <div className="flex h-screen w-full bg-black font-sans">
       {tab === "signup" ? (
@@ -289,17 +297,34 @@ export default function OnboardingPage() {
               invalid={errors.organisation}
               errorText="Organisation is required."
             >
-              <input
+              <select
                 id="organisation"
-                type="text"
-                placeholder="Analytical Engines Inc."
-                autoComplete="organization"
                 value={values.organisation}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  update("organisation", e.target.value)
-                }
-                className={errors.organisation ? inputInvalidClass : inputClass}
-              />
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                  update("organisation", e.target.value);
+                  console.log(
+                    "seleted organisation is = ",
+                    e.target.value,
+                    // data?.data[e.target.value].name,
+                  );
+                }}
+                className={`cursor-pointer ${errors.role ? inputInvalidClass : inputClass}`}
+              >
+                <option value="" disabled>
+                  Select your role
+                </option>
+                {data?.data.map((item: { name: string }, index: number) => (
+                  <option
+                    key={item.name}
+                    value={item.name}
+                    onClick={() => {
+                      console.log("clicked option = ", item.name);
+                    }}
+                  >
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </Field>
 
             <Field

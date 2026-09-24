@@ -2,6 +2,7 @@
 import { apiclient } from "@/api/apiClient";
 import { authApi } from "@/api/authApi";
 import { issueApi } from "@/api/issueApi";
+import { OrganisationApi } from "@/api/organisationApi";
 import { projectApi } from "@/api/projectsApi";
 import { s3Api } from "@/api/s3Api";
 import { teamApi } from "@/api/teamApi";
@@ -13,13 +14,15 @@ import {
   userSignup_type,
   userUpdateProfile_type,
 } from "@/lib/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 const projectApiClient = new projectApi();
 const issueApiClient = new issueApi();
 const s3ApiClient = new s3Api();
 const authApiClient = new authApi();
 const teamApiClient = new teamApi();
+const orgApiClient = new OrganisationApi();
+
 export const useGetUser = (email: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["user", email],
@@ -149,7 +152,21 @@ export const useGetTeamPerUser = (teamId: string) => {
 // issue hooks
 
 export const useCreateIssue = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (issue: issueCreate_type) => issueApiClient.createIssue(issue),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["issues-batch"] });
+    },
   });
+};
+
+//organisation hooks
+
+export const useGetAllOrganisations = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["organisations"],
+    queryFn: () => orgApiClient.getAllOrganisations(),
+  });
+  return { data, isLoading, error };
 };

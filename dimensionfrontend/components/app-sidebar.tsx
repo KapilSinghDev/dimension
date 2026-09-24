@@ -50,7 +50,13 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
-import { issue_route, project_route, user_profile_route } from "@/lib/routes";
+import {
+  issue_route,
+  project_route,
+  user_profile_route,
+  welcome_route,
+} from "@/lib/routes";
+import Cookies from "js-cookie";
 const name = "Acme Corp";
 
 export function AppSidebar() {
@@ -58,6 +64,11 @@ export function AppSidebar() {
   const [myTeamOpen, setMyTeamOpen] = useState(true);
   const [workspaceOpen, setWorkspaceOpen] = useState(true);
   const router = useRouter();
+  const handleUserLogout = () => {
+    Cookies.remove("TOKEN");
+    router.push(welcome_route);
+    router.refresh();
+  };
   return (
     <Sidebar className="bg-black">
       {/* ─── Header ─── */}
@@ -95,7 +106,10 @@ export function AppSidebar() {
                 <DropdownMenuItem>
                   <ArrowLeftRight size={15} /> Switch Workspace
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500">
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={() => handleUserLogout()}
+                >
                   <LogOut size={15} /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -210,7 +224,9 @@ export function AppSidebar() {
                           </SidebarMenuItem>
 
                           <SidebarMenuItem
-                            onClick={() => router.push(project_route)}
+                            onClick={() =>
+                              router.push(project_route + "?page=1")
+                            }
                           >
                             <SidebarMenuButton className="text-muted-foreground hover:text-foreground">
                               <LayoutGrid size={14} />

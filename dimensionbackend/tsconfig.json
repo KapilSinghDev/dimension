@@ -9,6 +9,9 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "esModuleInterop":true,
-    "strict": false
+    "strict": false,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }

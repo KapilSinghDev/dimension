@@ -19,10 +19,12 @@ import { s3ServiceClient } from "./s3.service";
 // import Multer from "multer";
 import * as multer from "multer";
 import { userPayloadInterface } from "../middleware/authenticate";
+import { Organisation } from "../entity/Organisation";
 class authenticationService {
   private userRepository = AppDataSource.getRepository(User);
   private issueRepository = AppDataSource.getRepository(Issues);
   private credentialsRepository = AppDataSource.getRepository(Credentials);
+  private organisationRepository = AppDataSource.getRepository(Organisation);
   salt_rounds = 10;
   SECRET_KEY = process.env.SECRET_KEY;
   s3Service = new s3ServiceClient();
@@ -70,9 +72,13 @@ class authenticationService {
       const hashpassword = await bcrypt.hash(member.password, this.salt_rounds);
       member.password = hashpassword;
       const newUser = await this.credentialsRepository.save(member);
+      const userOrganisatoin = await this.organisationRepository.findOneBy({
+        name: member.organisation,
+      });
       const savedUser = await this.userRepository.save({
         ...newUser,
         picture: image_url,
+        organisation: userOrganisatoin,
       });
       const token = this.generateToken(newUser.email);
       return token;
@@ -103,10 +109,13 @@ class authenticationService {
     const profile = await this.credentialsRepository.findOneBy({
       email: user_email,
     });
+    const org = await this.organisationRepository.findOneBy({
+      name: organisation,
+    });
     const profileUpdate = this.userRepository.create({
       ...profile,
       role: role || null,
-      organisation: organisation || null,
+      organisation: org,
       picture: url,
     });
     const update = await this.userRepository.save(profileUpdate);

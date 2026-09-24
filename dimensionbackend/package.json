@@ -13,6 +13,7 @@
     "@types/node": "^16.18.126",
     "prettier": "3.8.3",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
   },
   "scripts": {
     "start": "ts-node src/index.ts",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "dev": "ts-node -r tsconfig-paths/register src/index.ts"
   }
 }

@@ -42,90 +42,10 @@ import {
 } from "@/components/ui/menubar";
 import { useGetIssues } from "@/hooks/apihooks";
 import { IssueItems } from "@/lib/response.types";
+import noissues from "@/assets/emptystates/no_issues.svg";
+import Image from "next/image";
+import FastCreateIssue from "@/components/Fastcreateissue";
 type Priority = "high" | "medium" | "low";
-type Status = "active" | "backlog";
-
-interface Issue {
-  id: string;
-  title: string;
-  status: Status;
-  priority: Priority;
-  assignee: string;
-  assigneeColor: string;
-  assigneeBg: string;
-}
-
-const issues: Issue[] = [
-  {
-    id: "MT-101",
-    title: "Fix authentication token refresh bug",
-    status: "active",
-    priority: "high",
-    assignee: "AR",
-    assigneeColor: "#185FA5",
-    assigneeBg: "#E6F1FB",
-  },
-  {
-    id: "MT-102",
-    title: "Design new onboarding flow mockups",
-    status: "active",
-    priority: "medium",
-    assignee: "JK",
-    assigneeColor: "#3B6D11",
-    assigneeBg: "#EAF3DE",
-  },
-  {
-    id: "MT-103",
-    title: "Set up CI/CD pipeline for staging",
-    status: "active",
-    priority: "high",
-    assignee: "TS",
-    assigneeColor: "#533AB7",
-    assigneeBg: "#EEEDFE",
-  },
-  {
-    id: "MT-104",
-    title: "Write unit tests for payment module",
-    status: "backlog",
-    priority: "medium",
-    assignee: "AR",
-    assigneeColor: "#185FA5",
-    assigneeBg: "#E6F1FB",
-  },
-  {
-    id: "MT-105",
-    title: "Migrate legacy API endpoints to v2",
-    status: "backlog",
-    priority: "low",
-    assignee: "MN",
-    assigneeColor: "#993C1D",
-    assigneeBg: "#FAECE7",
-  },
-  {
-    id: "MT-106",
-    title: "Audit and update dependencies",
-    status: "backlog",
-    priority: "low",
-    assignee: "JK",
-    assigneeColor: "#3B6D11",
-    assigneeBg: "#EAF3DE",
-  },
-  {
-    id: "MT-107",
-    title: "Implement dark mode for dashboard",
-    status: "active",
-    priority: "medium",
-    assignee: "TS",
-    assigneeColor: "#533AB7",
-    assigneeBg: "#EEEDFE",
-  },
-];
-
-const priorityColor: Record<Priority, string> = {
-  high: "#E24B4A",
-  medium: "#EF9F27",
-  low: "#888780",
-};
 
 type Filter = "all" | "active" | "backlog";
 
@@ -141,6 +61,7 @@ export default function TeamIssues() {
   const issueList: IssueItems[] =
     filter === "all" ? issues : issues.filter((item) => item.status === filter);
 
+  const [createIssue, setIsCreating] = useQueryState("create");
   return (
     <div className="h-screen w-full overflow-hidden  flex flex-row items-start justify-start p-4">
       {!id && (
@@ -216,9 +137,31 @@ export default function TeamIssues() {
 
           <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
             {issueList?.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-8">
-                No issues found
-              </p>
+              <div className="flex min-h-[70vh] flex-col items-center   transition-all duration-300">
+                <div
+                  className={`flex w-full flex-col ${createIssue === "false" ? "items-center" : ""}`}
+                >
+                  {/* Minimal Illustration - Hides smoothly when creating issue */}
+                  {createIssue === "false" && (
+                    <div className="mt-10 flex justify-center animate-in fade-in zoom-in-95 duration-200">
+                      <Image
+                        src={noissues}
+                        alt="No issues"
+                        width={160}
+                        height={160}
+                        priority
+                        className="opacity-90 object-contain"
+                      />
+                    </div>
+                  )}
+                  <div className="">
+                    <FastCreateIssue
+                      onOpen={() => setIsCreating("true")}
+                      onCancel={() => setIsCreating("false")}
+                    />
+                  </div>
+                </div>
+              </div>
             ) : (
               issueList?.map((issue: IssueItems, key) => (
                 <Issuebox

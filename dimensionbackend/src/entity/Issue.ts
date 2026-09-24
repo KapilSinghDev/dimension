@@ -7,6 +7,7 @@ import {
 import { Teams } from "./Teams";
 import { User } from "./User";
 import { Projects } from "./Project";
+import { Organisation } from "./Organisation";
 
 @Entity()
 export class Issues {
@@ -60,4 +61,7 @@ export class Issues {
     // cascade: true,
   })
   project!: Projects;
+
+  @ManyToOne(() => Organisation, (orgs) => orgs.issues)
+  organisation: Organisation;
 }

@@ -62,9 +62,15 @@ export class ProjectService {
   fetchProjectByBatch = async (page: number, email: string) => {
     const batch_size = 13;
     const skip = (page - 1) * batch_size;
+    console.log(
+      "skip project by batch type = ",
+      typeof skip,
+      "and value ",
+      skip,
+    );
     const projects = await this.projectRepository.findAndCount({
       take: batch_size,
-      skip: skip,
+      skip: Number(skip),
     });
     return projects;
   };
