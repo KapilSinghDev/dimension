@@ -87,14 +87,14 @@ export default function ProjectTable() {
   const [projectId, setProjectId] = useQueryState("project");
   const [page, setPage] = useQueryState("page");
 
+  const { projects, isLoading, error } = useGetProjectsbyBatch(page as string);
+
   useEffect(() => {
     if (!page) {
       setPage("1");
     }
   }, [page, setPage]);
 
-  const { projects, isLoading, error } = useGetProjectsbyBatch(page as string);
-  console.log(projects);
   // Helper for tracking project health rings
   const getHealthStyles = (health: ProjectItem["health"]) => {
     switch (health) {
@@ -106,7 +106,9 @@ export default function ProjectTable() {
         return { bg: "bg-red-500", label: "Off track" };
     }
   };
-
+  function createNewProject() {
+    setProjectId("new");
+  }
   return (
     <div className="w-full h-full px-14 py-5 overflow-y-auto flex flex-col">
       {projects?.length === 0 && (
@@ -131,7 +133,7 @@ export default function ProjectTable() {
           {/* Action Button */}
           <div className="mt-6">
             <Button
-              // onClick={onCreateProject}
+              onClick={createNewProject}
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />

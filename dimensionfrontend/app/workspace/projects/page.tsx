@@ -14,6 +14,7 @@ import {
   TableProperties,
   Activity,
   UserPlus,
+  Save,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -25,6 +26,7 @@ import Documentscreen from "@/components/screens/Documentscreen";
 import { parseAsString, useQueryState } from "nuqs";
 import { useEffect } from "react";
 import ProjectTable from "@/components/screens/ProjectsTablescreen";
+import { Button } from "@/components/ui/button";
 const Projects = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState(
@@ -60,10 +62,7 @@ const Projects = () => {
         <div
           className={`w-full sticky top-16 z-10 mt-4 ${state === "expanded" ? "px-16" : "px-12"} flex gap-2`}
         >
-          <Tabs
-            defaultValue={tab || "activity"}
-            className="w-full sticky top-16 z-10"
-          >
+          <Tabs defaultValue={tab || "activity"} className="w-auto">
             <TabsList className="bg-transparent p-0 px-0 h-fit w-fit justify-start gap-1.5 border-none">
               <TabsTrigger
                 value="activity"

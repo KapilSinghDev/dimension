@@ -9,12 +9,14 @@ import { teamApi } from "@/api/teamApi";
 import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
 import {
   issueCreate_type,
+  project_type,
   userCredentials_type,
   userLogin_type,
   userSignup_type,
   userUpdateProfile_type,
 } from "@/lib/types";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useQueryState } from "nuqs";
 
 const projectApiClient = new projectApi();
 const issueApiClient = new issueApi();
@@ -67,8 +69,17 @@ export const useUpdateUser = () => {
       authApiClient.updateUser(payload),
   });
 };
-
+// project hooks
+export const useCreateProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: project_type) =>
+      projectApiClient.createProject(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
+  });
+};
 export const useGetProjects = (projectId: string) => {
+  const [projectsId] = useQueryState("projects");
   const {
     data: projects,
     isLoading,
@@ -78,6 +89,7 @@ export const useGetProjects = (projectId: string) => {
     queryFn: () =>
       projectApiClient.getProjects(projectId).then((res) => res.data.message),
     retry: 1,
+    enabled: projectId !== "new",
   });
   return { projects, isLoading, error };
 };

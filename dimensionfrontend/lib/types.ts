@@ -68,14 +68,14 @@ export type issueCreate_type = {
   target: string;
   project?: number;
 };
-
+// use this for create project api
 export type project_type = {
   title: string;
   description?: string;
   target_date?: Date;
-  health?: project_health_enum;
-  priority?: project_priority_enum;
-  status?: project_status_enum;
+  health?: project_health_enum | null;
+  priority?: project_priority_enum | null;
+  status?: project_status_enum | null;
   issue?: issueCreate_type[] | null;
 };
 
