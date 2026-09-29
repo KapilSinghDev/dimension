@@ -87,7 +87,7 @@ const iconColorMapper = [
   {
     key: "completed",
     style:
-      "text-white dark:bg-emerald-950 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+      "bg-blue-100 text-blue-500 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
   },
 ];
 

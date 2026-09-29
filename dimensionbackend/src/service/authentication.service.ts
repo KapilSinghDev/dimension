@@ -40,9 +40,10 @@ class authenticationService {
     return existingUser;
   }
 
-  async generateToken(user_email: string) {
+  async generateToken(user_email: string, user_id: number) {
     const token = jwt.sign(
-      { user_email } as userPayloadInterface,
+      { user_email, user_id } as userPayloadInterface,
+      // {user_id}
       this.SECRET_KEY as string,
       {
         expiresIn: "720h",
@@ -80,13 +81,15 @@ class authenticationService {
         picture: image_url,
         organisation: userOrganisatoin,
       });
-      const token = this.generateToken(newUser.email);
+      const token = this.generateToken(newUser.email, newUser.user_id);
       return token;
     }
     return null;
   }
 
-  async verifyUser(login_member: user_login_dto_type) {
+  async verifyUser(
+    login_member: user_login_dto_type,
+  ): Promise<{ verification: boolean; user_id: number }> {
     const existingUser = await this.credentialsRepository.findOneBy({
       email: login_member.email,
     });
@@ -95,9 +98,9 @@ class authenticationService {
         login_member.password,
         existingUser.password,
       );
-      return verified;
+      return { verification: verified, user_id: existingUser.user_id };
     }
-    return false;
+    return { verification: false, user_id: -1 };
   }
   // @validate(update_profile_dto)
   async updateUserProfile(

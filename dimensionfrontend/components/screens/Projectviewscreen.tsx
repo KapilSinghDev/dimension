@@ -10,6 +10,7 @@ import {
   ArrowRight,
   Save,
   ChevronDownIcon,
+  CalendarDays,
 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
@@ -24,14 +25,18 @@ import Update from "@/components/Update";
 import Addtarget from "@/components/Addtarget";
 import Issuedisplay from "@/components/Issuedisplay";
 import { useQueryState } from "nuqs";
-import { useCreateProject, useGetProjects } from "@/hooks/apihooks";
+import {
+  useCreateProject,
+  useGetProjects,
+  useUpdateProject,
+} from "@/hooks/apihooks";
 import { project_type } from "@/lib/types";
 import {
   project_health_enum,
   project_priority_enum,
   project_status_enum,
 } from "@/lib/enums";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { DatePickerSimple } from "../Pickdates";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
@@ -46,15 +51,31 @@ const Projectviewscreen = () => {
 
   const [datePopOver, setDatepopOver] = useState<boolean>(false);
   const [projectTargetDate, setProjectTargetDate] = useState<Date>();
+
+  const { projects, isLoading, error } = useGetProjects(project as string);
+  const projectDetail = projects;
   const [projectInterface, setProjectInterface] = useState<project_type>({
-    title: "",
-    description: "",
+    title: projectDetail?.title || "",
+    description: projectDetail?.description || "",
     target_date: projectTargetDate,
-    health: null,
-    priority: null,
-    status: null,
-    issue: null,
+    health: project_health_enum.ON_TRACK,
+    priority: (projectDetail?.priority as project_priority_enum) || null,
+    status: (projectDetail?.status as project_status_enum) || null,
+    issue: projectDetail?.issues || null,
   });
+  useEffect(() => {
+    if (projectDetail) {
+      setProjectInterface({
+        title: projectDetail.title || "",
+        description: projectDetail.description || "",
+        target_date: projectTargetDate,
+        health: project_health_enum.ON_TRACK,
+        priority: projectDetail.priority as project_priority_enum,
+        status: projectDetail.status as project_status_enum,
+        issue: projectDetail.issues,
+      });
+    }
+  }, [projectDetail]);
   function handleProjectFieldUpdate<k extends keyof project_type>(
     field: k,
     value: project_type[k],
@@ -68,15 +89,15 @@ const Projectviewscreen = () => {
     }));
   }
   const createProject = useCreateProject();
+  const updateProject = useUpdateProject(project as string);
   function updateAndSaveProject() {
-    console.log("updated project values are ", projectInterface);
-    createProject.mutate(projectInterface);
-    // router.push(project_route + "?page=1");
+    if (project === "new") {
+      createProject.mutate(projectInterface);
+    } else {
+      console.log("updating project interfacev => ", projectInterface);
+      updateProject.mutate(projectInterface);
+    }
   }
-
-  const { projects, isLoading, error } = useGetProjects(project as string);
-  const projectDetail = projects;
-
   return (
     <>
       <div
@@ -104,7 +125,7 @@ const Projectviewscreen = () => {
             onClick={() => updateAndSaveProject()}
           >
             <Save className="h-4 w-4" />
-            Save Project
+            {project === "new" ? "Save Project" : "Update"}
           </Button>
         </div>
 
@@ -122,7 +143,10 @@ const Projectviewscreen = () => {
           {[
             {
               icon: Flame,
-              name: projectInterface.priority || "Assign Priority",
+              name:
+                projects?.priority ||
+                projectInterface.priority ||
+                "Assign Priority",
               variant: "high" as const,
               optionField: "priority" as keyof project_type,
               options: [
@@ -134,8 +158,13 @@ const Projectviewscreen = () => {
             },
             { icon: Crown, name: "Team Lead", variant: "lead" as const },
             {
-              icon: CalendarClock,
-              name: projectInterface.target_date || "Set Target",
+              icon: CalendarDays,
+              name:
+                // format(projects?.taget_date as string, "PPP")
+
+                projects?.taget_date ||
+                projectInterface.target_date ||
+                "Set Target",
               variant: "completed" as const,
               component: (
                 <Popover open={datePopOver} onOpenChange={setDatepopOver}>
@@ -172,7 +201,7 @@ const Projectviewscreen = () => {
             },
             {
               icon: CircleCheck,
-              name: projectInterface.status || "Set Status",
+              name: projects?.status || projectInterface.status || "Set Status",
               variant: "normal" as const,
               optionField: "status" as keyof project_type,
               options: [
@@ -228,6 +257,9 @@ const Projectviewscreen = () => {
               projectDetail?.description.length !== 0
                 ? projectDetail?.description
                 : ""
+            }
+            onBlur={(e) =>
+              handleProjectFieldUpdate("description", e.target.value)
             }
           />
         </Field>

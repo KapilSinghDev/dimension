@@ -78,14 +78,26 @@ export const useCreateProject = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
   });
 };
+
+export const useUpdateProject = (project_id: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: project_type) =>
+      projectApiClient.updateProject({
+        projectId: project_id,
+        project: payload,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["project"] }),
+  });
+};
 export const useGetProjects = (projectId: string) => {
-  const [projectsId] = useQueryState("projects");
+  const [projectsId] = useQueryState("project");
   const {
     data: projects,
     isLoading,
     error,
   } = useQuery<ProjectApiItem>({
-    queryKey: ["projects", projectId],
+    queryKey: ["project", projectId],
     queryFn: () =>
       projectApiClient.getProjects(projectId).then((res) => res.data.message),
     retry: 1,

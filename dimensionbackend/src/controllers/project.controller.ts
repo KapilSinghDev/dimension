@@ -11,8 +11,13 @@ export class ProjectController {
   authService = new authenticationService();
   createProject = async (req: Request, res: Response) => {
     const body = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
     try {
-      const project = await this.projectservices.createProject(body);
+      const project = await this.projectservices.createProject(
+        body,
+        decodeToken.user_email,
+      );
       res.status(200).send({ message: project });
     } catch (err) {
       res.status(500).send({
@@ -24,14 +29,12 @@ export class ProjectController {
   };
 
   updateProject = async (req: Request, res: Response) => {
-    const body = req.body;
-    console.log("Body => ", body);
     try {
       const update = this.projectservices.updateProject(
-        body.project_id,
-        body.project,
+        req.body.projectId,
+        req.body.project,
       );
-      res.status(200).send({ message: update });
+      res.status(200).send({ message: " successfully" });
     } catch (err) {
       res.status(500).send({
         message: "An unknown error occured",
@@ -81,6 +84,7 @@ export class ProjectController {
     const page = req.query.page;
     const token = req.headers.authorization?.split(" ")[1];
     const decodeToken = jwt.decode(token) as userPayloadInterface;
+    console.log("token decoded fetch project by batch", decodeToken);
     try {
       const projectlist = await this.projectservices.fetchProjectByBatch(
         Number(page),

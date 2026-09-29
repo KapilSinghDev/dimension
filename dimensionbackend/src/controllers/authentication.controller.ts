@@ -32,12 +32,15 @@ export class authenticationController {
       const authService = new authenticationService();
       const loginResponse = await authService.verifyUser(req.body);
       let token;
-      if (loginResponse === true) {
-        token = await authService.generateToken(req.body.email);
+      if (loginResponse.verification === true) {
+        token = await authService.generateToken(
+          req.body.email,
+          loginResponse.user_id,
+        );
       }
       res
         .send(
-          loginResponse === true
+          loginResponse.verification === true
             ? { message: "User Verified", token: token }
             : { message: "Invalid user" },
         )
