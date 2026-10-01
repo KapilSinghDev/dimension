@@ -65,17 +65,19 @@ const Projectviewscreen = () => {
   });
   useEffect(() => {
     if (projectDetail) {
+      setProjectTargetDate(new Date(projectDetail.taget_date));
       setProjectInterface({
         title: projectDetail.title || "",
         description: projectDetail.description || "",
         target_date: projectTargetDate,
-        health: project_health_enum.ON_TRACK,
+        health: projectDetail.health as project_health_enum,
         priority: projectDetail.priority as project_priority_enum,
         status: projectDetail.status as project_status_enum,
         issue: projectDetail.issues,
       });
     }
   }, [projectDetail]);
+  // console.log("The date in api response = ", projectTargetDate);
   function handleProjectFieldUpdate<k extends keyof project_type>(
     field: k,
     value: project_type[k],
@@ -95,7 +97,7 @@ const Projectviewscreen = () => {
       createProject.mutate(projectInterface);
     } else {
       console.log("updating project interfacev => ", projectInterface);
-      updateProject.mutate(projectInterface);
+      // updateProject.mutate(projectInterface);
     }
   }
   return (
@@ -144,9 +146,8 @@ const Projectviewscreen = () => {
             {
               icon: Flame,
               name:
-                projects?.priority ||
-                projectInterface.priority ||
-                "Assign Priority",
+                // projects?.priority ||
+                projectInterface.priority || "Assign Priority",
               variant: "high" as const,
               optionField: "priority" as keyof project_type,
               options: [
@@ -162,9 +163,8 @@ const Projectviewscreen = () => {
               name:
                 // format(projects?.taget_date as string, "PPP")
 
-                projects?.taget_date ||
-                projectInterface.target_date ||
-                "Set Target",
+                // projects?.taget_date ||
+                projectTargetDate || "Set Target",
               variant: "completed" as const,
               component: (
                 <Popover open={datePopOver} onOpenChange={setDatepopOver}>
@@ -201,7 +201,7 @@ const Projectviewscreen = () => {
             },
             {
               icon: CircleCheck,
-              name: projects?.status || projectInterface.status || "Set Status",
+              name: projectInterface.status || "Set Status",
               variant: "normal" as const,
               optionField: "status" as keyof project_type,
               options: [
@@ -245,7 +245,12 @@ const Projectviewscreen = () => {
             Add
           </Button>
         </div>
-        <Update variant="update" />
+        <Update
+          variant="update"
+          status={projectInterface.health as string}
+          field="health"
+          onSelect={(field, value) => handleProjectFieldUpdate(field, value)}
+        />
         {/* <Projectupdatemodal /> */}
         <Field className="mt-3">
           <FieldDescription>Description</FieldDescription>

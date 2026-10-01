@@ -125,16 +125,22 @@ const ProjectTabs = ({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>{triggerBadge}</DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent
+          align="start"
+          className="min-w-[180px] rounded-xl border border-blue-100 bg-white p-1.5 shadow-lg shadow-blue-100/50"
+        >
           {options.map((item, index) => (
             <DropdownMenuItem
               key={index}
               onClick={() =>
                 onSelectOption?.(optionField as keyof project_type, item.value)
               }
-              className="cursor-pointer"
+              className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700"
             >
-              {item.name || (item.value as string)}
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-200" />
+                {item.name || (item.value as string)}
+              </div>
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

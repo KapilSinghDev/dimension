@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,41 +16,73 @@ import {
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-
+import {
+  project_health_enum,
+  project_priority_enum,
+  project_status_enum,
+} from "@/lib/enums";
+import { project_type } from "@/lib/types";
 type UpdateBoxProps = {
   variant?: "update" | "display";
+  onSelect?: (field: keyof project_type, value: project_health_enum) => void;
+  field?: string;
+  status?: string;
 };
+const healthStatus = [
+  {
+    name: "On Track",
+    enum_val: project_health_enum.ON_TRACK,
+  },
+  {
+    name: "At risk",
+    enum_val: project_health_enum.AT_RISK,
+  },
+  {
+    name: "Off Track",
+    enum_val: project_health_enum.OFF_TRACK,
+  },
+];
+const Update = ({
+  variant = "display",
+  onSelect,
+  field,
+  status,
+}: UpdateBoxProps) => {
+  const [open, setOpen] = useState<boolean>(false);
 
-const Update = ({ variant = "display" }: UpdateBoxProps) => {
   return (
     <Card className="w-full">
       <CardContent className="p-4 pb-1">
         {variant === "update" ? (
           <div className="relative">
-            <Tooltip>
+            <Tooltip open={open} onOpenChange={setOpen}>
               <TooltipTrigger asChild>
                 <Badge
                   variant="normal"
                   className="absolute top-2 left-2 z-10 cursor-pointer gap-1 text-[10px]"
                 >
                   <CircleDot size={10} />
-                  On Track
+                  {
+                    healthStatus.find((items) => items.enum_val === status)
+                      ?.name
+                  }
                 </Badge>
               </TooltipTrigger>
               <TooltipContent side="bottom" align="start" className="p-1 w-32">
                 <div className="flex flex-col">
-                  <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-xs">
-                    <CircleCheck size={12} className="text-emerald-500" />
-                    On Track
-                  </div>
-                  <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-xs">
-                    <CircleAlert size={12} className="text-yellow-500" />
-                    Delayed
-                  </div>
-                  <div className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-xs">
-                    <CircleX size={12} className="text-red-500" />
-                    Blocked
-                  </div>
+                  {healthStatus.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-xs"
+                      onClick={() => {
+                        setOpen(false);
+                        onSelect?.(field as keyof project_type, item.enum_val);
+                      }}
+                    >
+                      <CircleCheck size={12} className="text-emerald-500" />
+                      {item.name}
+                    </div>
+                  ))}
                 </div>
               </TooltipContent>
             </Tooltip>

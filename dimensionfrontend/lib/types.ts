@@ -5,6 +5,7 @@ import {
   project_priority_enum,
   project_status_enum,
 } from "./enums";
+import { IssueItems } from "./response.types";
 
 export type userCredentials_type = {
   firstname: string;
@@ -76,7 +77,7 @@ export type project_type = {
   health?: project_health_enum | null;
   priority?: project_priority_enum | null;
   status?: project_status_enum | null;
-  issue?: issueCreate_type[] | null;
+  issue?: IssueItems[] | issueCreate_type[] | null;
 };
 
 export type team_dto_type = {
