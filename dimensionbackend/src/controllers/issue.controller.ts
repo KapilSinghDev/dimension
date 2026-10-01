@@ -2,6 +2,7 @@ import authenticationService from "@/service/authentication.service";
 import { issueService } from "../service/issues.service";
 import { Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
+import { userPayloadInterface } from "@/middleware/authenticate";
 export class issueController {
   issueService = new issueService();
   authService = new authenticationService();
@@ -62,8 +63,13 @@ export class issueController {
   };
 
   getAllIssue = async (req: Request, res: Response) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
     try {
-      const issueList = await this.issueService.getAllIssues();
+      const issueList = await this.issueService.getAllIssues(
+        Number(req.query.page),
+        decodeToken.user_id,
+      );
       res.status(200).send({ message: issueList });
     } catch (err) {
       console.error(err);

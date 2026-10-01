@@ -55,7 +55,7 @@ export default function TeamIssues() {
     "id",
     parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
   );
-  const { data, isLoading, error } = useGetIssues("1");
+  const { data, isLoading, error } = useGetIssues("5");
 
   const issues: IssueItems[] = data || [];
   const issueList: IssueItems[] =

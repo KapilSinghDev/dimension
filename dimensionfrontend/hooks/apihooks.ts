@@ -128,7 +128,7 @@ export const useGetIssues = (page: string) => {
   } = useQuery({
     queryKey: ["issues-batch", page],
     queryFn: () =>
-      issueApiClient.getAllIssues().then((response) => response.data),
+      issueApiClient.getAllIssues("1").then((response) => response.data),
     retry: false,
   });
   return { data: response?.message, isLoading, error };
@@ -185,12 +185,21 @@ export const useCreateIssue = () => {
   });
 };
 
+// export const useGetAllIssues = () => {
+//   const queryClient = useQueryClient();
+//   const { data, isLoading, isError } = useQuery({
+//     queryKey: ["issue-batch"],
+//     queryFn: () => issueApiClient.getAllIssues(),
+//   });
+// };
+
 //organisation hooks
 
 export const useGetAllOrganisations = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["organisations"],
     queryFn: () => orgApiClient.getAllOrganisations(),
+    retry: false,
   });
   return { data, isLoading, error };
 };

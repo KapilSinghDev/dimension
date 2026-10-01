@@ -5,6 +5,7 @@ import * as jwt from "jsonwebtoken";
 
 export interface userPayloadInterface {
   user_email: string;
+  user_id: number;
 }
 
 async function authenticateUser(
