@@ -18,6 +18,7 @@ import {
   project_status_enum,
 } from "@/lib/enums";
 import { project_type } from "@/lib/types";
+import { toast } from "sonner";
 interface valueInterface {
   value:
     | project_priority_enum
@@ -102,11 +103,14 @@ const ProjectTabs = ({
   selectedOption,
 }: ProjectTabsprops) => {
   const iconStyle = iconColorMapper.find((v) => v.key === style)?.style;
-
+  name = name.charAt(0).toUpperCase() + name.slice(1);
   const triggerBadge = (
     <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
       <Icon size={14} className={iconStyle} />
-      <Badge variant={style}>{name}</Badge>
+      <Badge variant={style}>
+        {/* {options?.find((item) => item.value === name)?.name} */}
+        {name}
+      </Badge>
     </div>
   );
 
@@ -132,9 +136,14 @@ const ProjectTabs = ({
           {options.map((item, index) => (
             <DropdownMenuItem
               key={index}
-              onClick={() =>
-                onSelectOption?.(optionField as keyof project_type, item.value)
-              }
+              onClick={() => {
+                onSelectOption?.(optionField as keyof project_type, item.value);
+                toast(
+                  (optionField?.charAt(0).toUpperCase() as string) +
+                    optionField?.slice(1) +
+                    " changed ",
+                );
+              }}
               className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700"
             >
               <div className="flex items-center gap-2">

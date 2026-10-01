@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
-
+import { toast } from "sonner";
 import { Boxes } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -93,11 +93,18 @@ const Projectviewscreen = () => {
   const createProject = useCreateProject();
   const updateProject = useUpdateProject(project as string);
   function updateAndSaveProject() {
+    // const toast =
     if (project === "new") {
       createProject.mutate(projectInterface);
     } else {
-      console.log("updating project interfacev => ", projectInterface);
-      // updateProject.mutate(projectInterface);
+      // console.log("updating project interfacev => ", projectInterface);
+      if (updateProject.isSuccess) {
+        toast.success("Project has been updated successfully", {});
+      }
+      if (updateProject.isError) {
+        toast.error("Error occured : Could not update");
+      }
+      updateProject.mutate(projectInterface);
     }
   }
   return (
@@ -190,6 +197,7 @@ const Projectviewscreen = () => {
                         if (date) {
                           setProjectTargetDate(date);
                           handleProjectFieldUpdate("target_date", date);
+                          toast("Date updated successfully");
                         }
                         setDatepopOver(false);
                       }}
