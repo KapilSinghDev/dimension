@@ -55,9 +55,8 @@ export default function TeamIssues() {
     "id",
     parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
   );
-  const { data, isLoading, error } = useGetIssues("5");
-
-  const issues: IssueItems[] = data || [];
+  const { data, isLoading, error } = useGetIssues("1"); // add pagin tables to the issue
+  const issues: IssueItems[] = data;
   const issueList: IssueItems[] =
     filter === "all" ? issues : issues.filter((item) => item.status === filter);
 

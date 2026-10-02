@@ -109,6 +109,7 @@ export default function FastCreateIssue({
         },
       },
     );
+    
     setIsOpen(false);
   };
 

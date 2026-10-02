@@ -9,12 +9,8 @@ export class issueController {
   createNewIssue = async (req: Request, res: Response) => {
     try {
       const token = req.headers.authorization?.split(" ")[1];
-      const decodeToken = jwt.verify(
-        token,
-        this.authService.SECRET_KEY as string,
-      );
-      console.log("the decoded token => ", decodeToken);
-      req.body.created_by = 1;
+      const decodeToken = jwt.decode(token) as userPayloadInterface;
+      req.body.created_by = decodeToken.user_id;
       console.log("the body received in creating a new issue is => ", req.body);
       const issue = await this.issueService.createIssue(req.body);
       res.send({ message: "success", "issue id": issue }).status(201);
@@ -65,6 +61,7 @@ export class issueController {
   getAllIssue = async (req: Request, res: Response) => {
     const token = req.headers.authorization.split(" ")[1];
     const decodeToken = jwt.decode(token) as userPayloadInterface;
+    console.log("User is => ", decodeToken.user_id);
     try {
       const issueList = await this.issueService.getAllIssues(
         Number(req.query.page),

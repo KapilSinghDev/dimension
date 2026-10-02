@@ -131,7 +131,7 @@ export const useGetIssues = (page: string) => {
       issueApiClient.getAllIssues("1").then((response) => response.data),
     retry: false,
   });
-  return { data: response?.message, isLoading, error };
+  return { data: response?.message[0], isLoading, error };
 };
 
 export const useGetSingleIssue = (issueId: string) => {

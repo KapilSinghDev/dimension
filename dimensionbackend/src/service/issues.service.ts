@@ -53,7 +53,6 @@ class issueService {
         take: batch,
         where: { created_by: userId },
       });
-      console.log("the results are ", issueList);
       return issueList;
     } catch (err) {
       console.error(err);
