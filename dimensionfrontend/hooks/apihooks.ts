@@ -120,20 +120,6 @@ export const useGetProjectsbyBatch = (page: string) => {
   return { projects: response?.projects, isLoading, error };
 };
 
-export const useGetIssues = (page: string) => {
-  const {
-    data: response,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["issues-batch", page],
-    queryFn: () =>
-      issueApiClient.getAllIssues("1").then((response) => response.data),
-    retry: false,
-  });
-  return { data: response?.message[0], isLoading, error };
-};
-
 export const useGetSingleIssue = (issueId: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["issue", issueId],
@@ -185,14 +171,33 @@ export const useCreateIssue = () => {
   });
 };
 
-// export const useGetAllIssues = () => {
-//   const queryClient = useQueryClient();
-//   const { data, isLoading, isError } = useQuery({
-//     queryKey: ["issue-batch"],
-//     queryFn: () => issueApiClient.getAllIssues(),
-//   });
-// };
+export const useGetIssues = (page: string) => {
+  const {
+    data: response,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["issues-batch", page],
+    queryFn: () =>
+      issueApiClient.getAllIssues("1").then((response) => response.data),
+    retry: false,
+  });
+  return { data: response?.message[0], isLoading, error };
+};
 
+export const useUpdateIssue = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      issueId: string;
+      updateIssuePayload: issueCreate_type;
+    }) =>
+      issueApiClient.updateIssue({
+        issueId: payload.issueId,
+        issue: payload.updateIssuePayload,
+      }),
+  });
+};
 //organisation hooks
 
 export const useGetAllOrganisations = () => {

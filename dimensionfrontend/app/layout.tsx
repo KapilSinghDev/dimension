@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryProvider } from "@/hooks/queryProvider";
 import { Suspense } from "react";
+import { DndProvider } from "react-dnd";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

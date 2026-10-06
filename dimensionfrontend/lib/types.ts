@@ -66,7 +66,6 @@ export type issueCreate_type = {
   deadline: Date;
   priority: priority_enum;
   status: issue_status_enum;
-  target: string;
   project?: number;
 };
 // use this for create project api
