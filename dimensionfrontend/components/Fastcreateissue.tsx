@@ -93,7 +93,7 @@ export default function FastCreateIssue({
         created_by: NaN,
         status: issueData.status as issue_status_enum,
         priority: issueData.priority as priority_enum,
-        target: "",
+        // target: "",
         assignee: "",
         team: "",
         label: issueData.label,
@@ -109,7 +109,7 @@ export default function FastCreateIssue({
         },
       },
     );
-    
+
     setIsOpen(false);
   };
 

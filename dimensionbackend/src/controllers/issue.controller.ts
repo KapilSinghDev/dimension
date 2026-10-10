@@ -33,14 +33,17 @@ export class issueController {
 
   updateIssue = async (req: Request, res: Response) => {
     try {
+      console.log("issue request completed");
+      const { issue_id, issue } = req.body;
       const issueUpdate = await this.issueService.updateIssue(
-        req.body.issueId,
-        req.body.issue,
+        Number(issue_id),
+        issue,
       );
-      res.send({ message: issueUpdate }).status(201);
+      return res.status(200).json({ message: issueUpdate });
     } catch (err) {
-      console.error(err);
-      res.send({ message: "An error occured" }).status(500);
+      if (!res.headersSent) {
+        return res.status(500).json({ message: "An error occurred" });
+      }
     }
   };
 

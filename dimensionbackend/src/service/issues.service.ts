@@ -69,11 +69,16 @@ class issueService {
   }
 
   async updateIssue(issueId: number, issue: create_issue_dto_type) {
+    console.log("updating service was triggered");
     const existingIssue = await this.issueRepository.find({
       where: { issue_id: issueId },
     });
-    const updateIssue = { ...issue, ...existingIssue };
-    const issueUpdated = await this.issueRepository.save(updateIssue);
+    const updateIssue = { ...existingIssue[0], ...issue };
+    const { assignee, team, project, ...scalarFields } = issue;
+    const issueUpdated = await this.issueRepository.update(
+      issueId,
+      scalarFields,
+    );
     return issueUpdated;
   }
 

@@ -126,14 +126,16 @@ export default function TeamIssues() {
     );
     const tempissue: issueCreate_type = {
       title: currentIssue?.title as string,
-      status: currentIssue?.status as issue_status_enum,
+      status: target as issue_status_enum,
       created_by: currentIssue?.created_by as number,
+      // created_at:createIssue.created_at as Date
       deadline: currentIssue?.deadline as Date,
-      priority: target as priority_enum,
+      priority: currentIssue?.priority as priority_enum,
       project: currentIssue?.project as number,
     };
     console.log("the updating value is to be ", tempissue);
-    updateIssue.mutate({ issueId: id, updateIssuePayload: tempissue });
+    updateIssue.mutate({ issue_id: id, updateIssuePayload: tempissue });
+    console.log("update issue called from page");
   }
   // Helper function to extract current status safely
   const getStatus = (droppedId: string) =>
@@ -144,7 +146,8 @@ export default function TeamIssues() {
       accept: "ISSUECARD",
       drop: (item: { id: string }) => {
         const currentPos = getStatus(item.id);
-        if (currentPos) moveIssue(item.id, currentPos, "backlog");
+        if (currentPos)
+          moveIssue(item.id, currentPos, issue_status_enum.BACKLOG);
       },
       collect: (monitor) => ({
         isOver: monitor.isOver(),
@@ -159,7 +162,8 @@ export default function TeamIssues() {
       accept: "ISSUECARD",
       drop: (item: { id: string }) => {
         const currentPos = getStatus(item.id);
-        if (currentPos) moveIssue(item.id, currentPos, "completed");
+        if (currentPos)
+          moveIssue(item.id, currentPos, issue_status_enum.CLOSED);
       },
       collect: (monitor) => ({
         isOverToCompleted: monitor.isOver(),
@@ -174,7 +178,8 @@ export default function TeamIssues() {
       accept: "ISSUECARD",
       drop: (item: { id: string }) => {
         const currentPos = getStatus(item.id);
-        if (currentPos) moveIssue(item.id, currentPos, "active");
+        if (currentPos)
+          moveIssue(item.id, currentPos, issue_status_enum.ACTIVE);
       },
       collect: (monitor) => ({
         isOverAtActive: monitor.isOver(),
@@ -319,11 +324,11 @@ export default function TeamIssues() {
             ) : (
               // this is the issue display list
               <>
-                <div className="h-full w-full flex flex-row gap-6">
+                <div className="h-full w-full flex flex-row gap-6 overflow-hidden">
                   {/* All Issues Column */}
 
                   <div
-                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px]"
+                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
                     id="completed"
                     ref={(node) => {
                       dropToActive(node);
@@ -348,7 +353,7 @@ export default function TeamIssues() {
                     ))}
                   </div>
                   <div
-                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px]"
+                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
                     id="backlog"
                     ref={(node) => {
                       dropToBacklog(node);
@@ -373,7 +378,7 @@ export default function TeamIssues() {
                     ))}
                   </div>
                   <div
-                    className="h-full w-full bg-gray-100 flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px]"
+                    className="h-full w-full bg-gray-100 flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
                     id="all-issues"
                     ref={(node) => {
                       dropToCompleted(node);

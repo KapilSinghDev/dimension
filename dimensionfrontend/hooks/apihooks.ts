@@ -6,7 +6,11 @@ import { OrganisationApi } from "@/api/organisationApi";
 import { projectApi } from "@/api/projectsApi";
 import { s3Api } from "@/api/s3Api";
 import { teamApi } from "@/api/teamApi";
-import { ProjectApiItem, ProjectBatchResponse } from "@/lib/response.types";
+import {
+  IssueItems,
+  ProjectApiItem,
+  ProjectBatchResponse,
+} from "@/lib/response.types";
 import {
   issueCreate_type,
   project_type,
@@ -185,17 +189,43 @@ export const useGetIssues = (page: string) => {
   return { data: response?.message[0], isLoading, error };
 };
 
+const ISSUES_KEY = ["issues-batch"];
 export const useUpdateIssue = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: {
-      issueId: string;
+      issue_id: string;
       updateIssuePayload: issueCreate_type;
     }) =>
       issueApiClient.updateIssue({
-        issueId: payload.issueId,
+        issue_id: payload.issue_id,
         issue: payload.updateIssuePayload,
       }),
+
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ISSUES_KEY });
+      const previous = queryClient.getQueryData<IssueItems[]>(ISSUES_KEY);
+
+      queryClient.setQueryData<IssueItems[]>(ISSUES_KEY, (old = []) =>
+        old.map((issue) =>
+          String(issue.issue_id) === String(payload.issue_id)
+            ? { ...issue, ...payload.updateIssuePayload }
+            : issue,
+        ),
+      );
+
+      return { previous };
+    },
+
+    onError: (_err, _vars, context) => {
+      if (context?.previous)
+        queryClient.setQueryData(ISSUES_KEY, context.previous);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ISSUES_KEY });
+    },
   });
 };
 //organisation hooks

@@ -20,12 +20,19 @@ export class issueApi {
     return apiclient.post("/issue/create", payload);
   }
 
-  updateIssue(payload: { issueId: string; issue: issueCreate_type }) {
-    return apiclient.put("/issue/update", payload);
+  updateIssue(payload: { issue_id: string; issue: issueCreate_type }) {
+    const token = localStorage.getItem("TOKEN");
+    return apiclient.put(
+      "/issue/update", // No ID in URL
+      payload, // Send whole payload object (contains issueId and issue)
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
   }
 
   getUserIssueList(payload: { userId: string }) {
+    const token = localStorage.getItem("TOKEN");
     return apiclient.get("/issue/user", {
+      headers: { Authorization: `Bearer ${token}` },
       params: {
         payload,
       },

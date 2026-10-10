@@ -100,7 +100,7 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
         bg-card hover:bg-muted/40 hover:border-border/80
         cursor-pointer transition-all duration-150
         shadow-sm hover:shadow-md
-        ${isDragging ? "opacity-50" : "opacity-100"}
+        ${isDragging ? "opacity-0" : "opacity-100"}
       `}
     >
       {/* Top row: Priority + ID */}

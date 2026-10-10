@@ -7,6 +7,11 @@ import {
   user_login_dto,
 } from "../dto/user_dto";
 import * as jwt from "jsonwebtoken";
+export interface UserTokenPayload {
+  user_email: string;
+  iat: number;
+  exp: number;
+}
 export class authenticationController {
   @validate(user_credentials_dto)
   async userSignUp(req: Request, res: Response) {
@@ -90,11 +95,6 @@ export class authenticationController {
   }
 
   async userVerification(req: Request, res: Response) {
-    interface UserTokenPayload {
-      user_email: string;
-      iat: number;
-      exp: number;
-    }
     try {
       const authService = new authenticationService();
       const token = req.headers.authorization?.split(" ")[1];

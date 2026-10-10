@@ -6,6 +6,7 @@ export enum priority_enum {
 export enum issue_status_enum {
   ACTIVE = "active",
   CLOSED = "closed",
+  BACKLOG = "backlog",
 }
 
 export enum issue_lable_enum {
