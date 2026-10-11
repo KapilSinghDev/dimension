@@ -32,6 +32,7 @@ export class issueController {
   };
 
   updateIssue = async (req: Request, res: Response) => {
+    console.log("issue update request received");
     try {
       console.log("issue request completed");
       const { issue_id, issue } = req.body;
@@ -62,15 +63,15 @@ export class issueController {
   };
 
   getAllIssue = async (req: Request, res: Response) => {
+    console.log("recieved get all issue");
     const token = req.headers.authorization.split(" ")[1];
     const decodeToken = jwt.decode(token) as userPayloadInterface;
     console.log("User is => ", decodeToken.user_id);
     try {
       const issueList = await this.issueService.getAllIssues(
-        Number(req.query.page),
         decodeToken.user_id,
       );
-      res.status(200).send({ message: issueList });
+      res.status(200).send(issueList);
     } catch (err) {
       console.error(err);
       res.status(500).send({ message: "An error occured" });

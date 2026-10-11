@@ -43,14 +43,9 @@ class issueService {
     return createIssue;
   }
 
-  async getAllIssues(page: number, userId: number) {
-    console.log("user id ", userId);
-    const batch = 13;
-    const skip = (page - 1) * batch;
+  async getAllIssues(userId: number) {
     try {
-      const issueList = await this.issueRepository.findAndCount({
-        skip: skip,
-        take: batch,
+      const issueList = await this.issueRepository.find({
         where: { created_by: userId },
       });
       return issueList;

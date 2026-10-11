@@ -85,12 +85,6 @@ export default function TeamIssues() {
     "id",
     parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
   );
-  const { data, isLoading, error } = useGetIssues("1"); // add pagin tables to the issue
-  const issues: IssueItems[] = data;
-  const issueList: IssueItems[] =
-    filter === "all issues"
-      ? issues
-      : issues.filter((item) => item.status === filter);
 
   // issue fetching logic
   // todo : fetch projects list and teams list
@@ -103,27 +97,33 @@ export default function TeamIssues() {
       issueFilters.find((item) => item.label === value)?.value as string,
     );
   };
+  const { data, isLoading, error } = useGetIssues(); // add pagin tables to the issue
+  const issues: IssueItems[] = data;
+  const issueList: IssueItems[] =
+    filter === "all issues"
+      ? issues
+      : issues.filter((item) => item.status === filter);
   useEffect(() => {
     if (data?.length === 0) {
       setIsCreating("false");
     }
   }, [data]);
-
+  // console.log(issueList);
   //drag logic
   const activeIssues =
-    issueList?.filter((item) => item.status === "active") || [];
+    issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [];
   const backlogIssues =
-    issueList?.filter((item) => item.status === "backlog") || [];
+    issueList?.filter((item) => item.status === issue_status_enum.BACKLOG) ||
+    [];
   const completedIssues =
-    issueList?.filter((item) => item.status === "closed") || [];
+    issueList?.filter((item) => item.status === issue_status_enum.CLOSED) || [];
   // updating issue
   const updateIssue = useUpdateIssue();
   function moveIssue(id: string, current: string, target: string) {
-    console.log("dropped", id, current, target);
-
     const currentIssue = issueList.find(
       (issue) => issue.issue_id === Number(id),
     );
+    console.log("the current issue = ", currentIssue);
     const tempissue: issueCreate_type = {
       title: currentIssue?.title as string,
       status: target as issue_status_enum,
@@ -133,9 +133,7 @@ export default function TeamIssues() {
       priority: currentIssue?.priority as priority_enum,
       project: currentIssue?.project as number,
     };
-    console.log("the updating value is to be ", tempissue);
     updateIssue.mutate({ issue_id: id, updateIssuePayload: tempissue });
-    console.log("update issue called from page");
   }
   // Helper function to extract current status safely
   const getStatus = (droppedId: string) =>

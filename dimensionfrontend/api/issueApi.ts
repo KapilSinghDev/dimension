@@ -8,11 +8,11 @@ export class issueApi {
     });
   }
 
-  getAllIssues(page: string) {
+  getAllIssues() {
     const token = localStorage.getItem("TOKEN");
     return apiclient.get("/issue/all", {
       headers: { Authorization: `Bearer ${token}` },
-      params: { page: page },
+      // params: { page: page },
     });
   }
 

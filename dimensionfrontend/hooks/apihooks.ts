@@ -175,18 +175,18 @@ export const useCreateIssue = () => {
   });
 };
 
-export const useGetIssues = (page: string) => {
+export const useGetIssues = () => {
   const {
     data: response,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["issues-batch", page],
+    queryKey: ["issues-batch"],
     queryFn: () =>
-      issueApiClient.getAllIssues("1").then((response) => response.data),
+      issueApiClient.getAllIssues().then((response) => response.data),
     retry: false,
   });
-  return { data: response?.message[0], isLoading, error };
+  return { data: response, isLoading, error };
 };
 
 const ISSUES_KEY = ["issues-batch"];
@@ -205,8 +205,12 @@ export const useUpdateIssue = () => {
 
     onMutate: async (payload) => {
       await queryClient.cancelQueries({ queryKey: ISSUES_KEY });
+      console.log(
+        "paginated cache => ",
+        queryClient.getQueryData(["issues-batch"]),
+      );
       const previous = queryClient.getQueryData<IssueItems[]>(ISSUES_KEY);
-
+      console.log("previos cache => ", previous);
       queryClient.setQueryData<IssueItems[]>(ISSUES_KEY, (old = []) =>
         old.map((issue) =>
           String(issue.issue_id) === String(payload.issue_id)
