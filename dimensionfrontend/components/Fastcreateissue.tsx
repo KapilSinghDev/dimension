@@ -24,51 +24,49 @@ import {
   MoreHorizontal,
   User2,
   Tag,
-  CheckSquare,
   Flame,
   Flag,
   StepForward,
-  CalendarDays,
-  HelpCircle,
   LucideIcon,
-  Menu,
 } from "lucide-react";
-import { useCreateIssue, useGetProjects, useGetUser } from "@/hooks/apihooks";
+import { useCreateIssue } from "@/hooks/apihooks";
 import { issue_status_enum, priority_enum } from "@/lib/enums";
 import { DatePickerSimple } from "./Pickdates";
 import { issueInterface } from "@/lib/types";
-import { getDecodedToken } from "@/lib/jwt.utils";
 
-// Types for structural loop clarity
 interface MetadataConfig {
   id: "priority" | "assignee" | "label";
   icon: LucideIcon;
   tooltip: string;
   items: string[];
 }
+
 interface FastCreateIssueProps {
   onCancel?: () => void;
   onOpen?: () => void;
+  variant?: "default" | "kanban";
 }
+
 export default function FastCreateIssue({
   onCancel,
   onOpen,
+  variant = "default",
 }: FastCreateIssueProps) {
   const [isOpen, setIsOpen] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const metaDataRef = useRef<HTMLDivElement>(null);
-  // Dynamic state container mapping individual properties
 
-  // Cancel handling inside this
   const handleCancellation = () => {
     onCancel?.();
     setIsOpen(false);
   };
+
   const handleOpening = () => {
     onOpen?.();
     setIsOpen(true);
   };
+
   const [issueData, setIssueData] = useState<issueInterface>({
     status: "Todo",
     priority: "No Priority",
@@ -77,46 +75,38 @@ export default function FastCreateIssue({
     project_id: -1,
     dueDate: new Date(),
   });
+
   function updateIssueStates(name: keyof issueInterface, value: string) {
-    // console.log("the field and values are ", name, value);
     setIssueData((oldstate) => ({ ...oldstate, [name]: value }));
   }
 
   const createIssue = useCreateIssue();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     createIssue.mutate(
       {
         title: titleRef.current?.value as string,
-        description: descriptionRef.current?.value as string, // description to be added
+        description: descriptionRef.current?.value as string,
         created_by: NaN,
         status: issueData.status as issue_status_enum,
         priority: issueData.priority as priority_enum,
-        // target: "",
         assignee: "",
         team: "",
         label: issueData.label,
-        project: issueData.project_id,
+        // project: issueData., //changed
         deadline: new Date(),
       },
       {
-        onSuccess: () => {
-          // notification issue created successfully
-        },
-        onError: () => {
-          // error notification try again
-        },
+        onSuccess: () => {},
+        onError: () => {},
       },
     );
 
     setIsOpen(false);
   };
 
-  // fetch projects so that it can be spawned in the project field in fast create issue
-  // const token = getDecodedToken();
-  // const { data } = useGetUser(token?.user_email); //todo
-  // Helper mapping values to corresponding icons for the primary Status Selector
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "closed":
@@ -128,7 +118,6 @@ export default function FastCreateIssue({
     }
   };
 
-  // Dynamic Array defining downstream metadata control configurations
   const metadataMenus: MetadataConfig[] = [
     {
       id: "priority",
@@ -140,7 +129,7 @@ export default function FastCreateIssue({
       id: "assignee",
       icon: User2,
       tooltip: "Assignee",
-      items: ["No assignee", "John Doe", "Jane Smith"], // put the team members here
+      items: ["No assignee", "John Doe", "Jane Smith"],
     },
     {
       id: "label",
@@ -150,6 +139,216 @@ export default function FastCreateIssue({
     },
   ];
 
+  // ─────────────────────────────────────────────
+  // KANBAN VARIANT
+  // ─────────────────────────────────────────────
+  if (variant === "kanban") {
+    return (
+      <TooltipProvider>
+        <div className="w-full">
+          <AnimatePresence mode="wait">
+            {!isOpen ? (
+              <motion.div
+                key="kanban-trigger"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleOpening}
+                      variant="secondary"
+                      className="w-full justify-start bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 text-sm font-medium transition-all h-9"
+                    >
+                      + New issue
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Add a new issue</TooltipContent>
+                </Tooltip>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="kanban-form"
+                initial={{ opacity: 0, scale: 0.98, y: -8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: -8 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="bg-background border rounded-xl shadow-sm p-4 space-y-4"
+              >
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Title + Status */}
+                  <div className="flex items-start gap-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 px-2.5 text-xs shrink-0"
+                        >
+                          {getStatusIcon(issueData.status)}
+                          <span className="capitalize">{issueData.status}</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-44">
+                        <DropdownMenuLabel>Status</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {[
+                          {
+                            name: "closed",
+                            icon: Flame,
+                            color: "text-red-500",
+                          },
+                          {
+                            name: "active",
+                            icon: Circle,
+                            color: "text-blue-500 fill-blue-500",
+                          },
+                          {
+                            name: "Todo",
+                            icon: Circle,
+                            color: "text-muted-foreground",
+                          },
+                        ].map((opt) => (
+                          <DropdownMenuItem
+                            key={opt.name}
+                            onClick={() =>
+                              setIssueData((prev) => ({
+                                ...prev,
+                                status: opt.name,
+                              }))
+                            }
+                            className="gap-2 cursor-pointer"
+                          >
+                            <opt.icon className={`h-3.5 w-3.5 ${opt.color}`} />
+                            <span className="capitalize">{opt.name}</span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <Textarea
+                      ref={titleRef}
+                      placeholder="Issue title"
+                      rows={1}
+                      className="resize-none min-h-[36px] py-2 px-3 font-medium text-sm border rounded-md focus-visible:ring-1"
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <Textarea
+                    ref={descriptionRef}
+                    placeholder="Add description..."
+                    className="resize-none min-h-[80px] py-2 px-3 text-sm border rounded-md focus-visible:ring-1"
+                  />
+
+                  {/* All metadata fully visible */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {metadataMenus.map((menu) => {
+                      const MenuIcon = menu.icon;
+                      const activeValue = issueData[menu.id];
+
+                      return (
+                        <DropdownMenu key={menu.id}>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="h-9 w-full justify-start gap-2 text-xs font-normal"
+                            >
+                              <MenuIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="truncate">{activeValue}</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="w-44">
+                            <DropdownMenuLabel>
+                              {menu.tooltip}
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {menu.items.map((item) => (
+                              <DropdownMenuItem
+                                key={item}
+                                onClick={() =>
+                                  updateIssueStates(
+                                    menu.id as keyof issueInterface,
+                                    item,
+                                  )
+                                }
+                                className="cursor-pointer"
+                              >
+                                {item}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      );
+                    })}
+                  </div>
+
+                  {/* Extra row: Project + Due date */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-8 gap-1.5 text-xs"
+                      onClick={() =>
+                        setIssueData((prev) => ({
+                          ...prev,
+                          project: "Project Alpha",
+                        }))
+                      }
+                    >
+                      <StepForward className="h-3.5 w-3.5" />
+                      Project
+                    </Button>
+
+                    <DatePickerSimple
+                      date={issueData.dueDate}
+                      setDate={setIssueData}
+                    />
+
+                    <div className="flex-1" />
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground"
+                    >
+                      <Paperclip className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleCancellation}
+                      className="h-8 px-3 text-sm"
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="h-8 px-4 text-sm">
+                      Create Issue
+                    </Button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // DEFAULT VARIANT (unchanged)
+  // ─────────────────────────────────────────────
   return (
     <TooltipProvider>
       <div className="w-full max-w-3xl mt-4">
@@ -185,7 +384,6 @@ export default function FastCreateIssue({
               className="bg-background border rounded-lg shadow-sm p-4 w-full focus-within:border-muted-foreground/30 transition-colors"
             >
               <form onSubmit={handleSubmit} className="space-y-3">
-                {/* PRIMARY INPUT ROW */}
                 <div className="flex items-start gap-3">
                   <DropdownMenu>
                     <Tooltip>
@@ -205,7 +403,6 @@ export default function FastCreateIssue({
                       <TooltipContent side="bottom">
                         Status: {issueData.status}
                       </TooltipContent>
-
                       <DropdownMenuContent
                         side="bottom"
                         align="start"
@@ -246,7 +443,6 @@ export default function FastCreateIssue({
                   <div className="flex-1">
                     <Textarea
                       ref={titleRef}
-                      // onChange={(e) => setTitle(e.target.value)}
                       placeholder="Issue title"
                       rows={1}
                       className="resize-none min-h-fit py-1.5 px-0 font-semibold text-base border-none focus-visible:ring-0 placeholder:text-muted-foreground/40 tracking-tight"
@@ -255,7 +451,6 @@ export default function FastCreateIssue({
                   </div>
                 </div>
 
-                {/* DESCRIPTION AREA */}
                 <div className="pl-10">
                   <Textarea
                     ref={descriptionRef}
@@ -264,11 +459,8 @@ export default function FastCreateIssue({
                   />
                 </div>
 
-                {/* CONTROL ACTION METADATA BAR */}
                 <div className="flex flex-wrap items-center justify-between pt-2 border-t gap-3 pl-10">
-                  {/* Left Controls Side */}
                   <div className="flex items-center gap-1.5">
-                    {/* Fixed Team Token Identifier */}
                     <Button
                       type="button"
                       variant="ghost"
@@ -279,7 +471,6 @@ export default function FastCreateIssue({
                       </span>
                     </Button>
 
-                    {/* DYNAMIC LOOP RENDERING METADATA BUTTONS */}
                     {metadataMenus.map((menu) => {
                       const MenuIcon = menu.icon;
                       const activeValue = issueData[menu.id];
@@ -305,7 +496,6 @@ export default function FastCreateIssue({
                                 </Button>
                               </DropdownMenuTrigger>
                             </TooltipTrigger>
-                            {/* this the value that will menu.id */}
                             <TooltipContent side="bottom">
                               {menu.tooltip}: {activeValue}
                             </TooltipContent>
@@ -314,7 +504,6 @@ export default function FastCreateIssue({
                               align="start"
                               className="w-40"
                             >
-                              {/* these are the values that will be the options */}
                               {menu.items.map((item) => (
                                 <DropdownMenuItem
                                   key={item}
@@ -336,7 +525,6 @@ export default function FastCreateIssue({
                       );
                     })}
 
-                    {/* COMPLEX NESTED OPTIONS (More Actions Wrapper) */}
                     <DropdownMenu>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -382,7 +570,6 @@ export default function FastCreateIssue({
                     </DropdownMenu>
                   </div>
 
-                  {/* Right Controls Side */}
                   <div className="flex items-center gap-2">
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -394,7 +581,6 @@ export default function FastCreateIssue({
                         >
                           <Paperclip className="h-4 w-4" />
                         </Button>
-                        {/* todo : add the s3 url here  */}
                       </TooltipTrigger>
                       <TooltipContent side="bottom">
                         Attach images, files, or videos

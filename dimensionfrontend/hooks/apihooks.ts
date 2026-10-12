@@ -96,18 +96,14 @@ export const useUpdateProject = (project_id: string) => {
 };
 export const useGetProjects = (projectId: string) => {
   const [projectsId] = useQueryState("project");
-  const {
-    data: projects,
-    isLoading,
-    error,
-  } = useQuery<ProjectApiItem>({
+  const { data, isLoading, error } = useQuery<ProjectApiItem>({
     queryKey: ["project", projectId],
     queryFn: () =>
       projectApiClient.getProjects(projectId).then((res) => res.data.message),
     retry: 1,
     enabled: projectId !== "new",
   });
-  return { projects, isLoading, error };
+  return { data, isLoading, error };
 };
 
 export const useGetProjectsbyBatch = (page: string) => {
@@ -121,7 +117,9 @@ export const useGetProjectsbyBatch = (page: string) => {
       projectApiClient.getProjectsbyBatch(page).then((res) => res.data),
     retry: false,
   });
-  return { projects: response?.projects, isLoading, error };
+  const projectTitleList: string[] = [];
+  response?.projects.forEach((item) => projectTitleList.push(item.title));
+  return { projects: response?.projects, isLoading, error, projectTitleList };
 };
 
 export const useGetSingleIssue = (issueId: string) => {
@@ -205,12 +203,7 @@ export const useUpdateIssue = () => {
 
     onMutate: async (payload) => {
       await queryClient.cancelQueries({ queryKey: ISSUES_KEY });
-      console.log(
-        "paginated cache => ",
-        queryClient.getQueryData(["issues-batch"]),
-      );
       const previous = queryClient.getQueryData<IssueItems[]>(ISSUES_KEY);
-      console.log("previos cache => ", previous);
       queryClient.setQueryData<IssueItems[]>(ISSUES_KEY, (old = []) =>
         old.map((issue) =>
           String(issue.issue_id) === String(payload.issue_id)

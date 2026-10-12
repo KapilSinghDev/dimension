@@ -5,7 +5,7 @@ import {
   project_priority_enum,
   project_status_enum,
 } from "./enums";
-import { IssueItems } from "./response.types";
+import { IssueItems, ProjectApiItem } from "./response.types";
 
 export type userCredentials_type = {
   firstname: string;
@@ -66,7 +66,7 @@ export type issueCreate_type = {
   deadline: Date;
   priority: priority_enum;
   status: issue_status_enum;
-  project?: number;
+  project?: ProjectApiItem; //changed;
 };
 // use this for create project api
 export type project_type = {

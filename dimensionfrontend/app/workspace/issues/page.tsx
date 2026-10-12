@@ -2,27 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  Activity,
-  CalendarClock,
-  CircleAlert,
-  CircleCheck,
-  CircleDot,
-  Crown,
-  Flame,
   FolderKanban,
   Funnel,
   ListCollapse,
-  MessageSquare,
   PanelRight,
-  TableProperties,
-  Tag,
   User,
-  UserPlus,
   Users,
-  UsersRound,
 } from "lucide-react";
 import Issuescreen from "@/components/screens/Issuescreen";
-import Propertiesbox from "@/components/Propertiesbox";
 import { parseAsString, useQueryState } from "nuqs";
 import { Button } from "@/components/ui/button";
 import Issuebox from "@/components/Issuebox";
@@ -47,7 +34,7 @@ import { IssueItems } from "@/lib/response.types";
 import noissues from "@/assets/emptystates/no_issues.svg";
 import Image from "next/image";
 import FastCreateIssue from "@/components/Fastcreateissue";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrop } from "react-dnd";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +44,6 @@ import {
 import { PlayCircle, Inbox, CheckCircle2 } from "lucide-react";
 import { issueCreate_type } from "@/lib/types";
 import { issue_status_enum, priority_enum } from "@/lib/enums";
-type Priority = "high" | "medium" | "low";
 
 type Filter = "all issues" | "active" | "closed" | "backlog";
 
@@ -108,7 +94,23 @@ export default function TeamIssues() {
       setIsCreating("false");
     }
   }, [data]);
-  // console.log(issueList);
+
+  const projectName = Array.from(
+    new Set(
+      issueList
+        ?.map((item) => item.project?.title)
+        .filter((title): title is string => title !== undefined),
+    ),
+  );
+  const sortOptions = [
+    {
+      options: "projects",
+      values: projectName,
+    },
+  ];
+  console.log(sortOptions[0].values);
+
+  // Extracts all unique project values into an array
   //drag logic
   const activeIssues =
     issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [];
@@ -131,7 +133,7 @@ export default function TeamIssues() {
       // created_at:createIssue.created_at as Date
       deadline: currentIssue?.deadline as Date,
       priority: currentIssue?.priority as priority_enum,
-      project: currentIssue?.project as number,
+      project: currentIssue?.project,
     };
     updateIssue.mutate({ issue_id: id, updateIssuePayload: tempissue });
   }
@@ -233,23 +235,31 @@ export default function TeamIssues() {
 
           <div className="flex  justify-between">
             <div className="h-fit w-full">
-              {(["all issues", "active", "backlog", "closed"] as Filter[]).map(
-                (f) => (
-                  <Button
-                    key={f}
-                    variant={filter === f ? "secondary" : "ghost"}
-                    size="sm"
-                    className={cn(
-                      "text-xs capitalize",
-                      filter === f && "font-medium",
-                    )}
-                    onClick={() => setFilter(f)}
-                  >
+              {sortOptions[0].values.map((f, key) => (
+                <Tooltip key={key}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      key={f}
+                      variant={filter === f ? "secondary" : "ghost"}
+                      size="sm"
+                      className={cn(
+                        "text-xs capitalize w-[110px] justify-start shrink-0 hover:bg-gray-100",
+                        filter === f && "font-medium",
+                      )}
+                      // onClick={() => setFilter(f)}
+                    >
+                      <span className="truncate block w-full text-left">
+                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                      </span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
                     {f.charAt(0).toUpperCase() + f.slice(1)}
-                  </Button>
-                ),
-              )}
+                  </TooltipContent>
+                </Tooltip>
+              ))}
             </div>
+
             {[Funnel, ListCollapse, PanelRight].map((Icon, index) => (
               <Menubar
                 className="w-fit flex border-none bg-transparent p-0 shadow-none"
@@ -347,8 +357,14 @@ export default function TeamIssues() {
                         title={issue.title}
                         priority={issue.priority}
                         status={issue.status}
+                        projectTitle={issue?.project?.title as string}
                       />
                     ))}
+                    <FastCreateIssue
+                      onOpen={() => setIsCreating("true")}
+                      onCancel={() => setIsCreating("false")}
+                      variant="kanban"
+                    />
                   </div>
                   <div
                     className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
@@ -372,6 +388,7 @@ export default function TeamIssues() {
                         title={issue.title}
                         priority={issue.priority}
                         status={issue.status}
+                        projectTitle={issue?.project?.title as string}
                       />
                     ))}
                   </div>
@@ -397,6 +414,7 @@ export default function TeamIssues() {
                         title={issue.title}
                         priority={issue.priority}
                         status={issue.status}
+                        projectTitle={issue?.project?.title as string}
                       />
                     ))}
                   </div>
@@ -407,126 +425,6 @@ export default function TeamIssues() {
         </div>
       )}
       {id && <Issuescreen />}
-      {/* <div className="w-3/5 h-full py-16 px-10">
-        <Propertiesbox
-          Tableicon={TableProperties}
-          name="Properties"
-          badge="Active"
-          properties={[
-            {
-              icon: CircleDot,
-              label: "Status",
-              items: ["Urgent", "High", "Medium", "Low"],
-            },
-            {
-              icon: Flame,
-              label: "Priority",
-              items: ["Urgent", "High", "Medium", "Low"],
-            },
-            {
-              icon: Crown,
-              label: "Lead",
-              items: ["Alice", "Bob", "Charlie"],
-            },
-            {
-              icon: Users,
-              label: "Members",
-              items: ["Alice", "Bob", "Charlie"],
-            },
-            {
-              icon: CircleAlert,
-              label: "Issues",
-              items: ["MT-101", "MT-102", "MT-103"],
-            },
-            {
-              icon: CalendarClock,
-              label: "Dates",
-              items: ["This week", "This month", "Custom"],
-            },
-            {
-              icon: UsersRound,
-              label: "Teams",
-              items: ["Engineering", "Design", "Product"],
-            },
-            {
-              icon: MessageSquare,
-              label: "Slack",
-              items: ["#general", "#engineering", "#design"],
-            },
-            {
-              icon: Tag,
-              label: "Label",
-              items: ["Bug", "Feature", "Improvement", "Docs"],
-            },
-          ]}
-        />
-        <div className="h-fit max-h-full w-full flex flex-col gap-3 mt-2 p-2 bg-gray-200">
-          <div className="flex items-center gap-2">
-            <Activity size={13} className="text-muted-foreground" />
-            <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
-              Activity
-            </p>
-          </div>
-
-          <div className="flex flex-col ">
-            {[
-              {
-                icon: CircleCheck,
-                text: "Status changed to In Progress",
-                time: "2m ago",
-                color: "text-emerald-500",
-              },
-              {
-                icon: UserPlus,
-                text: "Alice was added as lead",
-                time: "1h ago",
-                color: "text-blue-500",
-              },
-              {
-                icon: MessageSquare,
-                text: "New comment by Bob",
-                time: "3h ago",
-                color: "text-violet-500",
-              },
-              {
-                icon: Tag,
-                text: "Label Bug was added",
-                time: "5h ago",
-                color: "text-amber-500",
-              },
-              {
-                icon: CalendarClock,
-                text: "Due date set to Jun 28",
-                time: "Yesterday",
-                color: "text-muted-foreground",
-              },
-              {
-                icon: Flame,
-                text: "Priority changed to High",
-                time: "2d ago",
-                color: "text-red-500",
-              },
-            ].map((a, i) => (
-              <div key={i} className="flex gap-3 group ">
-                <div className="flex flex-col items-center px-auto">
-                  <div className={`mt-1 flex-shrink-0 ${a.color}`}>
-                    <a.icon size={13} />
-                  </div>
-                  <div className="w-px flex-1 bg-border/50 mt-1 group-last:hidden" />
-                </div>
-                <div className="pb-4">
-                  <p className="text-xs text-foreground leading-snug">
-                    {a.text}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
-                    {a.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }

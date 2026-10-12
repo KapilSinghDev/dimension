@@ -52,8 +52,8 @@ const Projectviewscreen = () => {
   const [datePopOver, setDatepopOver] = useState<boolean>(false);
   const [projectTargetDate, setProjectTargetDate] = useState<Date>();
 
-  const { projects, isLoading, error } = useGetProjects(project as string);
-  const projectDetail = projects;
+  const { data, isLoading, error } = useGetProjects(project as string);
+  const projectDetail = data;
   const [projectInterface, setProjectInterface] = useState<project_type>({
     title: projectDetail?.title || "",
     description: projectDetail?.description || "",

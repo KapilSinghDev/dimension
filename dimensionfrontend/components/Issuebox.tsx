@@ -26,6 +26,7 @@ type issueProps = {
   title: string;
   status: string;
   assignee: string;
+  projectTitle: string;
 };
 
 // Define priority colors
@@ -47,14 +48,21 @@ const priorityMap: Record<
   string,
   { label: string; color: string; icon: LucideIcon }
 > = {
-  urgent: { label: "Urgent", color: "#ef4444", icon: AlertCircle }, // Red
-  high: { label: "High", color: "#f97316", icon: SignalHigh }, // Orange
-  medium: { label: "Medium", color: "#eab308", icon: SignalMedium }, // Yellow
-  low: { label: "Low", color: "#3b82f6", icon: SignalLow }, // Blue
-  none: { label: "No Priority", color: "#94a3b8", icon: HelpCircle }, // Gray
+  urgent: { label: "Urgent", color: "#ef4444", icon: AlertCircle },
+  high: { label: "High", color: "#f97316", icon: SignalHigh },
+  medium: { label: "Medium", color: "#eab308", icon: SignalMedium },
+  low: { label: "Low", color: "#3b82f6", icon: SignalLow },
+  none: { label: "No Priority", color: "#94a3b8", icon: HelpCircle },
 };
 
-const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
+const Issuebox = ({
+  id,
+  priority,
+  title,
+  status,
+  assignee,
+  projectTitle,
+}: issueProps) => {
   const [query, setQuery] = useQueryStates({
     id: parseAsString,
     project: parseAsString,
@@ -96,16 +104,19 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
       }}
       onClick={() => updateIssueid(id)}
       className={`
-        group flex flex-col gap-2.5 p-3.5 rounded-sm border border-border
-        bg-card hover:bg-muted/40 hover:border-border/80
-        cursor-pointer transition-all duration-150
-        shadow-sm hover:shadow-md
+        group flex flex-col gap-3 p-3.5 rounded-xl
+        border border-zinc-200/80 bg-white
+        hover:border-zinc-300 hover:bg-zinc-50/80 hover:shadow-md
+        dark:border-border dark:bg-card
+        dark:hover:bg-muted/40 dark:hover:border-border/80
+        cursor-pointer transition-all duration-150 ease-out
+        shadow-[0_1px_2px_rgba(0,0,0,0.04)]
         ${isDragging ? "opacity-0" : "opacity-100"}
       `}
     >
-      {/* Top row: Priority + ID */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      {/* Top row: Priority + ID + Project */}
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <DropdownMenu>
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
@@ -113,11 +124,11 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="w-6 h-6 rounded-md border-none bg-transparent hover:bg-muted/60 focus-visible:ring-1"
+                    className="w-6 h-6 rounded-md border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-muted/60 focus-visible:ring-1 shrink-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      className="w-2.5 h-2.5 rounded-full shrink-0 ring-2 ring-white dark:ring-background shadow-sm"
                       style={{ backgroundColor: current.color }}
                     />
                     <span className="sr-only">Change priority</span>
@@ -150,14 +161,30 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
             </Tooltip>
           </DropdownMenu>
 
-          <span className="text-[11px] text-muted-foreground font-mono tracking-tight">
+          <span className="text-[11px] text-zinc-400 dark:text-muted-foreground font-mono tracking-tight shrink-0">
             {id}
           </span>
+
+          {projectTitle && (
+            <span
+              className="
+  text-[11px] font-medium tracking-tight truncate max-w-[120px]
+  px-2 py-0.5 rounded-full
+  text-zinc-600 bg-gradient-to-b from-white to-zinc-50
+  border border-zinc-200/80
+  shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.8)]
+  dark:text-muted-foreground dark:bg-muted/60 dark:from-transparent dark:to-transparent
+  dark:border-transparent dark:shadow-none
+"
+            >
+              {projectTitle}
+            </span>
+          )}
         </div>
       </div>
 
       {/* Title */}
-      <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2">
+      <h3 className="text-sm font-medium text-zinc-900 dark:text-foreground leading-snug line-clamp-2 tracking-tight">
         {title}
       </h3>
 
@@ -171,8 +198,8 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
                   variant="secondary"
                   className={
                     status === "active"
-                      ? "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400 text-[11px] font-normal px-2 py-0.5"
-                      : "bg-muted text-muted-foreground text-[11px] font-normal px-2 py-0.5"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-green-950/60 dark:text-green-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
+                      : "bg-zinc-100 text-zinc-600 border border-zinc-200/60 dark:bg-muted dark:text-muted-foreground dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
                   }
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -192,7 +219,7 @@ const Issuebox = ({ id, priority, title, status, assignee }: issueProps) => {
         </DropdownMenu>
 
         <span
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ring-2 ring-background"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ring-2 ring-white dark:ring-background shadow-sm"
           style={{
             backgroundColor: assigneeColor.bg,
             color: assigneeColor.text,

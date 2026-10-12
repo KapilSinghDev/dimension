@@ -47,6 +47,9 @@ class issueService {
     try {
       const issueList = await this.issueRepository.find({
         where: { created_by: userId },
+        relations: {
+          project: true,
+        },
       });
       return issueList;
     } catch (err) {

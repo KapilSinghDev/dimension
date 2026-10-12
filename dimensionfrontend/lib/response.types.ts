@@ -18,7 +18,7 @@ export interface IssueItems {
   deadline: Date;
   priority: string;
   status: string;
-  project?: number;
+  project?: ProjectApiItem; //changed;
 }
 
 export interface ProjectBatchResponse {
