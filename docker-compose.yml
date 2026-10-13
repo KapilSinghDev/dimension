@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: ./dimensionfrontend
+      dockerfile: Dockerfile
+    image: dimensionfrontend-local
+    container_name: dimension-frontend-container-v1
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
