@@ -1,13 +1,15 @@
 FROM node:22-alpine
 
-WORKDIR /app
+WORKDIR /src
 
 COPY package*.json ./
 RUN npm ci
 
 COPY . .
+RUN npm run build
 
-ENV NODE_ENV=production
 EXPOSE 8000
+ENV PORT=8000
+ENV HOSTNAME=0.0.0.0
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

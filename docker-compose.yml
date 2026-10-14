@@ -10,3 +10,18 @@ services:
     environment:
       - PORT=3000
       - HOSTNAME=0.0.0.0
+  
+  backend:
+    build:
+      context: ./dimensionbackend
+      dockerfile: Dockerfile
+    image: backend-local
+    container_name: dimension-backend-container-v1
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOSTNAME=0.0.0.0
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

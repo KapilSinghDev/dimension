@@ -66,8 +66,19 @@ const Issuebox = ({
   const [query, setQuery] = useQueryStates({
     id: parseAsString,
     project: parseAsString,
+    listby: parseAsString,
   });
-
+  useEffect(() => {
+    if (query.listby !== "") {
+      console.log("list by detected", query.listby);
+    }
+  }, [query.listby]);
+  console.log("Comparing:", {
+    id: id,
+    listby: query.listby,
+    title: title,
+    match: query.listby == projectTitle,
+  });
   const updateIssueid = (id: string) => {
     setQuery({ id: id, project: null });
   };
@@ -104,15 +115,19 @@ const Issuebox = ({
       }}
       onClick={() => updateIssueid(id)}
       className={`
-        group flex flex-col gap-3 p-3.5 rounded-xl
-        border border-zinc-200/80 bg-white
-        hover:border-zinc-300 hover:bg-zinc-50/80 hover:shadow-md
-        dark:border-border dark:bg-card
-        dark:hover:bg-muted/40 dark:hover:border-border/80
-        cursor-pointer transition-all duration-150 ease-out
-        shadow-[0_1px_2px_rgba(0,0,0,0.04)]
-        ${isDragging ? "opacity-0" : "opacity-100"}
-      `}
+  group relative flex flex-col gap-3 p-4 rounded-2xl border bg-white
+  shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]
+  cursor-grab active:cursor-grabbing active:scale-[0.99]
+  transition-all duration-200 ease-out
+
+  ${isDragging ? "opacity-0" : "opacity-100"}
+
+  ${
+    query.listby === projectTitle
+      ? "border-blue-600 bg-gradient-to-br from-blue-50 to-white ring-2 ring-blue-500/20 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.25)]"
+      : "border-zinc-200/80 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-[0_8px_24px_-6px_rgba(37,99,235,0.18)]"
+  }
+`}
     >
       {/* Top row: Priority + ID + Project */}
       <div className="flex items-center justify-between gap-2 min-w-0">
@@ -168,14 +183,14 @@ const Issuebox = ({
           {projectTitle && (
             <span
               className="
-  text-[11px] font-medium tracking-tight truncate max-w-[120px]
-  px-2 py-0.5 rounded-full
-  text-zinc-600 bg-gradient-to-b from-white to-zinc-50
-  border border-zinc-200/80
-  shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.8)]
-  dark:text-muted-foreground dark:bg-muted/60 dark:from-transparent dark:to-transparent
-  dark:border-transparent dark:shadow-none
-"
+                          text-[11px] font-medium tracking-tight truncate max-w-[120px]
+                          px-2 py-0.5 rounded-full
+                          text-zinc-600 bg-gradient-to-b from-white to-zinc-50
+                          border border-zinc-200/80
+                          shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.8)]
+                          dark:text-muted-foreground dark:bg-muted/60 dark:from-transparent dark:to-transparent
+                          dark:border-transparent dark:shadow-none
+                        "
             >
               {projectTitle}
             </span>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
+  Check,
+  ChevronDown,
   FolderKanban,
   Funnel,
   ListCollapse,
@@ -44,7 +46,7 @@ import {
 import { PlayCircle, Inbox, CheckCircle2 } from "lucide-react";
 import { issueCreate_type } from "@/lib/types";
 import { issue_status_enum, priority_enum } from "@/lib/enums";
-
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 type Filter = "all issues" | "active" | "closed" | "backlog";
 
 export default function TeamIssues() {
@@ -79,21 +81,17 @@ export default function TeamIssues() {
   const [list, setList] = useState<string>("Me"); // defualt fetch your issues
   const handleUpdateListBy = (value: string) => {
     setList(value as string);
-    setListby(
-      issueFilters.find((item) => item.label === value)?.value as string,
-    );
+    // setListby(
+    //   issueFilters.find((item) => item.label === value)?.value as string,
+    // );
   };
+
   const { data, isLoading, error } = useGetIssues(); // add pagin tables to the issue
   const issues: IssueItems[] = data;
   const issueList: IssueItems[] =
     filter === "all issues"
       ? issues
       : issues.filter((item) => item.status === filter);
-  useEffect(() => {
-    if (data?.length === 0) {
-      setIsCreating("false");
-    }
-  }, [data]);
 
   const projectName = Array.from(
     new Set(
@@ -102,16 +100,25 @@ export default function TeamIssues() {
         .filter((title): title is string => title !== undefined),
     ),
   );
+  const [centrailIssueList, setCentralIssueList] = useState<IssueItems[]>(data);
+  useEffect(() => {
+    if (data?.length === 0) {
+      setIsCreating("false");
+    }
+  }, [data, listby]);
+
   const sortOptions = [
     {
       options: "projects",
       values: projectName,
     },
   ];
-  console.log(sortOptions[0].values);
 
   // Extracts all unique project values into an array
   //drag logic
+  const [actives, setAcives] = useState<IssueItems[]>(
+    issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [],
+  );
   const activeIssues =
     issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [];
   const backlogIssues =
@@ -188,6 +195,8 @@ export default function TeamIssues() {
     }),
     [issueList],
   );
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
   // caching
   return (
     <div className="h-screen w-full overflow-hidden  flex flex-row items-start justify-start p-4">
@@ -235,29 +244,45 @@ export default function TeamIssues() {
 
           <div className="flex  justify-between">
             <div className="h-fit w-full">
-              {sortOptions[0].values.map((f, key) => (
-                <Tooltip key={key}>
-                  <TooltipTrigger asChild>
-                    <Button
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-[140px] justify-between rounded-lg border border-blue-600 bg-gradient-to-br from-blue-50 to-white text-xs font-medium text-blue-700 ring-2 ring-blue-500/20 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.25)] transition-all duration-200 hover:from-blue-50 hover:to-white hover:text-blue-700 data-[state=open]:ring-blue-500/40"
+                  >
+                    <span className="truncate">
+                      {capitalize(listby as string)}
+                    </span>
+                    <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-70" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent
+                  align="start"
+                  className="min-w-[160px] rounded-xl border-zinc-200/80 bg-white p-1 shadow-[0_8px_24px_-6px_rgba(37,99,235,0.18)]"
+                >
+                  {sortOptions[0].values.map((f) => (
+                    <DropdownMenuItem
                       key={f}
-                      variant={filter === f ? "secondary" : "ghost"}
-                      size="sm"
+                      onSelect={() => {
+                        setListby(f);
+                      }}
                       className={cn(
-                        "text-xs capitalize w-[110px] justify-start shrink-0 hover:bg-gray-100",
-                        filter === f && "font-medium",
+                        "flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-xs",
+                        "text-zinc-600 focus:bg-blue-50 focus:text-blue-700",
+                        filter === f &&
+                          "bg-blue-50/70 font-medium text-blue-700",
                       )}
-                      // onClick={() => setFilter(f)}
                     >
-                      <span className="truncate block w-full text-left">
-                        {f.charAt(0).toUpperCase() + f.slice(1)}
-                      </span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    {f.charAt(0).toUpperCase() + f.slice(1)}
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+                      <span className="truncate">{capitalize(f)}</span>
+                      {filter === f && (
+                        <Check className="h-3.5 w-3.5 text-blue-600" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {[Funnel, ListCollapse, PanelRight].map((Icon, index) => (
