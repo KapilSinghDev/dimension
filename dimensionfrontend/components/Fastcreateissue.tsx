@@ -95,7 +95,7 @@ export default function FastCreateIssue({
         assignee: "",
         team: "",
         label: issueData.label,
-        // project: issueData., //changed
+        project: issueData.project_id,
         deadline: new Date(),
       },
       {

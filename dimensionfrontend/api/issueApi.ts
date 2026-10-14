@@ -1,4 +1,4 @@
-import { issue_type, issueCreate_type } from "@/lib/types";
+import { createNeIssue_type, issue_type, issueCreate_type } from "@/lib/types";
 import { apiclient } from "./apiClient";
 
 export class issueApi {
@@ -16,7 +16,7 @@ export class issueApi {
     });
   }
 
-  createIssue(payload: issueCreate_type) {
+  createIssue(payload: createNeIssue_type) {
     return apiclient.post("/issue/create", payload);
   }
 

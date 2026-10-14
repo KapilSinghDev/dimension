@@ -68,6 +68,20 @@ export type issueCreate_type = {
   status: issue_status_enum;
   project?: ProjectApiItem; //changed;
 };
+// TODO : this and the above dto has to be same resolve the project type mismatch
+export type createNeIssue_type = {
+  title: string;
+  created_by: number;
+  description?: string;
+  label?: string;
+  assignee?: string;
+  team?: string;
+  deadline: Date;
+  priority: priority_enum;
+  status: issue_status_enum;
+  project?: number; //changed;
+};
+
 // use this for create project api
 export type project_type = {
   title: string;

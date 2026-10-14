@@ -12,6 +12,7 @@ import {
   ProjectBatchResponse,
 } from "@/lib/response.types";
 import {
+  createNeIssue_type,
   issueCreate_type,
   project_type,
   userCredentials_type,
@@ -166,7 +167,8 @@ export const useGetTeamPerUser = (teamId: string) => {
 export const useCreateIssue = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (issue: issueCreate_type) => issueApiClient.createIssue(issue),
+    mutationFn: (issue: createNeIssue_type) =>
+      issueApiClient.createIssue(issue),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["issues-batch"] });
     },
