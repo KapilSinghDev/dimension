@@ -195,11 +195,17 @@ export default function TeamIssues() {
     }),
     [issueList],
   );
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const formatQueryParam = (
+    param: string | string[] | null | undefined,
+  ): string => {
+    if (!param) return "";
+    const str = Array.isArray(param) ? param[0] : param;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   // caching
   return (
-    <div className="h-screen w-full overflow-hidden  flex flex-row items-start justify-start p-4">
+    <div className="h-screen w-full   flex flex-row items-start justify-start p-4">
       {!id && (
         <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
           <div className="flex items-center gap-3">
@@ -252,7 +258,7 @@ export default function TeamIssues() {
                     className="w-[140px] justify-between rounded-lg border border-blue-600 bg-gradient-to-br from-blue-50 to-white text-xs font-medium text-blue-700 ring-2 ring-blue-500/20 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.25)] transition-all duration-200 hover:from-blue-50 hover:to-white hover:text-blue-700 data-[state=open]:ring-blue-500/40"
                   >
                     <span className="truncate">
-                      {capitalize(listby as string)}
+                      {formatQueryParam(listby) || "Select Project"}
                     </span>
                     <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-70" />
                   </Button>
@@ -275,7 +281,7 @@ export default function TeamIssues() {
                           "bg-blue-50/70 font-medium text-blue-700",
                       )}
                     >
-                      <span className="truncate">{capitalize(f)}</span>
+                      <span className="truncate">{f}</span>
                       {filter === f && (
                         <Check className="h-3.5 w-3.5 text-blue-600" />
                       )}

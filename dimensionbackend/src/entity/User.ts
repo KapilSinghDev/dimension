@@ -12,6 +12,7 @@ import { Issues } from "./Issue";
 import { BaseCredentials } from "./Credentials";
 import { Projects } from "./Project";
 import { Organisation } from "./Organisation";
+import { Updates } from "./Updates";
 @Entity()
 export class User extends BaseCredentials {
   @Column({ nullable: true })
@@ -39,4 +40,7 @@ export class User extends BaseCredentials {
 
   @OneToMany(() => Projects, (projects) => projects.manager)
   leading_projects: Relation<Projects[]>;
+
+  @OneToMany(() => Updates, (updates) => updates.updated_by, { nullable: true })
+  comments: Updates[];
 }

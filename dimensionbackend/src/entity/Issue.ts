@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import {
   issue_lable_enum,
   issue_status_enum,
@@ -8,6 +14,7 @@ import { Teams } from "./Teams";
 import { User } from "./User";
 import { Projects } from "./Project";
 import { Organisation } from "./Organisation";
+import { Updates } from "./Updates";
 
 @Entity()
 export class Issues {
@@ -64,4 +71,7 @@ export class Issues {
 
   @ManyToOne(() => Organisation, (orgs) => orgs.issues)
   organisation: Organisation;
+
+  @OneToMany(() => Updates, (updates) => updates.issues)
+  issue_updates: Updates[];
 }

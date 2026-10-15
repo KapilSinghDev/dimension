@@ -3,9 +3,12 @@ import { Request, Response, Router } from "express";
 import { issueController } from "../controllers/issue.controller";
 import { authorise } from "../middleware/authorise";
 import { authenticateUser } from "../middleware/authenticate";
+import { mediaInterceptor } from "@/middleware/mediaInterceptor";
+import multer from "multer";
 export class issueRouter {
   private router: Router;
   private issueController = new issueController();
+  private upload = multer({ storage: multer.memoryStorage() });
   constructor() {
     this.router = express.Router();
     this.issueRoutesRegister();
@@ -19,6 +22,7 @@ export class issueRouter {
     this.userIssueListRoute();
     this.teamIssueListRoute();
     this.getAllIssues();
+    this.commentIssue();
   }
 
   private getAllIssues = () => {
@@ -70,7 +74,15 @@ export class issueRouter {
       this.issueController.deleteIssue,
     );
   };
-
+  private commentIssue = () => {
+    this.router.post(
+      "/issue/comment",
+      authenticateUser,
+      this.upload.single("media"),
+      mediaInterceptor,
+      this.issueController.commentIssue,
+    );
+  };
   public publishIssueRouter() {
     return this.router;
   }

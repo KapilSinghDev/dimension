@@ -1,9 +1,11 @@
 import * as axios from "axios";
 import Cookies from "js-cookie";
+
 const base_url = "http://localhost:8000/dimension/api";
+
 export const apiclient: axios.AxiosInstance = axios.create({
   baseURL: base_url,
-  timeout: 5000,
+  timeout: 30000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -12,6 +14,12 @@ apiclient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+    return config;
+  }
+
   return config;
 });
 
@@ -25,14 +33,12 @@ apiclient.interceptors.response.use(
     }
     if (token) {
       Cookies.set("TOKEN", token);
-      // localStorage.setItem("TOKEN", token);
     }
     return response;
   },
   (error) => {
     if (error.response?.status === 401) {
       Cookies.remove("TOKEN");
-      // window.location.href = "/welcome?tab=signup";
     }
     return Promise.reject(error);
   },

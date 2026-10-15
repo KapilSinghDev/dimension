@@ -4,11 +4,13 @@ import type { create_issue_dto, create_issue_dto_type } from "../dto/issue_dto";
 import { Teams } from "../entity/Teams";
 import { User } from "../entity/User";
 import { Projects } from "../entity/Project";
+import { Updates } from "@/entity/Updates";
 class issueService {
   private issueRepository = AppDataSource.getRepository(Issues);
   private teamRepository = AppDataSource.getRepository(Teams);
   private userRepository = AppDataSource.getRepository(User);
   private projectRepository = AppDataSource.getRepository(Projects);
+  private updatesRepository = AppDataSource.getRepository(Updates);
   async createIssue(issue: create_issue_dto_type) {
     //    const issueInstance = this.issueRepository.create(issue);
     const user = issue.assignee
@@ -17,12 +19,6 @@ class issueService {
     const team = issue.team
       ? await this.teamRepository.findOneBy({ name: issue.team })
       : null;
-    console.log(
-      "the type of issue.project = ",
-      typeof issue.project,
-      "and the value ",
-      issue.project,
-    );
     const project =
       issue.project !== -1
         ? await this.projectRepository.findOneBy({
@@ -38,7 +34,6 @@ class issueService {
       team: team,
       project: project,
     };
-    console.log("the issue that is being saved => ", issueInstance);
     const createIssue = await this.issueRepository.save(issueInstance);
     return createIssue;
   }
@@ -83,13 +78,15 @@ class issueService {
   async findIssue(issueId?: number | null, title?: string) {
     try {
       if (issueId && issueId != null) {
-        const issue = await this.issueRepository.findOneBy({
-          issue_id: issueId,
+        const issue = await this.issueRepository.findOne({
+          where: { issue_id: issueId },
+          relations: { issue_updates: true },
         });
         return issue;
       } else {
-        const issue = await this.issueRepository.findOneBy({
-          title: title,
+        const issue = await this.issueRepository.findOne({
+          where: { title: title },
+          relations: { issue_updates: true },
         });
         return issue;
       }
@@ -124,6 +121,25 @@ class issueService {
       .where("project.id = :projectId", { projectId })
       .getMany();
     return projectIssueList;
+  }
+
+  async commentIssue(
+    userId: number,
+    comment: string,
+    issueId: string,
+    asset_url?: string,
+  ) {
+    try {
+      const update = await this.updatesRepository.save({
+        updated_by: { user_id: userId },
+        update_comment: comment,
+        update_asset: asset_url || null,
+        issues: { issue_id: Number(issueId) },
+      });
+      return update;
+    } catch (err) {
+      throw err;
+    }
   }
 }
 export { issueService };

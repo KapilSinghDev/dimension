@@ -101,4 +101,22 @@ export class issueController {
       throw err;
     }
   };
+
+  commentIssue = async (req: Request, res: Response) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
+    console.log("checking body", req.body);
+    try {
+      const updateComment = await this.issueService.commentIssue(
+        decodeToken.user_id,
+        req.body.comment,
+        req.body.issueId,
+        req.body?.asset_url,
+      );
+      return res.status(200).json({ comment: updateComment });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "An error occured" });
+    }
+  };
 }

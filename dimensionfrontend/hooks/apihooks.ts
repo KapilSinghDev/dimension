@@ -13,6 +13,7 @@ import {
 } from "@/lib/response.types";
 import {
   createNeIssue_type,
+  issueActivityType,
   issueCreate_type,
   project_type,
   userCredentials_type,
@@ -225,6 +226,20 @@ export const useUpdateIssue = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ISSUES_KEY });
     },
+  });
+};
+
+export const useUpdateIssueActivity = () => {
+  return useMutation({
+    mutationFn: (payload: issueActivityType) =>
+      issueApiClient.activityIssue(payload),
+  });
+};
+
+export const useGetIssueActivity = () => {
+  return useQuery({
+    queryKey: ["issue-activity"],
+    queryFn: () => {},
   });
 };
 //organisation hooks

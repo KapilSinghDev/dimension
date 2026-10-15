@@ -130,3 +130,9 @@ export interface organisationResponseDto {
   description?: string | null;
   joiningDate: Date;
 }
+
+export interface issueActivityType {
+  comment: string;
+  issueId: string;
+  media?: File | null;
+}
