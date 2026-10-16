@@ -131,7 +131,11 @@ export const useGetSingleIssue = (issueId: string) => {
       issueApiClient.getIssue({ issueId }).then((res) => res.data.message),
     retry: false,
   });
-  return { data, isLoading, error };
+  return {
+    data,
+    isLoading,
+    error,
+  };
 };
 
 export const useUploadToS3 = () => {

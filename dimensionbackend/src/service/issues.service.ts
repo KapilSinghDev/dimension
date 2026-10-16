@@ -77,19 +77,16 @@ class issueService {
 
   async findIssue(issueId?: number | null, title?: string) {
     try {
-      if (issueId && issueId != null) {
-        const issue = await this.issueRepository.findOne({
-          where: { issue_id: issueId },
-          relations: { issue_updates: true },
-        });
-        return issue;
-      } else {
-        const issue = await this.issueRepository.findOne({
-          where: { title: title },
-          relations: { issue_updates: true },
-        });
-        return issue;
-      }
+      const whereCondition = issueId ? { issue_id: issueId } : { title: title };
+      const issue = await this.issueRepository.findOne({
+        where: whereCondition,
+        relations: {
+          issue_updates: {
+            updated_by: true,
+          },
+        },
+      });
+      return issue;
     } catch (err) {
       console.log("Issue with id ", issueId, " not found ");
       throw err;
