@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, number } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -30,9 +30,15 @@ import {
   LucideIcon,
 } from "lucide-react";
 import { useCreateIssue } from "@/hooks/apihooks";
-import { issue_status_enum, priority_enum } from "@/lib/enums";
+import {
+  issue_status_enum,
+  IssueLabel_enums,
+  IssuePriority_enums,
+  priority_enum,
+} from "@/lib/enums";
 import { DatePickerSimple } from "./Pickdates";
 import { issueInterface } from "@/lib/types";
+import { toast } from "sonner";
 
 interface MetadataConfig {
   id: "priority" | "assignee" | "label";
@@ -45,13 +51,16 @@ interface FastCreateIssueProps {
   onCancel?: () => void;
   onOpen?: () => void;
   variant?: "default" | "kanban";
+  projects?: { id: number; title: string }[];
 }
 
 export default function FastCreateIssue({
   onCancel,
   onOpen,
   variant = "default",
+  projects,
 }: FastCreateIssueProps) {
+  console.log("projects received in fast create issue => ", projects);
   const [isOpen, setIsOpen] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -68,11 +77,11 @@ export default function FastCreateIssue({
   };
 
   const [issueData, setIssueData] = useState<issueInterface>({
-    status: "Todo",
-    priority: "No Priority",
+    status: issue_status_enum.ACTIVE,
+    priority: IssuePriority_enums.HIGH,
     assignee: "No assignee",
-    label: "No label",
-    project_id: -1,
+    label: IssueLabel_enums.Improvement,
+    project_id: -1 || "",
     dueDate: new Date(),
   });
 
@@ -84,7 +93,6 @@ export default function FastCreateIssue({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     createIssue.mutate(
       {
         title: titleRef.current?.value as string,
@@ -100,7 +108,9 @@ export default function FastCreateIssue({
       },
       {
         onSuccess: () => {},
-        onError: () => {},
+        onError: () => {
+          toast.error("Failure creating issue ! Try again");
+        },
       },
     );
 
@@ -290,21 +300,46 @@ export default function FastCreateIssue({
 
                   {/* Extra row: Project + Due date */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-8 gap-1.5 text-xs"
-                      onClick={() =>
-                        setIssueData((prev) => ({
-                          ...prev,
-                          project: "Project Alpha",
-                        }))
-                      }
-                    >
-                      <StepForward className="h-3.5 w-3.5" />
-                      Project
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 text-xs font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
+                          onClick={() =>
+                            setIssueData((prev) => ({
+                              ...prev,
+                              project: "Project Alpha",
+                            }))
+                          }
+                        >
+                          <StepForward className="h-3.5 w-3.5 text-slate-500" />
+                          <span>Project</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent
+                        side="right"
+                        align="start"
+                        className="w-48 p-1 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/60 text-slate-700 animate-in fade-in-80 zoom-in-95"
+                      >
+                        {projects?.map((item, key) => (
+                          <DropdownMenuItem
+                            key={key}
+                            className="flex items-center px-3 py-2 text-xs font-medium rounded-lg text-slate-700 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition-colors focus:bg-slate-100 focus:text-slate-900"
+                            onClick={() =>
+                              setIssueData((prev) => ({
+                                ...prev,
+                                project_id: item.id,
+                              }))
+                            }
+                          >
+                            {item.title[0].toUpperCase() + item.title.slice(1)}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
                     <DatePickerSimple
                       date={issueData.dueDate}

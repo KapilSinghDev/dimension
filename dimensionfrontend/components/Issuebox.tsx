@@ -214,11 +214,15 @@ const Issuebox = ({
                   className={
                     status === "active"
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-green-950/60 dark:text-green-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
-                      : "bg-zinc-100 text-zinc-600 border border-zinc-200/60 dark:bg-muted dark:text-muted-foreground dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
+                      : status === "closed"
+                        ? "bg-purple-50 text-purple-700 border border-purple-200/60 dark:bg-purple-950/60 dark:text-purple-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
+                        : status === "backlog"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/60 dark:text-amber-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
+                          : "bg-zinc-100 text-zinc-600 border border-zinc-200/60 dark:bg-muted dark:text-muted-foreground dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
                   }
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {status === "active" ? "In progress" : "Backlog"}
+                  {status[0].toUpperCase() + status.slice(1)}
                 </Badge>
               </DropdownMenuTrigger>
             </TooltipTrigger>

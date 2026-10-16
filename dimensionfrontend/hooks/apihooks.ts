@@ -23,6 +23,7 @@ import {
 } from "@/lib/types";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
+import { toast } from "sonner";
 
 const projectApiClient = new projectApi();
 const issueApiClient = new issueApi();
@@ -176,6 +177,10 @@ export const useCreateIssue = () => {
       issueApiClient.createIssue(issue),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["issues-batch"] });
+      toast.success("Issue created successfully.");
+    },
+    onError: () => {
+      toast.error("Failed to update activity. Please try again.");
     },
   });
 };

@@ -13,12 +13,13 @@ export class issueController {
       req.body.created_by = decodeToken.user_id;
       console.log("the body received in creating a new issue is => ", req.body);
       const issue = await this.issueService.createIssue(req.body);
-      res.send({ message: "success", "issue id": issue }).status(201);
+      return res.status(201).send({ message: "success", "issue id": issue });
     } catch (err) {
       console.error(err);
-      res.send({ message: "An error occured" }).status(500);
+      return res
+        .status(500)
+        .send({ message: "Error occurred while creating issue" });
     }
-    return;
   };
 
   deleteIssue = async (req: Request, res: Response) => {

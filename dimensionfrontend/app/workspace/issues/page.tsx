@@ -93,12 +93,17 @@ export default function TeamIssues() {
       ? issues
       : issues.filter((item) => item.status === filter);
 
-  const projectName = Array.from(
-    new Set(
-      issueList
-        ?.map((item) => item.project?.title)
-        .filter((title): title is string => title !== undefined),
-    ),
+  const projectsList = Array.from(
+    new Map(
+      issues
+        ?.filter(
+          (item) => item.project?.id != null && item.project?.title != null,
+        )
+        .map((item) => [
+          item.project!.id,
+          { id: item.project!.id, title: item.project!.title },
+        ]),
+    ).values(),
   );
   const [centrailIssueList, setCentralIssueList] = useState<IssueItems[]>(data);
   useEffect(() => {
@@ -110,7 +115,7 @@ export default function TeamIssues() {
   const sortOptions = [
     {
       options: "projects",
-      values: projectName,
+      values: projectsList,
     },
   ];
 
@@ -268,21 +273,21 @@ export default function TeamIssues() {
                   align="start"
                   className="min-w-[160px] rounded-xl border-zinc-200/80 bg-white p-1 shadow-[0_8px_24px_-6px_rgba(37,99,235,0.18)]"
                 >
-                  {sortOptions[0].values.map((f) => (
+                  {sortOptions[0].values.map((f, key) => (
                     <DropdownMenuItem
-                      key={f}
+                      key={key}
                       onSelect={() => {
-                        setListby(f);
+                        setListby(f.title);
                       }}
                       className={cn(
                         "flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-xs",
                         "text-zinc-600 focus:bg-blue-50 focus:text-blue-700",
-                        filter === f &&
+                        filter === f.title &&
                           "bg-blue-50/70 font-medium text-blue-700",
                       )}
                     >
-                      <span className="truncate">{f}</span>
-                      {filter === f && (
+                      <span className="truncate">{f.title}</span>
+                      {filter === f.title && (
                         <Check className="h-3.5 w-3.5 text-blue-600" />
                       )}
                     </DropdownMenuItem>
@@ -394,6 +399,7 @@ export default function TeamIssues() {
                     <FastCreateIssue
                       onOpen={() => setIsCreating("true")}
                       onCancel={() => setIsCreating("false")}
+                      projects={sortOptions[0].values}
                       variant="kanban"
                     />
                   </div>

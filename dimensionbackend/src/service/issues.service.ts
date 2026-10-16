@@ -20,9 +20,14 @@ class issueService {
       ? await this.teamRepository.findOneBy({ name: issue.team })
       : null;
     const project =
-      issue.project !== -1
+      issue.project !== -1 &&
+      issue.project !== null &&
+      issue.project !== undefined
         ? await this.projectRepository.findOneBy({
-            id: Number(issue.project),
+            id:
+              typeof issue.project === "number"
+                ? issue.project
+                : Number(issue.project),
           })
         : null;
     const issueInstance = {
