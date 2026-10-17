@@ -73,12 +73,7 @@ const Issuebox = ({
       console.log("list by detected", query.listby);
     }
   }, [query.listby]);
-  console.log("Comparing:", {
-    id: id,
-    listby: query.listby,
-    title: title,
-    match: query.listby == projectTitle,
-  });
+
   const updateIssueid = (id: string) => {
     setQuery({ id: id, project: null });
   };

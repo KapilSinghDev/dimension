@@ -8,6 +8,15 @@ export interface ProjectApiItem {
   status: "backlog" | "in-progress" | "completed";
   priority: string;
   issues: IssueItems[];
+  created_by?: {
+    user_id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+    created_at: string;
+    picture: string | null;
+    role: string | null;
+  };
 }
 
 export interface IssueItems {

@@ -82,7 +82,10 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: (payload: project_type) =>
       projectApiClient.createProject(payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      toast.success("Project Updated Successfully");
+    },
   });
 };
 

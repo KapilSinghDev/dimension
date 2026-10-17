@@ -9,8 +9,13 @@ export class ProjectService {
   private issueService = new issueService();
   private authenticationSerive = new authenticationService();
   searchProject = async (project_id: string) => {
-    const target_project = await this.projectRepository.findOneBy({
-      id: Number(project_id),
+    const target_project = await this.projectRepository.findOne({
+      where: { id: Number(project_id) },
+      relations: {
+        issues: { issue_updates: true },
+        created_by: true,
+        manager: true,
+      },
     });
     return target_project;
   };

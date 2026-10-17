@@ -164,7 +164,7 @@ const Projectviewscreen = () => {
               ],
               onSelectOption: handleProjectFieldUpdate,
             },
-            { icon: Crown, name: "Team Lead", variant: "lead" as const },
+            // { icon: Crown, name: "Team Lead", variant: "lead" as const },
             {
               icon: CalendarDays,
               name:

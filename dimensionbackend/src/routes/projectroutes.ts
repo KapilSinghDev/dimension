@@ -41,6 +41,12 @@ export class Projectroutes {
       // authenticateUser,
       this.projectController.getProjectbyBatch,
     );
+
+    this.project_router.get(
+      "/project/overview",
+      // authenticateUser,
+      this.projectController.getProjectOverView,
+    );
   }
 
   public publishProjectRoutes() {

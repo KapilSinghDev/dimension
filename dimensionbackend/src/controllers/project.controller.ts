@@ -98,4 +98,18 @@ export class ProjectController {
       throw err;
     }
   };
+
+  getProjectOverView = async (req: Request, res: Response) => {
+    try {
+      const projectId = Number(req.query.project);
+      const projectDetails = await this.projectservices.searchProject(
+        projectId.toString(),
+      );
+      return res.status(200).send({ message: projectDetails });
+    } catch (err) {
+      return res.status(500).send({
+        message: "An unknown error occured",
+      });
+    }
+  };
 }

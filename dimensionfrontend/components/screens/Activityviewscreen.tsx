@@ -8,18 +8,22 @@ const Activityviewscreen = () => {
   const { state } = useSidebar();
 
   return (
-    <Mainpanel state={state} className="overflow-y-auto pb-36">
-      <div className="flex flex-col justify-start gap-2.5 w-full py-1">
-        <Update variant="update" />
-        <Update variant="display" />
-        <Update variant="display" />
-        <Update variant="display" />
-        <Update variant="display" />
-        <Update variant="display" />
-        <Update variant="display" />
-        <Update variant="display" />
-      </div>
-    </Mainpanel>
+    <div className="flex  h-screen overflow-hidden">
+      <Mainpanel state={state} className="min-h-0 w-full overflow-y-auto pb-36">
+        <div className="flex w-full flex-col justify-start gap-2.5 py-1">
+          <Update variant="update" />
+          <Update variant="display" />
+          {/* <Update variant="update" /> */}
+          <Update variant="display" />
+          <Update variant="display" />
+          <Update variant="display" />
+          <Update variant="display" />
+          <Update variant="display" />
+          <Update variant="display" />
+          <Update variant="display" />
+        </div>
+      </Mainpanel>
+    </div>
   );
 };
 

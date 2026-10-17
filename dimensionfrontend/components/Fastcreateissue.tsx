@@ -399,11 +399,11 @@ export default function FastCreateIssue({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => handleOpening()}
-                    variant="secondary"
-                    className="bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 text-[14px] font-medium transition-all"
+                    onClick={handleOpening}
+                    variant="ghost"
+                    className="w-full justify-start text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-xs font-medium transition-all h-9 px-3 gap-2"
                   >
-                    + New issue
+                    <span>New issue</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">Add a new issue</TooltipContent>
