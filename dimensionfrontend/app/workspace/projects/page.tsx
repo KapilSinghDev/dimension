@@ -23,10 +23,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Activityviewscreen from "@/components/screens/Activityviewscreen";
 import Projectviewscreen from "@/components/screens/Projectviewscreen";
 import Documentscreen from "@/components/screens/Documentscreen";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsString, useQueryState, useQueryStates } from "nuqs";
 import { useEffect } from "react";
 import ProjectTable from "@/components/screens/ProjectsTablescreen";
 import { Button } from "@/components/ui/button";
+import { useGetProjectOverview } from "@/hooks/apihooks";
+import { ProjectOverviewResponse } from "@/lib/response.types";
 const Projects = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState(
@@ -41,7 +43,14 @@ const Projects = () => {
       setTab("activity");
     }
   }, [project]);
-
+  const [query] = useQueryStates({ project: parseAsString });
+  const { data, isLoading, error } = useGetProjectOverview(
+    query.project as string,
+    tab === "overview" ? true : false,
+  );
+  const overView: ProjectOverviewResponse = data?.data.message;
+  const activityUpdates =
+    overView?.issues?.flatMap((issue) => issue.issue_updates ?? []) ?? [];
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden ">
       <div className="flex items-center gap-3 pt-5 px-8 sticky top-0 z-10 bg-white ">
@@ -94,63 +103,67 @@ const Projects = () => {
       {project && (
         <div className="flex-1 w-full mt-2 flex flex-row  ">
           {tab === "activity" && <Projectviewscreen />}
-          {tab === "overview" && <Activityviewscreen />}
+          {tab === "overview" && (
+            <Activityviewscreen activity={activityUpdates} />
+          )}
           {tab === "document" && <Documentscreen />}
           <div className="h-full w-2/5 pr-10">
             <div className="h-full w-full flex flex-col gap-1 p-4">
-              <Propertiesbox
-                Tableicon={TableProperties}
-                name="Properties"
-                badge="Active"
-                properties={[
-                  {
-                    icon: CircleDot,
-                    label: "Status",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Flame,
-                    label: "Priority",
-                    items: ["Urgent", "High", "Medium", "Low"],
-                  },
-                  {
-                    icon: Crown,
-                    label: "Lead",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: Users,
-                    label: "Members",
-                    items: ["Alice", "Bob", "Charlie"],
-                  },
-                  {
-                    icon: CircleAlert,
-                    label: "Issues",
-                    items: ["MT-101", "MT-102", "MT-103"],
-                  },
-                  {
-                    icon: CalendarClock,
-                    label: "Dates",
-                    items: ["This week", "This month", "Custom"],
-                  },
-                  {
-                    icon: UsersRound,
-                    label: "Teams",
-                    items: ["Engineering", "Design", "Product"],
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: "Slack",
-                    items: ["#general", "#engineering", "#design"],
-                  },
-                  {
-                    icon: Tag,
-                    label: "Label",
-                    items: ["Bug", "Feature", "Improvement", "Docs"],
-                  },
-                ]}
-              />
-              <div className="h-fit max-h-full w-full flex flex-col gap-3 mt-2 p-2 bg-gray-200">
+              {tab === "overview" && (
+                <Propertiesbox
+                  Tableicon={TableProperties}
+                  name="Properties"
+                  badge="Active"
+                  properties={[
+                    {
+                      icon: CircleDot,
+                      label: "Status",
+                      items: "",
+                    },
+                    {
+                      icon: Flame,
+                      label: "Priority",
+                      items: "",
+                    },
+                    {
+                      icon: Crown,
+                      label: "Lead",
+                      items: "",
+                    },
+                    {
+                      icon: Users,
+                      label: "Members",
+                      items: "",
+                    },
+                    {
+                      icon: CircleAlert,
+                      label: "Issues",
+                      items: "",
+                    },
+                    {
+                      icon: CalendarClock,
+                      label: "Dates",
+                      items: "",
+                    },
+                    {
+                      icon: UsersRound,
+                      label: "Teams",
+                      items: "",
+                    },
+                    {
+                      icon: MessageSquare,
+                      label: "Slack",
+                      items: "",
+                    },
+                    {
+                      icon: Tag,
+                      label: "Label",
+                      items: "",
+                    },
+                  ]}
+                />
+              )}
+              {/* <div className="h-fit max-h-full w-full flex flex-col gap-3 mt-2 p-2 bg-gray-200">
                 <div className="flex items-center gap-2">
                   <Activity size={13} className="text-muted-foreground" />
                   <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">
@@ -215,7 +228,7 @@ const Projects = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

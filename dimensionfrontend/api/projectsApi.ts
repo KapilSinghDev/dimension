@@ -35,4 +35,14 @@ export class projectApi {
       },
     });
   }
+
+  getProjectOverview(projectId: string) {
+    const token = localStorage.getItem("TOKEN");
+    return apiclient.get("/project/overview", {
+      headers: { Authorization: `Bearer ${token}` },
+      params: {
+        projectId,
+      },
+    });
+  }
 }

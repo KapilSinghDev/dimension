@@ -13,7 +13,7 @@ import { Award } from "lucide-react";
 type PropertyItem = {
   icon: LucideIcon;
   label: string;
-  items: string[];
+  items: string;
 };
 
 type Propertiesboxprops = {
@@ -64,19 +64,19 @@ const Propertiesbox = ({
               className="min-w-20 p-1 bg-gray-500"
             >
               <div className="flex flex-col">
-                {section.items.map((item) => (
-                  <div
-                    key={item}
-                    className="group flex items-center gap-2 px-3 py-1.5 rounded cursor-pointer text-xs font-medium "
-                  >
-                    <Award
-                      color="yellow"
-                      size={12}
-                      className="invisible group-hover:visible flex-shrink-0"
-                    />
-                    <span>{item}</span>
-                  </div>
-                ))}
+                {/* {section.items.map((item) => ( */}
+                <div
+                  // key={item}
+                  className="group flex items-center gap-2 px-3 py-1.5 rounded cursor-pointer text-xs font-medium "
+                >
+                  <Award
+                    color="yellow"
+                    size={12}
+                    className="invisible group-hover:visible flex-shrink-0"
+                  />
+                  <span>{section.items}</span>
+                </div>
+                {/* ))} */}
               </div>
             </TooltipContent>
           </Tooltip>

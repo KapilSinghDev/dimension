@@ -9,7 +9,6 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const TOKEN = request.cookies.get("TOKEN")?.value;
-  console.log("The token found is => ", TOKEN);
   const isProtectedRoute =
     pathname.startsWith("/workspace") || pathname.startsWith("/projects");
 

@@ -48,6 +48,7 @@ import { issueCreate_type } from "@/lib/types";
 import { issue_status_enum, priority_enum } from "@/lib/enums";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IssuesEmptyState } from "@/components/Emptystates/IssueEmptyState";
+import NoIssuesFound from "@/components/Emptystates/NoIssueFound";
 type Filter = "all issues" | "active" | "closed" | "backlog";
 
 export default function TeamIssues() {
@@ -341,10 +342,21 @@ export default function TeamIssues() {
           >
             {issueList?.length === 0 ? (
               <div className="flex min-h-50 flex-col items-center   transition-all duration-300">
-                <IssuesEmptyState
+                {/* <IssuesEmptyState
                   createIssue={createIssue as string}
                   data={data}
                   setIsCreating={setIsCreating}
+                /> */}
+                <NoIssuesFound
+                  action={
+                    <Button
+                      onClick={() => setIsCreating("true")}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Create issue
+                    </Button>
+                  }
                 />
               </div>
             ) : (

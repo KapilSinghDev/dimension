@@ -10,6 +10,7 @@ import {
   IssueItems,
   ProjectApiItem,
   ProjectBatchResponse,
+  ProjectOverviewResponse,
 } from "@/lib/response.types";
 import {
   createNeIssue_type,
@@ -128,6 +129,23 @@ export const useGetProjectsbyBatch = (page: string) => {
   return { projects: response?.projects, isLoading, error, projectTitleList };
 };
 
+export const useGetProjectOverview = (projectId: string, enabled: boolean) => {
+  interface responseType {
+    message: ProjectOverviewResponse;
+  }
+  const {
+    data: messgae,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["project-overview" + projectId],
+    queryFn: () => projectApiClient.getProjectOverview(projectId),
+    enabled: enabled,
+    retry: false,
+  });
+  // console.log("project overview hook => ", data?.message);
+  return { data: messgae, isLoading, error };
+};
 export const useGetSingleIssue = (issueId: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["issue", issueId],

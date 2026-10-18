@@ -22,11 +22,16 @@ import {
   project_status_enum,
 } from "@/lib/enums";
 import { project_type } from "@/lib/types";
+import { formatDistanceToNow } from "date-fns";
 type UpdateBoxProps = {
   variant?: "update" | "display";
   onSelect?: (field: keyof project_type, value: project_health_enum) => void;
   field?: string;
   status?: string;
+  id?: number;
+  update_time?: Date;
+  comment?: string;
+  update_asset?: string;
 };
 const healthStatus = [
   {
@@ -47,12 +52,16 @@ const Update = ({
   onSelect,
   field,
   status,
+  id,
+  update_time,
+  update_asset,
+  comment,
 }: UpdateBoxProps) => {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <Card className="w-full">
-      <CardContent className="p-4 pb-1">
+    <Card className="min-w-full">
+      <CardContent className="min-w-full p-4 pb-1">
         {variant === "update" ? (
           <div className="relative">
             <Tooltip open={open} onOpenChange={setOpen}>
@@ -104,8 +113,15 @@ const Update = ({
                 </Badge>
                 <p className="text-[11px] text-muted-foreground">
                   Updated by{" "}
-                  <span className="font-medium text-foreground">Alice</span> ·
-                  2h ago
+                  <span className="font-medium text-foreground">Alice</span> ·{" "}
+                  {update_time
+                    ? formatDistanceToNow(new Date(update_time), {
+                        addSuffix: true,
+                      })
+                    : ""}
+                  {id !== undefined && (
+                    <span className="font-mono"> · #{id}</span>
+                  )}
                 </p>
               </div>
               <Button
@@ -116,10 +132,19 @@ const Update = ({
                 <RefreshCw size={12} className="text-muted-foreground" />
               </Button>
             </div>
-            <p className="text-xs text-foreground mt-3 leading-relaxed">
-              API integration is progressing well. All core endpoints are
-              connected and tests are passing. No blockers at this time.
+
+            <p className="text-xs text-foreground mt-3 leading-relaxed break-words">
+              {comment}
             </p>
+
+            {update_asset && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={update_asset}
+                alt="Update attachment"
+                className="mt-3 max-h-64 w-full rounded-md border border-border object-cover"
+              />
+            )}
           </>
         )}
       </CardContent>

@@ -84,7 +84,6 @@ export class ProjectController {
     const page = req.query.page;
     const token = req.headers.authorization?.split(" ")[1];
     const decodeToken = jwt.decode(token) as userPayloadInterface;
-    console.log("token decoded fetch project by batch", decodeToken);
     try {
       const projectlist = await this.projectservices.fetchProjectByBatch(
         Number(page),
@@ -101,7 +100,7 @@ export class ProjectController {
 
   getProjectOverView = async (req: Request, res: Response) => {
     try {
-      const projectId = Number(req.query.project);
+      const projectId = Number(req.query.projectId);
       const projectDetails = await this.projectservices.searchProject(
         projectId.toString(),
       );
