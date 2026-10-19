@@ -29,6 +29,7 @@ import ProjectTable from "@/components/screens/ProjectsTablescreen";
 import { Button } from "@/components/ui/button";
 import { useGetProjectOverview } from "@/hooks/apihooks";
 import { ProjectOverviewResponse } from "@/lib/response.types";
+// import { setIssueList, useIssueList } from "@/store/issueStore";
 const Projects = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState(
@@ -38,11 +39,11 @@ const Projects = () => {
       .withOptions({ clearOnDefault: false }),
   );
   const [project] = useQueryState("project");
-  useEffect(() => {
-    if (project) {
-      setTab("activity");
-    }
-  }, [project]);
+  // useEffect(() => {
+  //   if (project) {
+  //     setTab("activity");
+  //   }
+  // }, [project, setTab]);
   const [query] = useQueryStates({ project: parseAsString });
   const { data, isLoading, error } = useGetProjectOverview(
     query.project as string,
@@ -71,7 +72,7 @@ const Projects = () => {
         <div
           className={`w-full sticky top-16 z-10 mt-4 ${state === "expanded" ? "px-16" : "px-12"} flex gap-2`}
         >
-          <Tabs defaultValue={tab || "activity"} className="w-auto">
+          <Tabs defaultValue={tab} className="w-auto">
             <TabsList className="bg-transparent p-0 px-0 h-fit w-fit justify-start gap-1.5 border-none">
               <TabsTrigger
                 value="activity"
@@ -92,6 +93,7 @@ const Projects = () => {
               <TabsTrigger
                 value="issues"
                 className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
+                onClick={() => setTab("issues")}
               >
                 Issues
               </TabsTrigger>

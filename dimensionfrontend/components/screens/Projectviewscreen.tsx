@@ -36,17 +36,19 @@ import {
   project_priority_enum,
   project_status_enum,
 } from "@/lib/enums";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { DatePickerSimple } from "../Pickdates";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { project_route } from "@/lib/routes";
+import { setIssueList, useIssueList } from "@/store/issueStore";
 const Projectviewscreen = () => {
   const { state } = useSidebar();
   const [tab, setTab] = useQueryState("tab");
   const [project, setProject] = useQueryState("project");
+
   const router = useRouter();
 
   const [datePopOver, setDatepopOver] = useState<boolean>(false);
@@ -54,6 +56,21 @@ const Projectviewscreen = () => {
 
   const { data, isLoading, error } = useGetProjects(project as string);
   const projectDetail = data;
+
+  const issueListOptions = useMemo(() => {
+    return (
+      projectDetail?.issues?.map((issue) => ({
+        id: issue.issue_id,
+        title: issue.title,
+      })) ?? []
+    );
+  }, [projectDetail?.issues]);
+  const issueList = useIssueList();
+  // console.log("project screen check issue list", issueListOptions);
+  useEffect(() => {
+    setIssueList(issueListOptions);
+  }, [issueListOptions, project]);
+  // setIssueList(issueListOptions);
   const [projectInterface, setProjectInterface] = useState<project_type>({
     title: projectDetail?.title || "",
     description: projectDetail?.description || "",

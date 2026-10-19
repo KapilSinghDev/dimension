@@ -19,6 +19,9 @@ import {
 } from "@/lib/enums";
 import { project_type } from "@/lib/types";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface valueInterface {
   value:
     | project_priority_enum
@@ -27,6 +30,7 @@ interface valueInterface {
     | Date
     | string;
 }
+
 type ProjectTabsprops = {
   name: string;
   icon: LucideIcon;
@@ -62,33 +66,27 @@ type ProjectTabsprops = {
 const iconColorMapper = [
   {
     key: "high",
-    style:
-      "text-red-700 dark:bg-red-950 dark:text-red-400 border-red-200 dark:border-red-800",
+    style: "text-red-600",
   },
   {
     key: "low",
-    style:
-      "text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
+    style: "text-amber-600",
   },
   {
     key: "lead",
-    style:
-      "text-blue-700 dark:bg-blue-950 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+    style: "text-sky-600",
   },
   {
     key: "coordinator",
-    style:
-      "text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 border-zinc-300 dark:border-zinc-700",
+    style: "text-zinc-600",
   },
   {
     key: "normal",
-    style:
-      "text-green-700 dark:bg-green-950 dark:text-green-400 border-green-200 dark:border-green-800",
+    style: "text-emerald-600",
   },
   {
     key: "completed",
-    style:
-      "bg-blue-100 text-blue-500 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
+    style: "text-blue-600",
   },
 ];
 
@@ -104,21 +102,31 @@ const ProjectTabs = ({
 }: ProjectTabsprops) => {
   const iconStyle = iconColorMapper.find((v) => v.key === style)?.style;
   name = name.charAt(0).toUpperCase() + name.slice(1);
+
   const triggerBadge = (
-    <div className="flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity">
-      <Icon size={14} className={iconStyle} />
-      <Badge variant={style}>
-        {/* {options?.find((item) => item.value === name)?.name} */}
-        {name}
-      </Badge>
-    </div>
+    <button
+      type="button"
+      className={cn(
+        "group inline-flex items-center gap-1.5 rounded-full border border-zinc-200/90 bg-white",
+        "px-2.5 py-1 text-xs font-medium text-zinc-700",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.04)]",
+        "transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 focus-visible:ring-offset-1",
+      )}
+    >
+      <Icon size={13} className={cn("shrink-0 opacity-80", iconStyle)} />
+      <span className="leading-none tracking-tight">{name}</span>
+    </button>
   );
 
   if (component) {
     return (
       <Popover>
         <PopoverTrigger asChild>{triggerBadge}</PopoverTrigger>
-        <PopoverContent className="w-auto p-2" align="start">
+        <PopoverContent
+          className="w-auto rounded-xl border border-zinc-200 bg-white p-2 shadow-md"
+          align="start"
+        >
           {component}
         </PopoverContent>
       </Popover>
@@ -131,27 +139,39 @@ const ProjectTabs = ({
         <DropdownMenuTrigger asChild>{triggerBadge}</DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="min-w-[180px] rounded-xl border border-blue-100 bg-white p-1.5 shadow-lg shadow-blue-100/50"
+          className="min-w-[168px] rounded-xl border border-zinc-200 bg-white p-1 shadow-md"
         >
-          {options.map((item, index) => (
-            <DropdownMenuItem
-              key={index}
-              onClick={() => {
-                onSelectOption?.(optionField as keyof project_type, item.value);
-                toast(
-                  (optionField?.charAt(0).toUpperCase() as string) +
-                    optionField?.slice(1) +
-                    " changed ",
-                );
-              }}
-              className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700"
-            >
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-200" />
-                {item.name || (item.value as string)}
-              </div>
-            </DropdownMenuItem>
-          ))}
+          {options.map((item, index) => {
+            const isSelected = selectedOption === item.value;
+            const label = item.name || (item.value as string);
+
+            return (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => {
+                  onSelectOption?.(
+                    optionField as keyof project_type,
+                    item.value,
+                  );
+                  toast(
+                    (optionField?.charAt(0).toUpperCase() as string) +
+                      optionField?.slice(1) +
+                      " changed ",
+                  );
+                }}
+                className={cn(
+                  "flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-sm",
+                  "text-zinc-700 focus:bg-zinc-100 focus:text-zinc-900",
+                  isSelected && "bg-zinc-50 font-medium text-zinc-900",
+                )}
+              >
+                <span className="truncate">{label}</span>
+                {isSelected && (
+                  <Check className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+                )}
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     );

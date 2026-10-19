@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { ChangeEvent, useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,32 @@ import {
   SendHorizontal,
   CircleDot,
   CircleCheck,
-  CircleAlert,
-  CircleX,
+  ImagePlus,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   project_health_enum,
   project_priority_enum,
   project_status_enum,
 } from "@/lib/enums";
-import { project_type } from "@/lib/types";
+import { issueActivityType, project_type } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
+import { useUpdateIssueActivity } from "@/hooks/apihooks";
+import { useIssueList } from "@/store/issueStore";
+
+interface issueDetails {
+  id: number;
+  title: string;
+}
+
 type UpdateBoxProps = {
   variant?: "update" | "display";
   onSelect?: (field: keyof project_type, value: project_health_enum) => void;
@@ -33,20 +47,25 @@ type UpdateBoxProps = {
   comment?: string;
   update_asset?: string;
 };
+
 const healthStatus = [
   {
     name: "On Track",
     enum_val: project_health_enum.ON_TRACK,
+    color: "bg-emerald-500",
   },
   {
-    name: "At risk",
+    name: "At Risk",
     enum_val: project_health_enum.AT_RISK,
+    color: "bg-amber-500",
   },
   {
     name: "Off Track",
     enum_val: project_health_enum.OFF_TRACK,
+    color: "bg-rose-500",
   },
 ];
+
 const Update = ({
   variant = "display",
   onSelect,
@@ -57,131 +76,217 @@ const Update = ({
   update_asset,
   comment,
 }: UpdateBoxProps) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const issuesOptions = useIssueList();
+  console.log("this is to check from the update comp", issuesOptions);
+  const issueUpdate = useUpdateIssueActivity();
+
+  const [issuePayload, setIssuePayload] = useState<issueActivityType>({
+    issueId: "",
+    comment: "",
+    media: null,
+  });
+
+  const [selectedIssueTitle, setSelectedIssueTitle] = useState("");
+
+  const handleIssuePayload = (
+    field: string,
+    value?: string,
+    e?: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const nextValue = e?.target.value ?? value ?? "";
+    setIssuePayload((prev) => ({
+      ...prev,
+      [field]: nextValue,
+    }));
+  };
+
+  const selectedIssue = issuesOptions?.find(
+    (item) => item.id.toString() === issuePayload.issueId,
+  );
 
   return (
-    <Card className="min-w-full">
-      <CardContent className="min-w-full p-4 pb-1">
+    <Card className="w-full overflow-hidden border-border/60 shadow-sm">
+      <CardContent className="p-0">
         {variant === "update" ? (
-          <div className="relative">
-            <Tooltip open={open} onOpenChange={setOpen}>
-              <TooltipTrigger asChild>
-                <Badge
-                  variant="normal"
-                  className="absolute top-2 left-2 z-10 cursor-pointer gap-1 text-[10px]"
-                >
-                  <CircleDot size={10} />
-                  {
-                    healthStatus.find((items) => items.enum_val === status)
-                      ?.name
-                  }
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" align="start" className="p-1 w-32">
-                <div className="flex flex-col">
-                  {healthStatus.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-xs"
-                      onClick={() => {
-                        setOpen(false);
-                        onSelect?.(field as keyof project_type, item.enum_val);
-                      }}
-                    >
-                      <CircleCheck size={12} className="text-emerald-500" />
-                      {item.name}
+          <div className="flex flex-col">
+            {/* Issue Selector */}
+            <div className="px-4 pt-4 pb-3 border-b border-border/50 bg-muted/20">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between h-9 text-sm font-normal bg-background hover:bg-background"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      {selectedIssue ? (
+                        <>
+                          <CircleCheck
+                            size={14}
+                            className="text-emerald-500 shrink-0"
+                          />
+                          <span className="truncate">
+                            {selectedIssue.title}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <CircleDot
+                            size={14}
+                            className="text-muted-foreground shrink-0"
+                          />
+                          <span className="text-muted-foreground">
+                            Select an issue to update...
+                          </span>
+                        </>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </TooltipContent>
-            </Tooltip>
+                    <ChevronDown
+                      size={14}
+                      className="text-muted-foreground shrink-0 ml-2"
+                    />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-64 overflow-y-auto"
+                >
+                  {issuesOptions?.length ? (
+                    issuesOptions.map((item) => (
+                      <DropdownMenuItem
+                        key={item.id}
+                        className="cursor-pointer gap-2"
+                        onClick={() => {
+                          handleIssuePayload("issueId", item.id.toString());
+                          setSelectedIssueTitle(item.title);
+                        }}
+                      >
+                        <CircleCheck size={14} className="text-emerald-500" />
+                        <span className="truncate">{item.title}</span>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+                      No issues available
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
-            <Textarea
-              placeholder="Add a status update..."
-              className="resize-none pt-9 min-h-28 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-            />
+            {/* Comment Area */}
+            <div className="p-4">
+              <Textarea
+                placeholder="Write a status update..."
+                className="resize-none min-h-[110px] text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 shadow-none"
+                value={issuePayload.comment}
+                onChange={(e) => handleIssuePayload("comment", e.target.value)}
+              />
+            </div>
+
+            {/* Bottom toolbar */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/50 bg-muted/10">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <ImagePlus size={14} />
+                Add media
+              </Button>
+
+              <Button
+                size="sm"
+                className="h-8 gap-1.5 text-xs px-4"
+                disabled={!issuePayload.issueId || !issuePayload.comment.trim()}
+                onClick={() => {
+                  issueUpdate.mutate(issuePayload);
+                  toast("Update posted successfully", {
+                    description: "Your status update has been shared.",
+                    action: {
+                      label: "Undo",
+                      onClick: () => console.log("Undo"),
+                    },
+                  });
+                }}
+              >
+                <SendHorizontal size={13} />
+                Post Update
+              </Button>
+            </div>
           </div>
         ) : (
-          <>
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex flex-col gap-1">
+          // ========== DISPLAY VARIANT ==========
+          <div className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5">
                 <Badge
-                  variant="normal"
-                  className="w-fit text-[10px] px-1.5 h-5 font-normal"
+                  variant="secondary"
+                  className="text-[11px] font-medium px-2 py-0.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0"
                 >
                   On Track
                 </Badge>
-                <p className="text-[11px] text-muted-foreground">
+
+                <p className="text-xs text-muted-foreground">
                   Updated by{" "}
-                  <span className="font-medium text-foreground">Alice</span> ·{" "}
-                  {update_time
-                    ? formatDistanceToNow(new Date(update_time), {
+                  <span className="font-medium text-foreground">Alice</span>
+                  {update_time && (
+                    <>
+                      {" · "}
+                      {formatDistanceToNow(new Date(update_time), {
                         addSuffix: true,
-                      })
-                    : ""}
+                      })}
+                    </>
+                  )}
                   {id !== undefined && (
-                    <span className="font-mono"> · #{id}</span>
+                    <span className="font-mono text-muted-foreground/80">
+                      {" "}
+                      · #{id}
+                    </span>
                   )}
                 </p>
               </div>
+
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 cursor-pointer flex-shrink-0"
+                className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
               >
-                <RefreshCw size={12} className="text-muted-foreground" />
+                <RefreshCw size={13} />
               </Button>
             </div>
 
-            <p className="text-xs text-foreground mt-3 leading-relaxed break-words">
-              {comment}
-            </p>
+            {comment && (
+              <p className="mt-3 text-sm text-foreground leading-relaxed">
+                {comment}
+              </p>
+            )}
 
             {update_asset && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={update_asset}
                 alt="Update attachment"
-                className="mt-3 max-h-64 w-full rounded-md border border-border object-cover"
+                className="mt-3 max-h-56 w-full rounded-lg border border-border object-cover"
               />
             )}
-          </>
+          </div>
         )}
       </CardContent>
 
-      {variant === "update" ? (
-        <CardFooter className="px-4 py-1 border-t border-border justify-end">
-          <Button
-            variant="default"
-            size="sm"
-            className="gap-1.5 text-xs cursor-pointer"
-            onClick={() =>
-              toast("Update Posted successfully", {
-                description: "Sunday, December 03, 2023 at 9:00 AM",
-                action: {
-                  label: "Undo",
-                  onClick: () => console.log("Undo"),
-                },
-              })
-            }
-          >
-            <SendHorizontal size={13} />
-            Post Update
-          </Button>
-        </CardFooter>
-      ) : (
-        <CardFooter className="px-4 py-1 border-t border-border">
+      {/* Reply footer only for display variant */}
+      {variant === "display" && (
+        <CardFooter className="px-4 py-2.5 border-t border-border/50 bg-muted/10">
           <div className="flex items-center gap-2 w-full">
             <Input
               placeholder="Leave a reply..."
-              className="h-7 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 border-none bg-muted/40 placeholder:text-muted-foreground"
+              className="h-8 text-sm border-0 bg-background focus-visible:ring-1 focus-visible:ring-ring shadow-none"
             />
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7 flex-shrink-0 cursor-pointer"
+              className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
             >
-              <CornerDownLeft size={12} className="text-muted-foreground" />
+              <CornerDownLeft size={14} />
             </Button>
           </div>
         </CardFooter>
