@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
 import {
   AlertCircle,
   HelpCircle,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import { parseAsString, useQueryStates } from "nuqs";
 import { useDrag } from "react-dnd";
+import { cn } from "@/lib/utils";
 
 type issueProps = {
   id: string;
@@ -27,13 +27,6 @@ type issueProps = {
   status: string;
   assignee: string;
   projectTitle: string;
-};
-
-// Define priority colors
-const priorityColor: Record<string, string> = {
-  high: "#ef4444",
-  medium: "#f59e0b",
-  low: "#10b981",
 };
 
 // Define assignee colors
@@ -53,6 +46,29 @@ const priorityMap: Record<
   medium: { label: "Medium", color: "#eab308", icon: SignalMedium },
   low: { label: "Low", color: "#3b82f6", icon: SignalLow },
   none: { label: "No Priority", color: "#94a3b8", icon: HelpCircle },
+};
+
+// Status badge styles: soft tint + matching dot
+const statusStyles: Record<string, { badge: string; dot: string }> = {
+  active: {
+    badge:
+      "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400",
+    dot: "bg-emerald-500",
+  },
+  closed: {
+    badge:
+      "bg-violet-500/10 text-violet-700 dark:bg-violet-400/10 dark:text-violet-400",
+    dot: "bg-violet-500",
+  },
+  backlog: {
+    badge:
+      "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
+    dot: "bg-amber-500",
+  },
+};
+const statusFallback = {
+  badge: "bg-muted text-muted-foreground",
+  dot: "bg-muted-foreground/60",
 };
 
 const Issuebox = ({
@@ -85,10 +101,11 @@ const Issuebox = ({
 
   const [issuePriority, setPriority] = useState(priority);
   const current = priorityMap[issuePriority] || priorityMap.none;
-  const Icon = current.icon;
+  const PriorityIcon = current.icon;
+  const statusStyle = statusStyles[status] ?? statusFallback;
 
   // drag logic
-  const [{ isDragging }, drag, dragPreview] = useDrag(
+  const [{ isDragging }, drag] = useDrag(
     () => ({
       type: "ISSUECARD",
       item: () => {
@@ -102,6 +119,8 @@ const Issuebox = ({
     [id],
   );
 
+  const isHighlighted = query.listby === projectTitle;
+
   return (
     <div
       key={id}
@@ -109,40 +128,35 @@ const Issuebox = ({
         drag(node);
       }}
       onClick={() => updateIssueid(id)}
-      className={`
-  group relative flex flex-col gap-3 p-4 rounded-2xl border bg-white
-  shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)]
-  cursor-grab active:cursor-grabbing active:scale-[0.99]
-  transition-all duration-200 ease-out
-
-  ${isDragging ? "opacity-0" : "opacity-100"}
-
-  ${
-    query.listby === projectTitle
-      ? "border-blue-600 bg-gradient-to-br from-blue-50 to-white ring-2 ring-blue-500/20 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.25)]"
-      : "border-zinc-200/80 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-[0_8px_24px_-6px_rgba(37,99,235,0.18)]"
-  }
-`}
+      className={cn(
+        "group relative flex flex-col gap-3 rounded-xl border bg-card p-3.5",
+        "shadow-xs cursor-grab select-none",
+        "transition-[border-color,box-shadow,transform,opacity] duration-150 ease-out",
+        "active:cursor-grabbing",
+        isDragging && "scale-[0.98] opacity-40",
+        isHighlighted
+          ? "border-primary/40 bg-primary/[0.04] ring-1 ring-primary/30"
+          : "border-border hover:border-foreground/20 hover:shadow-md",
+      )}
     >
       {/* Top row: Priority + ID + Project */}
-      <div className="flex items-center justify-between gap-2 min-w-0">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <DropdownMenu>
             <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-6 h-6 rounded-md border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-muted/60 focus-visible:ring-1 shrink-0"
+                  <button
+                    type="button"
                     onClick={(e) => e.stopPropagation()}
+                    className="-ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                   >
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0 ring-2 ring-white dark:ring-background shadow-sm"
-                      style={{ backgroundColor: current.color }}
+                    <PriorityIcon
+                      className="h-3.5 w-3.5"
+                      style={{ color: current.color }}
                     />
                     <span className="sr-only">Change priority</span>
-                  </Button>
+                  </button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
 
@@ -150,43 +164,36 @@ const Issuebox = ({
                 Priority: {current.label}
               </TooltipContent>
 
-              <DropdownMenuContent align="start" className="w-40 p-1">
-                {Object.entries(priorityMap).map(([key, value]) => (
-                  <DropdownMenuItem
-                    key={key}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPriority(key);
-                    }}
-                    className="flex items-center gap-2.5 px-2 py-1.5 text-xs font-medium cursor-pointer rounded-md"
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: value.color }}
-                    />
-                    <span className="flex-1">{value.label}</span>
-                  </DropdownMenuItem>
-                ))}
+              <DropdownMenuContent align="start" className="w-44 p-1">
+                {Object.entries(priorityMap).map(([key, value]) => {
+                  const ItemIcon = value.icon;
+                  return (
+                    <DropdownMenuItem
+                      key={key}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPriority(key);
+                      }}
+                      className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-xs font-medium"
+                    >
+                      <ItemIcon
+                        className="h-3.5 w-3.5 shrink-0"
+                        style={{ color: value.color }}
+                      />
+                      <span className="flex-1">{value.label}</span>
+                    </DropdownMenuItem>
+                  );
+                })}
               </DropdownMenuContent>
             </Tooltip>
           </DropdownMenu>
 
-          <span className="text-[11px] text-zinc-400 dark:text-muted-foreground font-mono tracking-tight shrink-0">
+          <span className="shrink-0 font-mono text-[11px] tabular-nums text-muted-foreground">
             {id}
           </span>
 
           {projectTitle && (
-            <span
-              className="
-                          text-[11px] font-medium tracking-tight truncate max-w-[120px]
-                          px-2 py-0.5 rounded-full
-                          text-zinc-600 bg-gradient-to-b from-white to-zinc-50
-                          border border-zinc-200/80
-                          shadow-[0_1px_2px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.8)]
-                          dark:text-muted-foreground dark:bg-muted/60 dark:from-transparent dark:to-transparent
-                          dark:border-transparent dark:shadow-none
-                        "
-            >
+            <span className="max-w-[120px] truncate rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
               {projectTitle}
             </span>
           )}
@@ -194,29 +201,28 @@ const Issuebox = ({
       </div>
 
       {/* Title */}
-      <h3 className="text-sm font-medium text-zinc-900 dark:text-foreground leading-snug line-clamp-2 tracking-tight">
+      <h3 className="line-clamp-2 text-[13.5px] font-medium leading-snug tracking-tight text-card-foreground">
         {title}
       </h3>
 
       {/* Bottom row: Status + Assignee */}
-      <div className="flex items-center justify-between gap-2 mt-0.5">
+      <div className="flex items-center justify-between gap-2">
         <DropdownMenu>
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
                 <Badge
                   variant="secondary"
-                  className={
-                    status === "active"
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-green-950/60 dark:text-green-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
-                      : status === "closed"
-                        ? "bg-purple-50 text-purple-700 border border-purple-200/60 dark:bg-purple-950/60 dark:text-purple-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
-                        : status === "backlog"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200/60 dark:bg-amber-950/60 dark:text-amber-400 dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
-                          : "bg-zinc-100 text-zinc-600 border border-zinc-200/60 dark:bg-muted dark:text-muted-foreground dark:border-transparent text-[11px] font-medium px-2 py-0.5 rounded-md"
-                  }
+                  className={cn(
+                    "cursor-pointer gap-1.5 rounded-full border-0 px-2 py-0.5 text-[11px] font-medium",
+                    "transition-colors hover:brightness-95",
+                    statusStyle.badge,
+                  )}
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <span
+                    className={cn("h-1.5 w-1.5 rounded-full", statusStyle.dot)}
+                  />
                   {status[0].toUpperCase() + status.slice(1)}
                 </Badge>
               </DropdownMenuTrigger>
@@ -233,7 +239,7 @@ const Issuebox = ({
         </DropdownMenu>
 
         <span
-          className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ring-2 ring-white dark:ring-background shadow-sm"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ring-2 ring-card"
           style={{
             backgroundColor: assigneeColor.bg,
             color: assigneeColor.text,

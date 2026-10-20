@@ -54,7 +54,7 @@ const Projects = () => {
     overView?.issues?.flatMap((issue) => issue.issue_updates ?? []) ?? [];
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden ">
-      <div className="flex items-center gap-3 pt-5 px-8 sticky top-0 z-10 bg-white ">
+      <div className="flex items-center gap-3 pt-3 px-8 sticky top-0 z-10 bg-white ">
         <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-950 flex items-center justify-center flex-shrink-0">
           <LayoutGrid
             size={16}
@@ -91,11 +91,18 @@ const Projects = () => {
               </TabsTrigger>
 
               <TabsTrigger
-                value="issues"
+                value="document"
                 className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
-                onClick={() => setTab("issues")}
+                onClick={() => setTab("document")}
               >
-                Issues
+                Documents
+              </TabsTrigger>
+              <TabsTrigger
+                value="document"
+                className="text-xs px-2.5 py-0.5 h-fit rounded-full border border-border bg-transparent hover:bg-muted cursor-pointer font-normal data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-transparent shadow-none transition-none"
+                // onClick={() => setTab("document")}
+              >
+                Members
               </TabsTrigger>
             </TabsList>
           </Tabs>

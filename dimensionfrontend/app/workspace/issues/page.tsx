@@ -1,461 +1,315 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useMemo, type ComponentType } from "react";
 import {
   Check,
+  CheckCircle2,
   ChevronDown,
   FolderKanban,
   Funnel,
+  Inbox,
   ListCollapse,
   PanelRight,
-  User,
-  Users,
+  PlayCircle,
+  type LucideProps,
 } from "lucide-react";
-import Issuescreen from "@/components/screens/Issuescreen";
 import { parseAsString, useQueryState } from "nuqs";
+import Issuescreen from "@/components/screens/Issuescreen";
+import FastCreateIssue from "@/components/Fastcreateissue";
+import NoIssuesFound from "@/components/Emptystates/NoIssueFound";
 import { Button } from "@/components/ui/button";
-import Issuebox from "@/components/Issuebox";
-import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarGroup,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
 import { useGetIssues, useUpdateIssue } from "@/hooks/apihooks";
 import { IssueItems } from "@/lib/response.types";
-import noissues from "@/assets/emptystates/no_issues.svg";
-import Image from "next/image";
-import FastCreateIssue from "@/components/Fastcreateissue";
-import { useDrop } from "react-dnd";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { PlayCircle, Inbox, CheckCircle2 } from "lucide-react";
 import { issueCreate_type } from "@/lib/types";
 import { issue_status_enum, priority_enum } from "@/lib/enums";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IssuesEmptyState } from "@/components/Emptystates/IssueEmptyState";
-import NoIssuesFound from "@/components/Emptystates/NoIssueFound";
-type Filter = "all issues" | "active" | "closed" | "backlog";
+import { cn } from "@/lib/utils";
+import KanbanColumn from "@/components/KanbanColumn";
+
+type Project = { id: number; title: string };
+const COLUMNS: {
+  status: issue_status_enum;
+  title: string;
+  icon: ComponentType<LucideProps>;
+  iconClass: string;
+  emptyHint: string;
+}[] = [
+  {
+    status: issue_status_enum.ACTIVE,
+    title: "Active",
+    icon: PlayCircle,
+    iconClass: "text-amber-500",
+    emptyHint: "Drop an issue here to start working on it.",
+  },
+  {
+    status: issue_status_enum.BACKLOG,
+    title: "Backlog",
+    icon: Inbox,
+    iconClass: "text-slate-500",
+    emptyHint: "Nothing waiting. Drop an issue here to park it.",
+  },
+  {
+    status: issue_status_enum.CLOSED,
+    title: "Completed",
+    icon: CheckCircle2,
+    iconClass: "text-emerald-500",
+    emptyHint: "Drop an issue here once it's done.",
+  },
+];
+
+const TOOLBAR_ACTIONS = [
+  { label: "Filter", icon: Funnel },
+  { label: "Display options", icon: ListCollapse },
+  { label: "Toggle details panel", icon: PanelRight },
+];
+
+function BoardSkeleton() {
+  return (
+    <div className="flex h-full w-full gap-4" aria-busy="true">
+      {COLUMNS.map((col) => (
+        <div
+          key={col.status}
+          className="flex flex-1 flex-col gap-3 rounded-xl bg-muted/50 p-3"
+        >
+          <div className="h-5 w-24 animate-pulse rounded bg-muted" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-muted" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function BoardError() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+      <p className="text-sm font-medium text-foreground">
+        We couldnt load your issues
+      </p>
+      <p className="max-w-xs text-xs text-muted-foreground">
+        Check your connection and try again.
+      </p>
+      <Button size="sm" variant="outline" onClick={() => location.reload()}>
+        Reload
+      </Button>
+    </div>
+  );
+}
 
 export default function TeamIssues() {
-  const issueFilters = [
-    {
-      label: "Teams",
-      value: "teams",
-      icon: Users,
-    },
-    {
-      label: "Projects",
-      value: "projects",
-      icon: FolderKanban,
-    },
-    {
-      label: "Me",
-      value: "me",
-      icon: User,
-    },
-  ];
-
-  const [filter, setFilter] = useState<Filter>("all issues");
-  const [id, setTabid] = useQueryState(
+  const [id] = useQueryState(
     "id",
     parseAsString.withDefault("").withOptions({ clearOnDefault: false }),
   );
+  const [, setIsCreating] = useQueryState("create");
+  const [listby, setListby] = useQueryState("listby"); // selected project title
 
-  // issue fetching logic
-  // todo : fetch projects list and teams list
-  const [createIssue, setIsCreating] = useQueryState("create");
-  const [listby, setListby] = useQueryState("listby");
-  const [list, setList] = useState<string>("Me"); // defualt fetch your issues
-  const handleUpdateListBy = (value: string) => {
-    setList(value as string);
-    // setListby(
-    //   issueFilters.find((item) => item.label === value)?.value as string,
-    // );
-  };
-
-  const { data, isLoading, error } = useGetIssues(); // add pagin tables to the issue
-  const issues: IssueItems[] = data;
-  const issueList: IssueItems[] =
-    filter === "all issues"
-      ? issues
-      : issues.filter((item) => item.status === filter);
-
-  const projectsList = Array.from(
-    new Map(
-      issues
-        ?.filter(
-          (item) => item.project?.id != null && item.project?.title != null,
-        )
-        .map((item) => [
-          item.project!.id,
-          { id: item.project!.id, title: item.project!.title },
-        ]),
-    ).values(),
-  );
-  const [centrailIssueList, setCentralIssueList] = useState<IssueItems[]>(data);
-  useEffect(() => {
-    if (data?.length === 0) {
-      setIsCreating("false");
-    }
-  }, [data, listby]);
-
-  const sortOptions = [
-    {
-      options: "projects",
-      values: projectsList,
-    },
-  ];
-
-  // Extracts all unique project values into an array
-  //drag logic
-  const [actives, setAcives] = useState<IssueItems[]>(
-    issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [],
-  );
-  const activeIssues =
-    issueList?.filter((item) => item.status === issue_status_enum.ACTIVE) || [];
-  const backlogIssues =
-    issueList?.filter((item) => item.status === issue_status_enum.BACKLOG) ||
-    [];
-  const completedIssues =
-    issueList?.filter((item) => item.status === issue_status_enum.CLOSED) || [];
-  // updating issue
+  const { data, isLoading, error } = useGetIssues(); // TODO: paginate
+  const issues: IssueItems[] = useMemo(() => data ?? [], [data]);
   const updateIssue = useUpdateIssue();
-  function moveIssue(id: string, current: string, target: string) {
-    const currentIssue = issueList.find(
-      (issue) => issue.issue_id === Number(id),
+
+  // Close the quick-create form when there is nothing to create against.
+  useEffect(() => {
+    if (data?.length === 0) setIsCreating("false");
+  }, [data, setIsCreating]);
+
+  // Unique projects, derived from the issues themselves.
+  const projects: Project[] = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          issues
+            .filter((i) => i.project?.id != null && i.project?.title != null)
+            .map((i) => [
+              i.project!.id,
+              { id: i.project!.id, title: i.project!.title },
+            ]),
+        ).values(),
+      ),
+    [issues],
+  );
+
+  // Apply the project filter.
+  const visibleIssues = useMemo(
+    () => (listby ? issues.filter((i) => i.project?.title === listby) : issues),
+    [issues, listby],
+  );
+
+  const issuesByStatus = useMemo(() => {
+    const map = new Map<issue_status_enum, IssueItems[]>();
+    COLUMNS.forEach((c) => map.set(c.status, []));
+    visibleIssues.forEach((i) =>
+      map.get(i.status as issue_status_enum)?.push(i),
     );
-    console.log("the current issue = ", currentIssue);
-    const tempissue: issueCreate_type = {
-      title: currentIssue?.title as string,
-      status: target as issue_status_enum,
-      created_by: currentIssue?.created_by as number,
-      // created_at:createIssue.created_at as Date
-      deadline: currentIssue?.deadline as Date,
-      priority: currentIssue?.priority as priority_enum,
-      project: currentIssue?.project,
+    return map;
+  }, [visibleIssues]);
+
+  // Move an issue to another column.
+  const moveIssue = (issueId: string, target: issue_status_enum) => {
+    const current = issues.find((i) => i.issue_id === Number(issueId));
+    if (!current || current.status === target) return;
+
+    const payload: issueCreate_type = {
+      title: current.title,
+      status: target,
+      created_by: current.created_by,
+      deadline: current.deadline as Date,
+      priority: current.priority as priority_enum,
+      project: current.project,
     };
-    updateIssue.mutate({ issue_id: id, updateIssuePayload: tempissue });
-  }
-  // Helper function to extract current status safely
-  const getStatus = (droppedId: string) =>
-    issueList.find((issue) => issue.issue_id === Number(droppedId))?.status;
-
-  const [{ isOver, canDrop }, dropToBacklog] = useDrop(
-    () => ({
-      accept: "ISSUECARD",
-      drop: (item: { id: string }) => {
-        const currentPos = getStatus(item.id);
-        if (currentPos)
-          moveIssue(item.id, currentPos, issue_status_enum.BACKLOG);
-      },
-      collect: (monitor) => ({
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-      }),
-    }),
-    [issueList], // Added issueList dependency to keep closures fresh
-  );
-
-  const [{ isOverToCompleted, canDroptoCompleted }, dropToCompleted] = useDrop(
-    () => ({
-      accept: "ISSUECARD",
-      drop: (item: { id: string }) => {
-        const currentPos = getStatus(item.id);
-        if (currentPos)
-          moveIssue(item.id, currentPos, issue_status_enum.CLOSED);
-      },
-      collect: (monitor) => ({
-        isOverToCompleted: monitor.isOver(),
-        canDroptoCompleted: monitor.canDrop(),
-      }),
-    }),
-    [issueList],
-  );
-
-  const [{ isOverAtActive, canDroptoActive }, dropToActive] = useDrop(
-    () => ({
-      accept: "ISSUECARD",
-      drop: (item: { id: string }) => {
-        const currentPos = getStatus(item.id);
-        if (currentPos)
-          moveIssue(item.id, currentPos, issue_status_enum.ACTIVE);
-      },
-      collect: (monitor) => ({
-        isOverAtActive: monitor.isOver(),
-        canDroptoActive: monitor.canDrop(),
-      }),
-    }),
-    [issueList],
-  );
-  const formatQueryParam = (
-    param: string | string[] | null | undefined,
-  ): string => {
-    if (!param) return "";
-    const str = Array.isArray(param) ? param[0] : param;
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    updateIssue.mutate({ issue_id: issueId, updateIssuePayload: payload });
   };
+  const result =
+    listby && listby.length > 0
+      ? listby.charAt(0).toUpperCase() + listby.slice(1) // Or your specific split/manipulation logic
+      : "";
+  if (id) {
+    return (
+      <div className="flex h-screen w-full items-start justify-start p-4">
+        <Issuescreen />
+      </div>
+    );
+  }
 
-  // caching
+  const isEmpty = !isLoading && !error && issues.length === 0;
+
   return (
-    <div className="h-screen w-full   flex flex-row items-start justify-start p-4">
-      {!id && (
-        <div className="w-full h-full rounded-2xl border border-border bg-card p-8 flex flex-col gap-5 overflow-hidden">
-          <div className="flex items-center gap-3">
+    <div className="flex h-screen w-full items-start justify-start p-4">
+      <div className="flex h-full w-full flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">
+              Issues
+            </h1>
+            {!isLoading && !error && (
+              <span className="text-sm tabular-nums text-muted-foreground">
+                {visibleIssues.length}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center flex-shrink-0">
-                  <Users
-                    size={16}
-                    className="text-blue-600 dark:text-blue-400"
-                  />
-                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={cn(
+                    "mr-2 h-8 min-w-[150px] justify-between gap-2 text-xs font-medium",
+                    listby && "border-primary/40 bg-primary/5 text-primary",
+                  )}
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <FolderKanban className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                    <span className="truncate">{result || "All projects"}</span>
+                  </span>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start">
-                {issueFilters.map((items, id) => {
-                  const Icon = items.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={id}
-                      className="cursor-pointer"
-                      onClick={() => handleUpdateListBy(items.label)}
-                    >
-                      <div className="w-full h-fit flex flex-row items-center gap-2">
-                        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span>{items.label}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  );
-                })}
+              <DropdownMenuContent align="end" className="min-w-[180px]">
+                <DropdownMenuItem
+                  onSelect={() => setListby(null)}
+                  className="flex items-center justify-between text-xs"
+                >
+                  All projects
+                  {!listby && <Check className="h-3.5 w-3.5 text-primary" />}
+                </DropdownMenuItem>
+
+                {projects.length > 0 && <DropdownMenuSeparator />}
+
+                {projects.map((p) => (
+                  <DropdownMenuItem
+                    key={p.id}
+                    onSelect={() => setListby(p.title)}
+                    className="flex items-center justify-between text-xs"
+                  >
+                    <span className="truncate">
+                      {p.title.charAt(0).toUpperCase() + p.title.slice(1)}
+                    </span>
+                    {listby === p.title && (
+                      <Check className="h-3.5 w-3.5 text-primary" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div>
-              <p className="text-sm font-medium text-foreground leading-none">
-                Team_Name
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {issueFilters.find((item) => item.label === list)?.value}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex  justify-between">
-            <div className="h-fit w-full">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            {TOOLBAR_ACTIONS.map(({ label, icon: Icon }) => (
+              <Tooltip key={label}>
+                <TooltipTrigger asChild>
                   <Button
-                    size="sm"
                     variant="ghost"
-                    className="w-[140px] justify-between rounded-lg border border-blue-600 bg-gradient-to-br from-blue-50 to-white text-xs font-medium text-blue-700 ring-2 ring-blue-500/20 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.25)] transition-all duration-200 hover:from-blue-50 hover:to-white hover:text-blue-700 data-[state=open]:ring-blue-500/40"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                    aria-label={label}
                   >
-                    <span className="truncate">
-                      {formatQueryParam(listby) || "Select Project"}
-                    </span>
-                    <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-70" />
+                    <Icon className="h-4 w-4" />
                   </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent
-                  align="start"
-                  className="min-w-[160px] rounded-xl border-zinc-200/80 bg-white p-1 shadow-[0_8px_24px_-6px_rgba(37,99,235,0.18)]"
-                >
-                  {sortOptions[0].values.map((f, key) => (
-                    <DropdownMenuItem
-                      key={key}
-                      onSelect={() => {
-                        setListby(f.title);
-                      }}
-                      className={cn(
-                        "flex cursor-pointer items-center justify-between rounded-lg px-3 py-1.5 text-xs",
-                        "text-zinc-600 focus:bg-blue-50 focus:text-blue-700",
-                        filter === f.title &&
-                          "bg-blue-50/70 font-medium text-blue-700",
-                      )}
-                    >
-                      <span className="truncate">{f.title}</span>
-                      {filter === f.title && (
-                        <Check className="h-3.5 w-3.5 text-blue-600" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {[Funnel, ListCollapse, PanelRight].map((Icon, index) => (
-              <Menubar
-                className="w-fit flex border-none bg-transparent p-0 shadow-none"
-                key={index}
-              >
-                <MenubarMenu>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <MenubarTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0" // Added standard sizing for icon buttons
-                        >
-                          <Icon className="h-4 w-4" />
-                        </Button>
-                      </MenubarTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>description</TooltipContent>
-                  </Tooltip>
-                  <MenubarContent>
-                    <MenubarGroup>
-                      <MenubarItem>
-                        New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-                      </MenubarItem>
-                      <MenubarItem>New Window</MenubarItem>
-                    </MenubarGroup>
-                    <MenubarSeparator />
-                    <MenubarGroup>
-                      <MenubarItem>Share</MenubarItem>
-                      <MenubarItem>Print</MenubarItem>
-                    </MenubarGroup>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
+                </TooltipTrigger>
+                <TooltipContent>{label}</TooltipContent>
+              </Tooltip>
             ))}
           </div>
-          {/* this is the target div  */}
-          <div
-            className="flex flex-col gap-1.5 overflow-y-auto flex-1 min-h-50"
-            // ref={dropRef}
-          >
-            {issueList?.length === 0 ? (
-              <div className="flex min-h-50 flex-col items-center   transition-all duration-300">
-                {/* <IssuesEmptyState
-                  createIssue={createIssue as string}
-                  data={data}
-                  setIsCreating={setIsCreating}
-                /> */}
-                <NoIssuesFound
-                  action={
-                    <Button
-                      onClick={() => setIsCreating("true")}
-                      variant="outline"
-                      size="sm"
-                    >
-                      Create issue
-                    </Button>
+        </div>
+
+        {/* Body */}
+        <div className="flex min-h-0 flex-1 flex-col">
+          {isLoading ? (
+            <BoardSkeleton />
+          ) : error ? (
+            <BoardError />
+          ) : isEmpty ? (
+            <div className="flex flex-1 items-center justify-center">
+              <NoIssuesFound
+                action={
+                  <Button
+                    onClick={() => setIsCreating("true")}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Create issue
+                  </Button>
+                }
+              />
+            </div>
+          ) : (
+            <div className="flex h-full w-full gap-4 overflow-x-auto overflow-y-hidden">
+              {COLUMNS.map((col) => (
+                <KanbanColumn
+                  key={col.status}
+                  config={col}
+                  issues={issuesByStatus.get(col.status) ?? []}
+                  onMove={moveIssue}
+                  footer={
+                    col.status === issue_status_enum.ACTIVE ? (
+                      <FastCreateIssue
+                        onOpen={() => setIsCreating("true")}
+                        onCancel={() => setIsCreating("false")}
+                        projects={projects}
+                        variant="kanban"
+                      />
+                    ) : undefined
                   }
                 />
-              </div>
-            ) : (
-              // this is the issue display list
-              <>
-                <div className="h-full w-full flex flex-row gap-6 overflow-hidden">
-                  {/* All Issues Column */}
-
-                  <div
-                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
-                    id="completed"
-                    ref={(node) => {
-                      dropToActive(node);
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <PlayCircle className="w-4 h-4 text-amber-500" />
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-300">
-                        Active
-                      </h3>
-                    </div>
-                    {/* Mapped ONLY inside this box */}
-                    {activeIssues?.map((issue: IssueItems) => (
-                      <Issuebox
-                        key={issue.issue_id}
-                        id={issue.issue_id.toString()}
-                        assignee={issue.created_by.toString()}
-                        title={issue.title}
-                        priority={issue.priority}
-                        status={issue.status}
-                        projectTitle={issue?.project?.title as string}
-                      />
-                    ))}
-                    <FastCreateIssue
-                      onOpen={() => setIsCreating("true")}
-                      onCancel={() => setIsCreating("false")}
-                      projects={sortOptions[0].values}
-                      variant="kanban"
-                    />
-                  </div>
-                  <div
-                    className="h-full w-full bg-gray-100  flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
-                    id="backlog"
-                    ref={(node) => {
-                      dropToBacklog(node);
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Inbox className="w-4 h-4 text-slate-500" />
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-800 dark:text-slate-300">
-                        Backlog
-                      </h3>
-                    </div>
-                    {/* Mapped ONLY inside this box */}
-                    {backlogIssues?.map((issue: IssueItems) => (
-                      <Issuebox
-                        key={issue.issue_id}
-                        id={issue.issue_id.toString()}
-                        assignee={issue.created_by.toString()}
-                        title={issue.title}
-                        priority={issue.priority}
-                        status={issue.status}
-                        projectTitle={issue?.project?.title as string}
-                      />
-                    ))}
-                  </div>
-                  <div
-                    className="h-full w-full bg-gray-100 flex flex-col px-8 pt-4 gap-2 rounded-lg min-h-[300px] overflow-y-scroll"
-                    id="all-issues"
-                    ref={(node) => {
-                      dropToCompleted(node);
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-900 dark:text-emerald-300">
-                        Completed
-                      </h3>
-                    </div>
-                    {/* Mapped ONLY inside this box */}
-                    {completedIssues?.map((issue: IssueItems) => (
-                      <Issuebox
-                        key={issue.issue_id}
-                        id={issue.issue_id.toString()}
-                        assignee={issue.created_by.toString()}
-                        title={issue.title}
-                        priority={issue.priority}
-                        status={issue.status}
-                        projectTitle={issue?.project?.title as string}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-      {id && <Issuescreen />}
+      </div>
     </div>
   );
 }

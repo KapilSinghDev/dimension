@@ -23,6 +23,7 @@ import {
   userUpdateProfile_type,
 } from "@/lib/types";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { useQueryState } from "nuqs";
 import { toast } from "sonner";
 
@@ -248,9 +249,15 @@ export const useUpdateIssue = () => {
       return { previous };
     },
 
-    onError: (_err, _vars, context) => {
+    onError: (err, _vars, context) => {
       if (context?.previous)
         queryClient.setQueryData(ISSUES_KEY, context.previous);
+
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.message ?? err.message)
+        : "Something went wrong";
+
+      toast.error(message);
     },
 
     onSettled: () => {
