@@ -60,7 +60,7 @@ export default function KanbanColumn({
     >
       <header className="flex items-center gap-2 px-1">
         <Icon className={cn("h-4 w-4", iconClass)} />
-        <h3 className="text-sm font-medium text-foreground">{title}</h3>
+        <h3 className="text-sm font-stretch-50% text-foreground">{title}</h3>
         <span className="rounded-full bg-background px-2 py-0.5 text-xs tabular-nums text-muted-foreground ring-1 ring-border">
           {issues.length}
         </span>

@@ -39,6 +39,7 @@ import {
 import { DatePickerSimple } from "./Pickdates";
 import { issueInterface } from "@/lib/types";
 import { toast } from "sonner";
+import { useQueryState } from "nuqs";
 
 interface MetadataConfig {
   id: "priority" | "assignee" | "label";
@@ -75,13 +76,13 @@ export default function FastCreateIssue({
     onOpen?.();
     setIsOpen(true);
   };
-
+  const projectId = useQueryState("project");
   const [issueData, setIssueData] = useState<issueInterface>({
     status: issue_status_enum.ACTIVE,
     priority: IssuePriority_enums.HIGH,
     assignee: "No assignee",
     label: IssueLabel_enums.Improvement,
-    project_id: -1 || "",
+    project_id: Number(projectId[0]) || -1,
     dueDate: new Date(),
   });
 
@@ -584,18 +585,18 @@ export default function FastCreateIssue({
                         >
                           <DropdownMenuLabel>Extended Specs</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
+                          {/* <DropdownMenuItem
                             className="justify-between cursor-pointer"
                             onClick={() =>
                               setIssueData((prev) => ({
                                 ...prev,
-                                project: "Project Alpha",
+                                project: Number(projectId),
                               }))
                             }
                           >
                             <span>Projects</span>
                             <StepForward className="h-3.5 w-3.5 text-muted-foreground" />
-                          </DropdownMenuItem>
+                          </DropdownMenuItem> */}
                           <DatePickerSimple
                             date={issueData.dueDate}
                             setDate={setIssueData}

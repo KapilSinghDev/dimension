@@ -186,12 +186,11 @@ export default function TeamIssues() {
   const isEmpty = !isLoading && !error && issues.length === 0;
 
   return (
-    <div className="flex h-screen w-full items-start justify-start p-4">
-      <div className="flex h-full w-full flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-card p-6 md:p-8">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-baseline gap-2">
-            <h1 className="text-lg font-semibold tracking-tight text-foreground">
+    <div className="flex h-screen w-full items-start justify-start p-1.5">
+      <div className="flex h-full w-full flex-col gap-3 overflow-hidden rounded-sm border border-border bg-card pt-4 px-6 pb-6 md:pt-5 md:px-8 md:pb-8">
+        <div className="flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex gap-1 items-baseline">
+            <h1 className="text-[16px] tracking-tight text-foreground">
               Issues
             </h1>
             {!isLoading && !error && (
@@ -287,7 +286,7 @@ export default function TeamIssues() {
               />
             </div>
           ) : (
-            <div className="flex h-full w-full gap-4 overflow-x-auto overflow-y-hidden">
+            <div className="flex h-full w-full gap-4 overflow-x-auto overflow-y-hidden mt-1.5">
               {COLUMNS.map((col) => (
                 <KanbanColumn
                   key={col.status}

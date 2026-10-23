@@ -129,14 +129,15 @@ const Issuebox = ({
       }}
       onClick={() => updateIssueid(id)}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl border bg-card p-3.5",
-        "shadow-xs cursor-grab select-none",
-        "transition-[border-color,box-shadow,transform,opacity] duration-150 ease-out",
+        "group relative flex flex-col gap-3 rounded-sm bg-card p-3.5",
+        "bg-gradient-to-b from-slate-200/50 to-transparent",
+        "shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-grab select-none",
+        "transition-[box-shadow,transform,opacity] duration-150 ease-out",
         "active:cursor-grabbing",
         isDragging && "scale-[0.98] opacity-40",
         isHighlighted
-          ? "border-primary/40 bg-primary/[0.04] ring-1 ring-primary/30"
-          : "border-border hover:border-foreground/20 hover:shadow-md",
+          ? "bg-primary/[0.04] shadow-[0_0_0_1.5px_hsl(var(--primary)/0.35)]"
+          : "hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
       )}
     >
       {/* Top row: Priority + ID + Project */}

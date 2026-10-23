@@ -13,7 +13,6 @@ import {
   Inbox,
   LayoutGrid,
   LogOut,
-  MonitorCloud,
   MoreHorizontal,
   Pen,
   Search,
@@ -266,7 +265,7 @@ export function AppSidebar({
   }, [router]);
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="none" className="border-r-1 min-w-fit px-4">
       {/* Header */}
       <SidebarHeader>
         <SidebarMenu>

@@ -84,6 +84,12 @@ const STATUS_STYLES: Record<
     badge:
       "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40",
   },
+  backlog: {
+    label: "Backlog",
+    dot: "bg-slate-500",
+    badge:
+      "bg-slate-50 text-slate-700 border-slate-200/60 dark:bg-slate-950/40 dark:text-slate-300 dark:border-slate-900/40",
+  },
 };
 const DEFAULT_STATUS = {
   dot: "bg-slate-400",
@@ -108,7 +114,7 @@ const HeadLabel = ({
   children: React.ReactNode;
 }) => (
   <div className="flex items-center gap-2">
-    <Icon size={14} strokeWidth={1.75} className="shrink-0 text-slate-400" />
+    {/* <Icon size={14} strokeWidth={1.75} className="shrink-0 text-slate-400" /> */}
     <span>{children}</span>
   </div>
 );
@@ -141,7 +147,7 @@ export default function ProjectTable() {
     setProjectId("new");
   }
   return (
-    <div className="w-full h-full px-14 py-5 overflow-y-auto flex flex-col">
+    <div className="w-full h-full px-7 py-0.5 overflow-y-auto flex flex-col">
       {projects?.length === 0 && (
         <div className="flex min-h-[70vh] flex-col items-center justify-center p-6 text-center">
           <Image
@@ -176,7 +182,7 @@ export default function ProjectTable() {
       {projects?.length !== 0 && (
         <div className="flex flex-col h-[calc(100vh-4rem)]">
           <div className="flex-1 overflow-auto   ">
-            <div className="overflow-hidden rounded-2xl border border-slate-200/80  shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-950 ">
+            <div className="overflow-hidden rounded-sm shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-950 ">
               <Table>
                 <TableHeader className="bg-slate-50/70 dark:bg-slate-900/50 [&_tr]:border-b [&_tr]:border-slate-200/80 dark:[&_tr]:border-slate-800">
                   <TableRow className="hover:bg-transparent">
@@ -248,7 +254,7 @@ export default function ProjectTable() {
                             </TableCell>
 
                             {/* Project name */}
-                            <TableCell className="max-w-[320px] truncate text-sm font-medium tracking-tight text-slate-900 dark:text-slate-100">
+                            <TableCell className="max-w-[320px] truncate text-sm font-light tracking-tight text-slate-900 dark:text-slate-100">
                               {project.title}
                             </TableCell>
 

@@ -42,6 +42,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { project_route } from "@/lib/routes";
 import { setIssueList } from "@/store/issueStore";
+import FastCreateIssue from "../Fastcreateissue";
 
 /* ---------------------------------- config --------------------------------- */
 
@@ -146,12 +147,12 @@ function OptionPill({
           <span>{current?.name ?? placeholder}</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-44 p-1">
+      <PopoverContent align="start" className="w-44 p-1 rounded-sm">
         {options.map((o) => (
           <button
             key={o.value}
             type="button"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors hover:bg-muted"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-xs transition-colors hover:bg-muted"
             onClick={() => {
               onSelect(o.value);
               setOpen(false);
@@ -339,7 +340,7 @@ const Projectviewscreen = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter") e.preventDefault();
             }}
-            className="w-full resize-none overflow-hidden bg-transparent pt-1 text-[28px] font-semibold leading-tight tracking-tight text-foreground outline-none placeholder:text-muted-foreground/40"
+            className="w-full resize-none overflow-hidden bg-transparent pt-1 text-[26px] font-light leading-tight tracking-tight text-foreground outline-none placeholder:text-muted-foreground/40"
           />
         </div>
 
@@ -462,28 +463,31 @@ const Projectviewscreen = () => {
             </Button>
           </SectionHeader>
 
-          {issues.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center">
-              <p className="text-sm font-medium text-foreground">
-                No issues yet
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {project === "new"
-                  ? "Save the project first, then add issues to it."
-                  : "Issues you add to this project will show up here."}
-              </p>
-            </div>
-          ) : (
-            <div className="flex w-full items-start gap-2 overflow-x-auto py-1">
-              {issues.map((t) => (
-                <Issuedisplay
-                  key={t.issue_id}
-                  date={t.created_at}
-                  milestone={t.title}
-                />
-              ))}
-            </div>
-          )}
+          <>
+            {issues.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border px-4 py-8 text-center">
+                <p className="text-sm font-medium text-foreground">
+                  No issues yet
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {project === "new"
+                    ? "Save the project first, then add issues to it."
+                    : "Issues you add to this project will show up here."}
+                </p>
+              </div>
+            ) : (
+              <div className="flex w-full items-start gap-2 overflow-x-auto py-1">
+                {issues.map((t) => (
+                  <Issuedisplay
+                    key={t.issue_id}
+                    date={t.created_at}
+                    milestone={t.title}
+                  />
+                ))}
+              </div>
+            )}
+            <FastCreateIssue variant="default" />
+          </>
         </section>
       </div>
     </div>

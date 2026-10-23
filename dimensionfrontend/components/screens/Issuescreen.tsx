@@ -107,26 +107,21 @@ const Issuescreen = () => {
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
         {/* Top bar */}
         <header className="mb-5 flex shrink-0 flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200/80 bg-white shadow-sm">
-              <Hash className="h-3.5 w-3.5 text-slate-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                Issue
-              </p>
-              <p className="truncate text-sm font-semibold text-slate-800">
-                {issueDetails?.issue_id
-                  ? `#${issueDetails.issue_id}`
-                  : isLoading
-                    ? "Loading..."
-                    : "—"}
-              </p>
-            </div>
-          </div>
+          <h1 className="min-w-0 truncate text-base font-semibold tracking-tight text-slate-900">
+            {issueDetails?.issue_id ? (
+              <>
+                <span className="font-normal text-slate-400">Issue</span> #
+                {issueDetails.issue_id}
+              </>
+            ) : isLoading ? (
+              <span className="font-normal text-slate-400">Loading…</span>
+            ) : (
+              <span className="font-normal text-slate-400">No issue</span>
+            )}
+          </h1>
 
           {issueDetails?.status && (
-            <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-white/90 px-3 py-1.5 text-xs font-semibold capitalize text-indigo-700 shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 text-sm capitalize text-slate-600">
               <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
               {issueDetails.status.replaceAll("_", " ").replaceAll("-", " ")}
             </span>
