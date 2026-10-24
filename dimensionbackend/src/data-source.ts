@@ -7,6 +7,7 @@ import { Projects } from "./entity/Project";
 import { Credentials } from "./entity/Credentials";
 import { Organisation } from "./entity/Organisation";
 import { Updates } from "@/entity/Updates";
+import { Resources } from "./entity/Resource";
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST ?? "localhost",
@@ -16,7 +17,16 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME ?? "dimensionbackend",
   synchronize: true,
   logging: false,
-  entities: [User, Issues, Teams, Projects, Credentials, Organisation, Updates],
+  entities: [
+    User,
+    Issues,
+    Teams,
+    Projects,
+    Credentials,
+    Organisation,
+    Updates,
+    Resources,
+  ],
   migrations: [],
   subscribers: [],
 });

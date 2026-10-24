@@ -4,6 +4,7 @@ import { authApi } from "@/api/authApi";
 import { issueApi } from "@/api/issueApi";
 import { OrganisationApi } from "@/api/organisationApi";
 import { projectApi } from "@/api/projectsApi";
+import { resourceApi } from "@/api/resourceApi";
 import { s3Api } from "@/api/s3Api";
 import { teamApi } from "@/api/teamApi";
 import {
@@ -17,6 +18,7 @@ import {
   issueActivityType,
   issueCreate_type,
   project_type,
+  UpdateResourcePayload,
   userCredentials_type,
   userLogin_type,
   userSignup_type,
@@ -33,7 +35,7 @@ const s3ApiClient = new s3Api();
 const authApiClient = new authApi();
 const teamApiClient = new teamApi();
 const orgApiClient = new OrganisationApi();
-
+const resourceApiClient = new resourceApi();
 export const useGetUser = (email: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["user", email],
@@ -43,7 +45,6 @@ export const useGetUser = (email: string) => {
   return { data, isLoading, error };
 };
 export const useVerifyUser = (enabled: boolean) => {
-  console.log("useVerifyUser hook called");
   const { data, isLoading, error } = useQuery({
     queryKey: ["session-verify"],
     queryFn: () => {
@@ -51,9 +52,6 @@ export const useVerifyUser = (enabled: boolean) => {
       return authApiClient.verifyUser();
     },
     enabled: enabled,
-    // staleTime: 0,
-    // gcTime: 0,
-    // refetchOnMount: "always",
     retry: false,
   });
   return { data, isLoading, error };
@@ -62,6 +60,12 @@ export const useUserSignup = () => {
   return useMutation({
     mutationFn: (payload: userSignup_type) => authApiClient.userSignup(payload),
     retry: false,
+    onSuccess: () => {
+      toast.success("User signup successfull");
+    },
+    onError: () => {
+      toast.success("Error occured ! Try again");
+    },
   });
 };
 
@@ -69,6 +73,12 @@ export const useLoginUser = () => {
   return useMutation({
     mutationFn: (payload: userLogin_type) => authApiClient.userLogin(payload),
     retry: false,
+    onSuccess: () => {
+      toast.success("User successfully verified");
+    },
+    onError: () => {
+      toast.success("Error occured ! Try again");
+    },
   });
 };
 
@@ -288,4 +298,21 @@ export const useGetAllOrganisations = () => {
     retry: false,
   });
   return { data, isLoading, error };
+};
+
+// resources hooks
+export const useCreateResource = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ payload }: { payload: UpdateResourcePayload }) =>
+      resourceApiClient.createResource(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+      toast.success("Document updated successfully");
+    },
+    onError: () => {
+      toast.error("Error while updating document");
+    },
+  });
 };

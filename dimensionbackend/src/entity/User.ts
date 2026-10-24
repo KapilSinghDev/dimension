@@ -13,6 +13,7 @@ import { BaseCredentials } from "./Credentials";
 import { Projects } from "./Project";
 import { Organisation } from "./Organisation";
 import { Updates } from "./Updates";
+import { Resources } from "./Resource";
 @Entity()
 export class User extends BaseCredentials {
   @Column({ nullable: true })
@@ -43,4 +44,7 @@ export class User extends BaseCredentials {
 
   @OneToMany(() => Updates, (updates) => updates.updated_by, { nullable: true })
   comments: Updates[];
+
+  @OneToMany(() => Resources, (resources) => resources.resource_made_by)
+  attachments: Resources[];
 }

@@ -10,6 +10,7 @@ import { Projectroutes } from "./routes/projectroutes";
 import cors from "cors";
 import { s3MediaRoutes } from "./routes/s3.routes";
 import organisationRouter from "@/routes/orgroutes";
+import { ResourceRouter } from "./routes/resourceroutes";
 // import "multer";
 const PORT = 8000;
 AppDataSource.initialize()
@@ -34,13 +35,15 @@ AppDataSource.initialize()
     const media_routes = new s3MediaRoutes();
     app.use(media_routes.publishMediaRoutes());
     const dimension_app_router = express.Router();
+    const resource_routes = new ResourceRouter();
+    app.use(resource_routes.getRouter());
     dimension_app_router.use(routes_user.publishAuthRoutes());
     dimension_app_router.use(routes_issue.publishIssueRouter());
     dimension_app_router.use(routes_team.publishTeamRoutes());
     dimension_app_router.use(routes_projects.publishProjectRoutes());
     dimension_app_router.use(media_routes.publishMediaRoutes());
     dimension_app_router.use(organisationRouter);
-
+    dimension_app_router.use(resource_routes.getRouter());
     dimension_app_router.get("/", (req, res) => {
       res.send("Dimension backend running");
     });

@@ -46,7 +46,7 @@ export default function RootLayout({
                   <Suspense>{children}</Suspense>
                 </QueryProvider>
               </NuqsAdapter>
-              <Toaster />
+              <Toaster position="top-right" />
             </TooltipProvider>
           </main>
         </SidebarProvider>

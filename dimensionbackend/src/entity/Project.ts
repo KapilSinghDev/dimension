@@ -16,6 +16,7 @@ import {
 import { Issues } from "./Issue";
 import { User } from "./User";
 import { Organisation } from "./Organisation";
+import { Resources } from "./Resource";
 
 @Entity()
 export class Projects {
@@ -58,4 +59,9 @@ export class Projects {
 
   @ManyToOne(() => Organisation, (orgs) => orgs.projects)
   organisation: Organisation;
+
+  @OneToMany(() => Resources, (resource) => resource.resource_for, {
+    nullable: true,
+  })
+  resources: Resources[];
 }

@@ -23,10 +23,52 @@ import {
   Undo,
   Redo,
 } from "lucide-react";
-import { useCallback } from "react";
+import { File } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
-
+import { Textarea } from "./ui/textarea";
+import { useCreateResource } from "@/hooks/apihooks";
+import { UpdateResourcePayload } from "@/lib/types";
 const Tiptap = () => {
+  const createIssue = useCreateResource();
+  const [resourcePayload, setResourcePayload] = useState<UpdateResourcePayload>(
+    () => ({
+      resource_content: "",
+      resource_name: "",
+      resource_image: null,
+    }),
+  );
+
+  const isFirstRender = useRef(true);
+  const resourceId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const isEmpty =
+      !resourcePayload.resource_content?.replace(/<[^>]*>/g, "").trim() &&
+      !resourcePayload.resource_name?.trim() &&
+      !resourcePayload.resource_image;
+    if (isEmpty) return;
+
+    const timer = setTimeout(() => {
+      const payload = {
+        ...resourcePayload,
+        resource_name: resourcePayload.resource_name || "Untitled",
+      };
+
+      if (!resourceId.current) {
+        createIssue.mutate({ payload });
+      } else {
+        // updateResource.mutate({ id: resourceId.current, payload });
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [resourcePayload]);
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -46,11 +88,18 @@ const Tiptap = () => {
         placeholder: "Start writing...",
       }),
     ],
-    content: "<p>Hello World! 🌎️</p>",
+    content: resourcePayload.resource_content || "",
     immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      setResourcePayload((prev) => ({
+        ...prev,
+        resource_content: editor.getHTML(),
+      }));
+    },
     editorProps: {
       attributes: {
-        class: "prose prose-sm focus:outline-none min-h-32 max-w-none p-3",
+        class:
+          "tiptap prose prose-sm focus:outline-none min-h-32 max-w-none p-3",
       },
     },
   });
@@ -81,109 +130,38 @@ const Tiptap = () => {
   if (!editor) return null;
 
   const handleSave = () => {
-    console.log("the content is", editor.getHTML());
+    const html = editor.getHTML();
+
+    const payload = {
+      ...resourcePayload,
+      resource_content: html,
+    };
+
+    setResourcePayload(payload);
+    createIssue.mutate({ payload });
   };
   return (
-    <div className="border border-border rounded-md w-full">
-      <div className="flex items-center gap-1 border-b border-border p-1 flex-wrap ">
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          active={editor.isActive("bold")}
-        >
-          <Bold size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          active={editor.isActive("italic")}
-        >
-          <Italic size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          active={editor.isActive("underline")}
-        >
-          <UnderlineIcon size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          active={editor.isActive("strike")}
-        >
-          <Strikethrough size={14} />
-        </ToolbarButton>
-
-        <div className="w-px h-5 bg-border mx-1" />
-
-        <ToolbarButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
-          active={editor.isActive("heading", { level: 1 })}
-        >
-          <Heading1 size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          active={editor.isActive("heading", { level: 2 })}
-        >
-          <Heading2 size={14} />
-        </ToolbarButton>
-
-        <div className="w-px h-5 bg-border mx-1" />
-
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          active={editor.isActive("bulletList")}
-        >
-          <List size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          active={editor.isActive("orderedList")}
-        >
-          <ListOrdered size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          active={editor.isActive("blockquote")}
-        >
-          <Quote size={14} />
-        </ToolbarButton>
-        <ToolbarButton
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          active={editor.isActive("codeBlock")}
-        >
-          <Code size={14} />
-        </ToolbarButton>
-
-        <div className="w-px h-5 bg-border mx-1" />
-
-        <ToolbarButton onClick={setLink} active={editor.isActive("link")}>
-          <LinkIcon size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={addImage}>
-          <ImageIcon size={14} />
-        </ToolbarButton>
-
-        <div className="w-px h-5 bg-border mx-1" />
-
-        <ToolbarButton onClick={() => editor.chain().focus().undo().run()}>
-          <Undo size={14} />
-        </ToolbarButton>
-        <ToolbarButton onClick={() => editor.chain().focus().redo().run()}>
-          <Redo size={14} />
-        </ToolbarButton>
-        <Button
-          variant={"default"}
-          className="ml-5"
-          onClick={() => handleSave()}
-        >
-          Save
-        </Button>
+    <div className="mt-2 rounded-sm w-full p-10">
+      <div className="flex w-full flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <File size={20} className="text-muted-foreground" />
+          <Textarea
+            placeholder="Untitled"
+            className="min-h-0 w-full resize-none border-0 bg-transparent p-0 text-[26px] font-semibold leading-tight tracking-tight text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none md:text-[36px]"
+            rows={1}
+            onBlur={(e) =>
+              setResourcePayload((prev) => ({
+                ...prev,
+                ["resource_name"]: e.target.value,
+              }))
+            }
+          />
+        </div>
+        <div className="pl-0">
+          <EditorContent editor={editor} />
+          <button onClick={handleSave}>save</button>
+        </div>
       </div>
-
-      <EditorContent editor={editor} />
     </div>
   );
 };

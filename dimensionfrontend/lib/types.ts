@@ -136,3 +136,9 @@ export interface issueActivityType {
   issueId: string;
   media?: File | null;
 }
+
+export type UpdateResourcePayload = {
+  resource_name?: string;
+  resource_content?: string;
+  resource_image?: File | null;
+};
