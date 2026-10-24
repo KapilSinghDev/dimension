@@ -31,4 +31,10 @@ export class resourceApi {
       headers: this.getAuthHeaders(),
     });
   };
+
+  getResourceBatch = (page: string) => {
+    return apiclient.get(`/resource/batch${page}`, {
+      headers: this.getAuthHeaders(),
+    });
+  };
 }

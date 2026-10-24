@@ -16,6 +16,7 @@ export class ResourceRouter {
     this.router.patch("/resource", this.controller.updateResource);
     this.router.delete("/resource", this.controller.deleteResource);
     this.router.post("/resource", this.controller.createResource);
+    this.router.get("/resource/batch", this.controller.getProjectsByBatch);
   }
 
   public getRouter() {

@@ -47,4 +47,14 @@ export class ResourceServices {
     const result = await this.resourceRepository.delete({ resource_id: id });
     return (result.affected ?? 0) > 0;
   };
+
+  fetchResourceByBatch = async (page: number) => {
+    const batch = 10;
+    const skip = batch * (page - 1);
+    const documentlist = await this.resourceRepository.findAndCount({
+      take: batch,
+      skip: skip,
+    });
+    return documentlist;
+  };
 }

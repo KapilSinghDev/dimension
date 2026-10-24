@@ -316,3 +316,19 @@ export const useCreateResource = () => {
     },
   });
 };
+
+export const useGetResourceById = (id: string) => {
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [`resources-${id}`],
+    queryFn: () => {
+      resourceApiClient.getResource(id);
+    },
+  });
+  return { data, isLoading, isError };
+};
+
+export const useGetResourceByBatch = (page: string) => {
+  const queryClient = useQueryClient();
+};

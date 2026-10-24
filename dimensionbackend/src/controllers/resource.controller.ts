@@ -80,4 +80,20 @@ export class ResourceController {
       next(err);
     }
   };
+
+  getProjectsByBatch = async (req: Request, res: Response) => {
+    try {
+      const { page } = req.query;
+      if (!page) {
+        return res.status(400).json({ error: "Page is required" });
+      }
+      const document_batch = await this.resourceService.fetchResourceByBatch(
+        Number(page),
+      );
+      return res.status(200).json(document_batch);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ message: "An error occured" });
+    }
+  };
 }

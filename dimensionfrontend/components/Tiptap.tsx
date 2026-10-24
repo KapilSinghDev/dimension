@@ -147,7 +147,7 @@ const Tiptap = () => {
           <File size={20} className="text-muted-foreground" />
           <Textarea
             placeholder="Untitled"
-            className="min-h-0 w-full resize-none border-0 bg-transparent p-0 text-[26px] font-semibold leading-tight tracking-tight text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none md:text-[36px]"
+            className="min-h-0 w-full resize-none border-0 bg-transparent p-0 text-[24px] font-light leading-tight tracking-tight text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none md:text-[36px]"
             rows={1}
             onBlur={(e) =>
               setResourcePayload((prev) => ({
