@@ -29,7 +29,12 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { useCreateResource } from "@/hooks/apihooks";
 import { UpdateResourcePayload } from "@/lib/types";
-const Tiptap = () => {
+import { useQueryState } from "nuqs";
+interface resourceProps {
+  resource_name?: string;
+  resource_content?: string;
+}
+const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
   const createIssue = useCreateResource();
   const [resourcePayload, setResourcePayload] = useState<UpdateResourcePayload>(
     () => ({
@@ -40,8 +45,8 @@ const Tiptap = () => {
   );
 
   const isFirstRender = useRef(true);
-  const resourceId = useRef<string | null>(null);
-
+  const [resourceId] = useQueryState("resourceId");
+  console.log("resource content", resource_content);
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -60,7 +65,7 @@ const Tiptap = () => {
         resource_name: resourcePayload.resource_name || "Untitled",
       };
 
-      if (!resourceId.current) {
+      if (!resourceId) {
         createIssue.mutate({ payload });
       } else {
         // updateResource.mutate({ id: resourceId.current, payload });
@@ -88,7 +93,7 @@ const Tiptap = () => {
         placeholder: "Start writing...",
       }),
     ],
-    content: resourcePayload.resource_content || "",
+    content: resource_content || resourcePayload.resource_content || "",
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       setResourcePayload((prev) => ({
@@ -103,7 +108,16 @@ const Tiptap = () => {
       },
     },
   });
-
+  // Add this useEffect inside your Tiptap component
+  useEffect(() => {
+    if (editor && resource_content) {
+      // Only update if the content is different to prevent cursor jumps
+      const currentHTML = editor.getHTML();
+      if (currentHTML !== resource_content) {
+        editor.commands.setContent(resource_content);
+      }
+    }
+  }, [resource_content, editor]);
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes("link").href;
@@ -155,11 +169,12 @@ const Tiptap = () => {
                 ["resource_name"]: e.target.value,
               }))
             }
+            value={resource_name}
           />
         </div>
         <div className="pl-0">
           <EditorContent editor={editor} />
-          <button onClick={handleSave}>save</button>
+          {/* <button onClick={handleSave}>save</button> */}
         </div>
       </div>
     </div>

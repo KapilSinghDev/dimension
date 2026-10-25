@@ -1,6 +1,7 @@
 import { UUID } from "node:crypto";
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToOne,
@@ -20,12 +21,15 @@ export class Resources {
   @Column()
   resource_content: string;
 
+  @CreateDateColumn({ type: "timestamp" })
+  resource_created_on: Date;
+
   @ManyToOne(() => Projects, (projects) => projects.resources)
-  resource_for: string;
+  resource_for: Projects[];
 
   @Column({ nullable: true })
   resource_image: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user) => user.attachments)
   resource_made_by: User;
 }

@@ -43,7 +43,7 @@ import { useRouter } from "next/navigation";
 import { project_route } from "@/lib/routes";
 import { setIssueList } from "@/store/issueStore";
 import FastCreateIssue from "../Fastcreateissue";
-
+import ResourceTable from "./ResourceTable";
 /* ---------------------------------- config --------------------------------- */
 
 type PillOption = {
@@ -424,6 +424,9 @@ const Projectviewscreen = () => {
         {/* Resources */}
         <section>
           <SectionHeader icon={Paperclip} title="Resources" />
+          <div className="mx-auto py-4">
+            <ResourceTable />
+          </div>
           <button
             type="button"
             onClick={() => setTab("document")}

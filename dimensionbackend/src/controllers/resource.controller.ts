@@ -1,13 +1,21 @@
 import { Request, Response, NextFunction } from "express";
 import { ResourceServices } from "@/service/resource.service";
 import { UUID } from "node:crypto";
+import { userPayloadInterface } from "@/middleware/authenticate";
+import jwt from "jsonwebtoken";
 
 export class ResourceController {
   private resourceService = new ResourceServices();
 
   createResource = async (req: Request, res: Response, next: NextFunction) => {
+    // const token = req.header["authorization"][0].split(" ");
+    const token = req.headers.authorization?.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
     try {
-      const created = await this.resourceService.createResource(req.body);
+      const created = await this.resourceService.createResource(
+        req.body,
+        decodeToken.user_id,
+      );
       return res.status(201).json(created);
     } catch (err) {
       next(err);

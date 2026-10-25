@@ -318,17 +318,20 @@ export const useCreateResource = () => {
 };
 
 export const useGetResourceById = (id: string) => {
-  const queryClient = useQueryClient();
-
   const { data, isLoading, isError } = useQuery({
-    queryKey: [`resources-${id}`],
-    queryFn: () => {
-      resourceApiClient.getResource(id);
-    },
+    queryKey: ["resource", id],
+    queryFn: () => resourceApiClient.getResource(id), // 👈 Implicit return fixes the issue
   });
+
   return { data, isLoading, isError };
 };
 
 export const useGetResourceByBatch = (page: string) => {
   const queryClient = useQueryClient();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["resources-batch", page],
+    queryFn: () => resourceApiClient.getResourceBatch(page),
+    retry: false,
+  });
+  return { data, isLoading, isError };
 };

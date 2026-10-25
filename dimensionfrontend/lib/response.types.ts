@@ -74,3 +74,12 @@ export interface ProjectOverviewResponse {
   issues: IssueResponseInterface[];
   created_by?: userResponseinterface;
 }
+
+export interface ResourceResponse {
+  resource_id: string;
+  resource_name: string;
+  resource_image: string;
+  resource_content: string;
+  resource_made_by: userResponseinterface;
+  resource_for?: ProjectApiItem;
+}

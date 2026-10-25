@@ -15,7 +15,7 @@ export class resourceApi {
   };
 
   getResource = (id: string) => {
-    return apiclient.get(`/resource/${id}`, {
+    return apiclient.get(`/resource/?id=${id}`, {
       headers: this.getAuthHeaders(),
     });
   };
@@ -33,7 +33,7 @@ export class resourceApi {
   };
 
   getResourceBatch = (page: string) => {
-    return apiclient.get(`/resource/batch${page}`, {
+    return apiclient.get(`/resource/batch?page=${page}`, {
       headers: this.getAuthHeaders(),
     });
   };

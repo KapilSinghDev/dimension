@@ -5,12 +5,18 @@ import { UUID } from "node:crypto";
 export class ResourceServices {
   resourceRepository = AppDataSource.getRepository(Resources);
 
-  createResource = async (data: {
-    resource_name: string;
-    resource_content?: string;
-    resource_image?: string;
-  }) => {
-    const resource = this.resourceRepository.create(data);
+  createResource = async (
+    data: {
+      resource_name: string;
+      resource_content?: string;
+      resource_image?: string;
+    },
+    user_id: number,
+  ) => {
+    const resource = this.resourceRepository.create({
+      ...data,
+      resource_made_by: { user_id: user_id },
+    });
     return await this.resourceRepository.save(resource);
   };
 
@@ -54,6 +60,7 @@ export class ResourceServices {
     const documentlist = await this.resourceRepository.findAndCount({
       take: batch,
       skip: skip,
+      relations: { resource_made_by: true, resource_for: true },
     });
     return documentlist;
   };
