@@ -32,4 +32,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/dimension-dev-app
+
+            echo "--- Setting up Backend ---"
+            cd dimensionbackend
+            npm install
+
+            echo "--- Setting up Frontend ---"
+            cd /home/ubuntu/dimension-dev-app/dimensionfrontend
             npm install
