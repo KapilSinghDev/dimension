@@ -20,7 +20,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "src/,package.json,package-lock.json,public/"
+          source: "."
           target: "/home/ubuntu/dimension-dev-app"
 
       # 3. Run installation and restart commands on your EC2 instance
