@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Pull the latest code from your repository
       - name: Checkout code
         uses: actions/checkout@v5
 
