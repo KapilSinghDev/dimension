@@ -11,6 +11,7 @@ import cors from "cors";
 import { s3MediaRoutes } from "./routes/s3.routes";
 import organisationRouter from "@/routes/orgroutes";
 import { ResourceRouter } from "./routes/resourceroutes";
+import { testConnection } from "../lib/redis";
 // import "multer";
 const PORT = 8000;
 AppDataSource.initialize()
@@ -54,3 +55,4 @@ AppDataSource.initialize()
     });
   })
   .catch((error) => console.log(error));
+testConnection();

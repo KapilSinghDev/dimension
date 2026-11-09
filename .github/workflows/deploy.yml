@@ -10,33 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout your main repository code
       - name: Checkout code
         uses: actions/checkout@v5
 
-      # 2. Copy code files to your EC2 instance via SCP
-      - name: Copy files via SCP
+      # 2. Copy the entire workspace to /home/ubuntu/migrations
+      - name: Copy app files via SCP
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
-          target: "/home/ubuntu/dimension-dev-app"
+          target: "/home/ubuntu/migrations"
 
-      # 3. Run installation and restart commands on your EC2 instance
-      - name: Run deploy commands via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/ubuntu/dimension-dev-app
+      # 3. Run installation, build, and migration commands on the EC2 instance
+      # - name: Run deploy commands via SSH
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ubuntu
+      #     key: ${{ secrets.EC2_SSH_Key }}
+      #     script: |
+      #       # Run pending database migrations automatically on push to development
+      #       npm run migration:run
 
-            echo "--- Setting up Backend ---"
-            cd dimensionbackend
-            npm install
-
-            echo "--- Setting up Frontend ---"
-            cd /home/ubuntu/dimension-dev-app/dimensionfrontend
-            npm install
+      # =========================================================================
+      # FUTURE EXPANSION: Other EC2 Instances
+      # =========================================================================
+      # If you add separate EC2 instances later (e.g., dedicated worker nodes,
+      # microservices, or separate frontend load balancers), you can append
+      # a new job below or add additional steps here targeting their specific secrets:
+      #
+      # - name: Deploy to Worker/Secondary EC2 Instance
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.SECONDARY_EC2_HOST }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SECONDARY_EC2_SSH_KEY }}
+      #     script: |
+      #       # Commands for secondary servers go here
+      # =========================================================================

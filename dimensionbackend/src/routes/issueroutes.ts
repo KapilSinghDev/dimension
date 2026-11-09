@@ -5,6 +5,7 @@ import { authorise } from "../middleware/authorise";
 import { authenticateUser } from "../middleware/authenticate";
 import { mediaInterceptor } from "@/middleware/mediaInterceptor";
 import multer from "multer";
+import { rateLimiter } from "@/middleware/ratelimiter";
 export class issueRouter {
   private router: Router;
   private issueController = new issueController();
@@ -36,6 +37,7 @@ export class issueRouter {
     this.router.get(
       "/issue",
       // authenticateUser,
+      rateLimiter,
       this.issueController.getIssue,
     );
   };
