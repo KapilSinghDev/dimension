@@ -21,7 +21,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "."
+          source: "./migrations"
           target: "/home/ubuntu/migrations"
 
       # 3. Run installation, build, and migration commands on the EC2 instance
