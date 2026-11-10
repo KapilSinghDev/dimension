@@ -77,7 +77,6 @@ const Update = ({
   comment,
 }: UpdateBoxProps) => {
   const issuesOptions = useIssueList();
-  console.log("this is to check from the update comp", issuesOptions);
   const issueUpdate = useUpdateIssueActivity();
 
   const [issuePayload, setIssuePayload] = useState<issueActivityType>({

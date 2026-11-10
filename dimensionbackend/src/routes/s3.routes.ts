@@ -2,6 +2,7 @@ import { Router, Express } from "express";
 import * as express from "express";
 import { s3Controller } from "../controllers/s3.controller";
 import multer = require("multer");
+import { authenticateUser } from "@/middleware/authenticate";
 export class s3MediaRoutes {
   s3Router: Router;
   s3Controller = new s3Controller();
@@ -13,6 +14,7 @@ export class s3MediaRoutes {
   public mediaUploadRoute = () => {
     this.s3Router.post(
       "/media-upload",
+      authenticateUser,
       this.s3Controller.mediaUploadController,
     );
   };

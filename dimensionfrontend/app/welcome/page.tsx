@@ -163,9 +163,6 @@ export default function OnboardingPage() {
     singup.mutate(values, {
       // pending check why no response is being printed
       onSuccess: (response) => {
-        // console.log("The signup response");
-        // console.log(response);
-        // console.log(response.data);
         router.push(project_route + "?page=1");
       },
       onError: () => {
@@ -186,7 +183,6 @@ export default function OnboardingPage() {
       },
       {
         onSuccess: (response) => {
-          console.log(response?.data["message"]);
           if (response?.data["message"] === "Invalid user") {
             alert("User does not exist");
           } else {
@@ -198,7 +194,6 @@ export default function OnboardingPage() {
   }
 
   const { data, isLoading, error } = useGetAllOrganisations();
-  console.log(data);
   return (
     <div className="flex h-screen w-full bg-black font-sans">
       {tab === "signup" ? (
@@ -318,7 +313,7 @@ export default function OnboardingPage() {
                     key={item.name}
                     value={item.name}
                     onClick={() => {
-                      console.log("clicked option = ", item.name);
+                      // console.log("clicked option = ", item.name);
                     }}
                   >
                     {item.name}

@@ -101,7 +101,6 @@ const Issuescreen = () => {
       icon: CalendarDays,
     },
   ];
-  // console.log("api data => ", data.issue_updates);
   return (
     <main className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 text-slate-900">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">

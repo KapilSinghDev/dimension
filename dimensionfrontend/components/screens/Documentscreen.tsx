@@ -9,7 +9,6 @@ import ResourceTable from "./ResourceTable";
 const Documentscreen = () => {
   const { state } = useSidebar();
   const [resourceId] = useQueryState("resourceId");
-  console.log("the resource id ", resourceId);
   const { data, isLoading, isError } = useGetResourceById(resourceId as string);
   return (
     <>

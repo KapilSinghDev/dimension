@@ -47,7 +47,6 @@ export class ProjectController {
   deleteProject = async (req: Request, res: Response) => {
     const delete_id = req.query.delete_id;
     const id = Number(delete_id);
-    console.log("delete project ", delete_id);
     try {
       const deleteProject = await this.projectservices.deleteProject(id);
       res.status(200).send({ message: deleteProject });

@@ -64,9 +64,7 @@ export class ProjectService {
         }),
       );
     }
-    console.log("before update = >", target_project);
     const update_project = await this.projectRepository.save(target_project);
-    console.log("update project = >", update_project);
     return update_project.id;
   };
 

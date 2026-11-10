@@ -36,7 +36,7 @@ export class issueRouter {
   private getIssue = () => {
     this.router.get(
       "/issue",
-      // authenticateUser,
+      authenticateUser,
       rateLimiter,
       this.issueController.getIssue,
     );
@@ -44,7 +44,7 @@ export class issueRouter {
   private createIssueRoute = () => {
     this.router.post(
       "/issue/create",
-      // authenticateUser,
+      authenticateUser,
       this.issueController.createNewIssue,
     );
   };

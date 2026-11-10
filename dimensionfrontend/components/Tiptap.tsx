@@ -46,7 +46,7 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
 
   const isFirstRender = useRef(true);
   const [resourceId] = useQueryState("resourceId");
-  console.log("resource content", resource_content);
+  // console.log("resource content", resource_content);
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;

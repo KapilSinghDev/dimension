@@ -35,7 +35,7 @@ export class authRoutes {
   private userDetailRoute = () => {
     this.authRouter.get(
       "/user",
-      // authenticateUser,
+      authenticateUser,
       this.authController.getUserDetails,
     );
   };

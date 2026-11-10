@@ -61,7 +61,6 @@ export default function FastCreateIssue({
   variant = "default",
   projects,
 }: FastCreateIssueProps) {
-  console.log("projects received in fast create issue => ", projects);
   const [isOpen, setIsOpen] = useState(false);
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);

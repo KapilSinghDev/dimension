@@ -109,7 +109,6 @@ const Issuebox = ({
     () => ({
       type: "ISSUECARD",
       item: () => {
-        console.log("drag started", id);
         return { id };
       },
       collect: (monitor) => ({

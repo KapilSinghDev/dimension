@@ -9,6 +9,7 @@ import { Organisation } from "./entity/Organisation";
 import { Updates } from "./entity/Updates";
 import { Resources } from "./entity/Resource";
 import * as path from "path";
+const isProd = process.env.NODE_ENV === "production";
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST ?? "localhost",
@@ -16,8 +17,8 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME ?? "db",
   password: process.env.DB_PASSWORD ?? "test",
   database: process.env.DB_NAME ?? "dimensionbackend",
-  synchronize: false,
-  logging: true,
+  synchronize: !isProd,
+  logging: false,
   entities: [
     User,
     Issues,
@@ -28,6 +29,6 @@ export const AppDataSource = new DataSource({
     Updates,
     Resources,
   ],
-  migrations: [path.join(__dirname, "../../../migrations/**/*{.js,.ts}")],
+  migrations: isProd ? [path.join(__dirname, "../migrations/**/*.js")] : [],
   subscribers: [],
 });

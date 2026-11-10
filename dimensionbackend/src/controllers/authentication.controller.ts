@@ -17,7 +17,6 @@ export class authenticationController {
   async userSignUp(req: Request, res: Response) {
     try {
       const authService = new authenticationService();
-      console.log("request body => ", req.body);
       const signupResponse = await authService.createAndSaveUser(
         req.body,
         req.file,

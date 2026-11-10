@@ -48,7 +48,6 @@ export const useVerifyUser = (enabled: boolean) => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["session-verify"],
     queryFn: () => {
-      console.log("Fetching verifyUser", new Error().stack);
       return authApiClient.verifyUser();
     },
     enabled: enabled,
@@ -154,7 +153,6 @@ export const useGetProjectOverview = (projectId: string, enabled: boolean) => {
     enabled: enabled,
     retry: false,
   });
-  // console.log("project overview hook => ", data?.message);
   return { data: messgae, isLoading, error };
 };
 export const useGetSingleIssue = (issueId: string) => {
