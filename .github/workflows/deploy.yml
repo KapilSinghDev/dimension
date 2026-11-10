@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 Servers
 
 on:
   push:
@@ -6,48 +6,57 @@ on:
       - development
 
 jobs:
-  deploy:
+  deploy-migrations:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout your main repository code
       - name: Checkout code
         uses: actions/checkout@v5
 
-      # 2. Copy the entire workspace to /home/ubuntu/migrations
-      - name: Copy app files via SCP
+      - name: Copy migration files via SCP to DB Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "./migrations"
+          source: "dimension/migrations"
           target: "/home/ubuntu/migrations"
 
-      # 3. Run installation, build, and migration commands on the EC2 instance
-      # - name: Run deploy commands via SSH
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.EC2_HOST }}
-      #     username: ubuntu
-      #     key: ${{ secrets.EC2_SSH_Key }}
-      #     script: |
-      #       # Run pending database migrations automatically on push to development
-      #       npm run migration:run
+      - name: Run Database Migrations via SSH on DB Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "--- Navigating and Running Migrations ---"
+            cd /home/ubuntu/migrations/dimension/migrations
 
-      # =========================================================================
-      # FUTURE EXPANSION: Other EC2 Instances
-      # =========================================================================
-      # If you add separate EC2 instances later (e.g., dedicated worker nodes,
-      # microservices, or separate frontend load balancers), you can append
-      # a new job below or add additional steps here targeting their specific secrets:
-      #
-      # - name: Deploy to Worker/Secondary EC2 Instance
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.SECONDARY_EC2_HOST }}
-      #     username: ubuntu
-      #     key: ${{ secrets.SECONDARY_EC2_SSH_KEY }}
-      #     script: |
-      #       # Commands for secondary servers go here
-      # =========================================================================
+  deploy-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Copy app files via SCP to Alpha Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_ALPHA_SERVER }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "dimension/dimensionfrontend,dimension/dimensionbackend"
+          target: "/home/ubuntu/dimension"
+
+      - name: Run app setup commands via SSH on Alpha Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_ALPHA_SERVER }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "--- Setting up Backend ---"
+            cd /home/ubuntu/dimension/dimensionbackend
+            npm install
+
+            echo "--- Setting up Frontend ---"
+            cd /home/ubuntu/dimension/dimensionfrontend
+            npm install
