@@ -21,7 +21,7 @@ jobs:
           host: ${{ secrets.EC2_ALPHA_SERVER }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "dimension/migrations"
+          source: "migrations"
           target: "/home/ubuntu/dimension"
 
       # 2. Navigate and run migrations via SSH
