@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, AnimatePresence, number } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -28,6 +28,14 @@ import {
   Flag,
   StepForward,
   LucideIcon,
+  SignalHigh,
+  SignalMedium,
+  SignalLow,
+  UserX,
+  Bug,
+  Sparkles,
+  TrendingUp,
+  Ban,
 } from "lucide-react";
 import { useCreateIssue } from "@/hooks/apihooks";
 import {
@@ -45,7 +53,10 @@ interface MetadataConfig {
   id: "priority" | "assignee" | "label";
   icon: LucideIcon;
   tooltip: string;
-  items: string[];
+  items: {
+    itemIcon: LucideIcon;
+    value: string;
+  }[];
 }
 
 interface FastCreateIssueProps {
@@ -87,6 +98,7 @@ export default function FastCreateIssue({
 
   function updateIssueStates(name: keyof issueInterface, value: string) {
     setIssueData((oldstate) => ({ ...oldstate, [name]: value }));
+    console.log("fast create issue data =>", issueData);
   }
 
   const createIssue = useCreateIssue();
@@ -133,19 +145,32 @@ export default function FastCreateIssue({
       id: "priority",
       icon: Flag,
       tooltip: "Priority",
-      items: ["high", "medium", "low"],
+      items: [
+        { itemIcon: SignalHigh, value: "high" },
+        { itemIcon: SignalMedium, value: "medium" },
+        { itemIcon: SignalLow, value: "low" },
+      ],
     },
     {
       id: "assignee",
       icon: User2,
       tooltip: "Assignee",
-      items: ["No assignee", "John Doe", "Jane Smith"],
+      items: [
+        { itemIcon: UserX, value: "No assignee" },
+        { itemIcon: UserX, value: "John Doe" },
+        { itemIcon: UserX, value: "Jane Smith" },
+      ],
     },
     {
       id: "label",
       icon: Tag,
       tooltip: "Labels",
-      items: ["bug", "feature", "improvement", "no_label"],
+      items: [
+        { itemIcon: Bug, value: IssueLabel_enums.Bug },
+        { itemIcon: Sparkles, value: IssueLabel_enums.Feature },
+        { itemIcon: TrendingUp, value: IssueLabel_enums.Improvement },
+        { itemIcon: Ban, value: IssueLabel_enums.NoLabel },
+      ],
     },
   ];
 
@@ -416,7 +441,7 @@ export default function FastCreateIssue({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: -10 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="bg-background border rounded-lg shadow-sm p-4 w-full focus-within:border-muted-foreground/30 transition-colors"
+              className="bg-background border rounded-sm shadow-sm p-4 w-full focus-within:border-muted-foreground/30 transition-colors"
             >
               <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="flex items-start gap-3">
@@ -527,7 +552,12 @@ export default function FastCreateIssue({
                                   }`}
                                 >
                                   <MenuIcon className="h-3.5 w-3.5" />
-                                  {!isDefault && <span>{activeValue}</span>}
+                                  {!isDefault && (
+                                    <span>
+                                      {activeValue[0].toUpperCase() +
+                                        activeValue.slice(1)}
+                                    </span>
+                                  )}
                                 </Button>
                               </DropdownMenuTrigger>
                             </TooltipTrigger>
@@ -537,21 +567,29 @@ export default function FastCreateIssue({
                             <DropdownMenuContent
                               side="bottom"
                               align="start"
-                              className="w-40"
+                              sideOffset={6}
+                              className="w-44 rounded-sm border border-zinc-200 bg-white p-1.5 shadow-[0_8px_24px_-6px_rgba(16,24,40,0.12),0_2px_6px_rgba(16,24,40,0.05)]"
                             >
                               {menu.items.map((item) => (
                                 <DropdownMenuItem
-                                  key={item}
+                                  key={item.value}
                                   onClick={() =>
                                     updateIssueStates(
                                       menu.id as keyof issueInterface,
-                                      item,
+                                      item.value,
                                     )
                                   }
-                                  className="cursor-pointer"
+                                  className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-zinc-700 transition-colors focus:bg-zinc-100 focus:text-zinc-900 data-[highlighted]:bg-zinc-100 data-[highlighted]:text-zinc-900"
                                   ref={metaDataRef}
                                 >
-                                  {item}
+                                  <item.itemIcon
+                                    strokeWidth={1.75}
+                                    className="h-4 w-4 shrink-0 text-zinc-400 transition-colors group-focus:text-zinc-700 group-data-[highlighted]:text-zinc-700"
+                                  />
+                                  <span className="truncate">
+                                    {item.value[0].toUpperCase() +
+                                      item.value.slice(1)}
+                                  </span>
                                 </DropdownMenuItem>
                               ))}
                             </DropdownMenuContent>

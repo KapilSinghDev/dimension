@@ -4,10 +4,10 @@ export enum IssuePriority_enums {
   LOW = "low",
 }
 export enum IssueLabel_enums {
-  NoLabel = "No label",
-  Bug = "Bug",
-  Feature = "Feature",
-  Improvement = "Improvement",
+  NoLabel = "no_label",
+  Bug = "bug",
+  Feature = "feature",
+  Improvement = "improvement",
 }
 
 export enum priority_enum {
