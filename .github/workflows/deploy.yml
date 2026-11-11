@@ -60,6 +60,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            export PATH=$PATH:/usr/local/bin
+
             echo "--- Setting up Backend ---"
             cd /home/ubuntu/dimension/dimensionbackend
             npm install
