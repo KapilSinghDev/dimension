@@ -40,7 +40,6 @@ import { DatePickerSimple } from "./Pickdates";
 import { issueInterface } from "@/lib/types";
 import { toast } from "sonner";
 import { useQueryState } from "nuqs";
-import { useRouter } from "next/navigation";
 
 interface MetadataConfig {
   id: "priority" | "assignee" | "label";
@@ -92,8 +91,6 @@ export default function FastCreateIssue({
 
   const createIssue = useCreateIssue();
 
-  const router = useRouter();
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createIssue.mutate(
@@ -110,9 +107,7 @@ export default function FastCreateIssue({
         deadline: new Date(),
       },
       {
-        onSuccess: () => {
-          // should i do something here
-        },
+        onSuccess: () => {},
         onError: () => {
           toast.error("Failure creating issue ! Try again");
         },
