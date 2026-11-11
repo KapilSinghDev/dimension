@@ -202,19 +202,84 @@ export const useGetTeamPerUser = (teamId: string) => {
 
 export const useCreateIssue = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (issue: createNeIssue_type) =>
       issueApiClient.createIssue(issue),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["issues-batch"] });
-      toast.success("Issue created successfully.");
+
+    onMutate: async (newIssue) => {
+      await queryClient.cancelQueries({ queryKey: ["issues-batch"] });
+      if (newIssue?.project && newIssue.project !== -1) {
+        await queryClient.cancelQueries({
+          queryKey: ["project", newIssue.project],
+        });
+      }
+
+      const randomId = Math.floor(Math.random() * 1000000);
+      const optimisticIssue = { ...newIssue, issue_id: randomId };
+
+      // 2. Snapshot previous values for rollback capability
+      const previousIssues = queryClient.getQueryData(["issues-batch"]);
+      const previousProject =
+        newIssue?.project && newIssue.project !== -1
+          ? queryClient.getQueryData(["project", newIssue?.project.toString()])
+          : null;
+      // 3. Optimistically update global issues cache
+      queryClient.setQueryData<createNeIssue_type[]>(
+        ["issues-batch"],
+        (old = []) => [optimisticIssue, ...old],
+      );
+
+      // update the Project-specific cache response object
+      if (newIssue?.project && newIssue.project !== -1) {
+        queryClient.setQueryData<ProjectApiItem>(
+          ["project", newIssue.project.toString()],
+          (oldProject: any) => {
+            if (!oldProject) return oldProject;
+            //  project response object contains an array of issues
+            return {
+              ...oldProject,
+              issues: [optimisticIssue, ...(oldProject.issues || [])],
+            };
+          },
+        );
+      }
+
+      return { previousIssues, previousProject, projectId: newIssue?.project };
     },
-    onError: () => {
-      toast.error("Failed to update activity. Please try again.");
+
+    onError: (err, newIssue, context) => {
+      // Roll back both caches if the mutation fails
+      if (context?.previousIssues) {
+        queryClient.setQueryData(["issues-batch"], context.previousIssues);
+      }
+      if (
+        context?.projectId &&
+        context.projectId !== -1 &&
+        context?.previousProject
+      ) {
+        queryClient.setQueryData(
+          ["project", context.projectId],
+          context.previousProject,
+        );
+      }
+      toast.error("Failed to create issue. Please try again.");
+    },
+
+    onSettled: (data, error, newIssue) => {
+      queryClient.invalidateQueries({ queryKey: ["issues-batch"] });
+      if (newIssue?.project && newIssue.project !== -1) {
+        queryClient.invalidateQueries({
+          queryKey: ["project", newIssue.project.toString()],
+        });
+      }
+    },
+
+    onSuccess: () => {
+      toast.success("Issue created successfully.");
     },
   });
 };
-
 export const useGetIssues = () => {
   const {
     data: response,
