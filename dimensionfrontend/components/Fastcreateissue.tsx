@@ -305,16 +305,24 @@ export default function FastCreateIssue({
                             <DropdownMenuSeparator />
                             {menu.items.map((item) => (
                               <DropdownMenuItem
-                                key={item}
+                                key={item.value}
                                 onClick={() =>
                                   updateIssueStates(
                                     menu.id as keyof issueInterface,
-                                    item,
+                                    item.value,
                                   )
                                 }
-                                className="cursor-pointer"
+                                className="group flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium text-zinc-700 transition-colors focus:bg-zinc-100 focus:text-zinc-900 data-[highlighted]:bg-zinc-100 data-[highlighted]:text-zinc-900"
+                                ref={metaDataRef}
                               >
-                                {item}
+                                <item.itemIcon
+                                  strokeWidth={1.75}
+                                  className="h-4 w-4 shrink-0 text-zinc-400 transition-colors group-focus:text-zinc-700 group-data-[highlighted]:text-zinc-700"
+                                />
+                                <span className="truncate">
+                                  {item.value[0].toUpperCase() +
+                                    item.value.slice(1)}
+                                </span>
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
