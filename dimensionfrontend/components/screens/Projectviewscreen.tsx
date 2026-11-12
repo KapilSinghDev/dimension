@@ -44,6 +44,12 @@ import { project_route } from "@/lib/routes";
 import { setIssueList } from "@/store/issueStore";
 import FastCreateIssue from "../Fastcreateissue";
 import ResourceTable from "./ResourceTable";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger, // <--- Make sure this is included
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 /* ---------------------------------- config --------------------------------- */
 
 type PillOption = {
@@ -226,7 +232,7 @@ const Projectviewscreen = () => {
     title: projectDetail?.title || "",
     description: projectDetail?.description || "",
     target_date: projectTargetDate,
-    health: project_health_enum.ON_TRACK,
+    health: projectDetail?.health as project_health_enum,
     priority: (projectDetail?.priority as project_priority_enum) || null,
     status: (projectDetail?.status as project_status_enum) || null,
     issue: projectDetail?.issues || null,
@@ -280,7 +286,23 @@ const Projectviewscreen = () => {
       });
     }
   }
-
+  const PROJECT_HEALTH_OPTIONS = [
+    {
+      label: "On Track",
+      value: project_health_enum.ON_TRACK,
+      dot: "bg-emerald-500",
+    },
+    {
+      label: "At Risk",
+      value: project_health_enum.AT_RISK,
+      dot: "bg-amber-500",
+    },
+    {
+      label: "Off Track",
+      value: project_health_enum.OFF_TRACK,
+      dot: "bg-rose-500",
+    },
+  ];
   const titleRef = useAutoGrow(projectInterface.title ?? "");
   const descRef = useAutoGrow(projectInterface.description ?? "");
 
@@ -308,10 +330,38 @@ const Projectviewscreen = () => {
         </span>
 
         {health && (
-          <span className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-border/70 px-2 py-0.5 text-[11px] text-muted-foreground">
-            <span className={`h-1.5 w-1.5 rounded-full ${health.dot}`} />
-            {health.label}
-          </span>
+          <>
+            <DropdownMenu>
+              {/* 1. Wrap your clickable element in DropdownMenuTrigger */}
+              <DropdownMenuTrigger asChild>
+                <button className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-border/70 px-2.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent/50 transition-colors cursor-pointer">
+                  <span className={`h-1.5 w-1.5 rounded-full ${health.dot}`} />
+                  {
+                    PROJECT_HEALTH_OPTIONS.find(
+                      (item) => item.value === projectInterface.health,
+                    )?.label
+                    // projectInterface.health
+                  }
+                </button>
+              </DropdownMenuTrigger>
+
+              {/* 2. Content container that pops open */}
+              <DropdownMenuContent align="start" className="w-36">
+                {PROJECT_HEALTH_OPTIONS.map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() =>
+                      handleProjectFieldUpdate("health", option.value)
+                    }
+                    className="flex items-center gap-2 cursor-pointer text-xs"
+                  >
+                    <span className={`h-2 w-2 rounded-full ${option.dot}`} />
+                    <span>{option.label}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         )}
 
         <Button

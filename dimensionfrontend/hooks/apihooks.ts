@@ -93,6 +93,7 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: (payload: project_type) =>
       projectApiClient.createProject(payload),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success("Project Updated Successfully");
@@ -102,13 +103,43 @@ export const useCreateProject = () => {
 
 export const useUpdateProject = (project_id: string) => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: project_type) =>
       projectApiClient.updateProject({
         projectId: project_id,
         project: payload,
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["project"] }),
+
+    onMutate: async (payload) => {
+      // 1. Cancel outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ["project", project_id] });
+
+      // 2. Snapshot the previous value for rollback
+      const previousProject = queryClient.getQueryData(["project", project_id]);
+
+      // 3. Optimistically update the cache
+      const optimisticProject = { id: project_id, ...payload };
+      queryClient.setQueryData(["project", project_id], optimisticProject);
+
+      // 4. Return the snapshot wrapped in an object to pass it to onError
+      return { previousProject };
+    },
+
+    onError: (err, payload, context) => {
+      // 5. Rollback using the context snapshot (3rd argument)
+      if (context?.previousProject) {
+        queryClient.setQueryData(
+          ["project", project_id],
+          context.previousProject,
+        );
+      }
+    },
+
+    onSettled: () => {
+      // 6. Always refetch/invalidate after error or success to sync with server state
+      queryClient.invalidateQueries({ queryKey: ["project", project_id] });
+    },
   });
 };
 export const useGetProjects = (projectId: string) => {
