@@ -411,10 +411,11 @@ export const useCreateResource = () => {
   });
 };
 
-export const useGetResourceById = (id: string) => {
+export const useGetResourceById = (id: string, enabled: boolean) => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["resource", id],
     queryFn: () => resourceApiClient.getResource(id), // 👈 Implicit return fixes the issue
+    enabled: enabled,
   });
 
   return { data, isLoading, isError };
@@ -428,4 +429,28 @@ export const useGetResourceByBatch = (page: string) => {
     retry: false,
   });
   return { data, isLoading, isError };
+};
+
+export const useUpdateResource = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      resourceId,
+      payload,
+    }: {
+      resourceId: string;
+      payload: UpdateResourcePayload;
+    }) => resourceApiClient.updateResource(resourceId, payload),
+    // onMutate: async () => {
+    // },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["resource", data.data.resource_id],
+      });
+      toast.success("Document Updated");
+    },
+    onError: () => {
+      toast.error("Failure updating document");
+    },
+  });
 };

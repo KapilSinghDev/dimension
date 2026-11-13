@@ -9,7 +9,10 @@ import ResourceTable from "./ResourceTable";
 const Documentscreen = () => {
   const { state } = useSidebar();
   const [resourceId] = useQueryState("resourceId");
-  const { data, isLoading, isError } = useGetResourceById(resourceId as string);
+  const { data, isLoading, isError } = useGetResourceById(
+    resourceId as string,
+    resourceId === null ? false : true,
+  );
   return (
     <>
       <Mainpanel state={state} className="w-full">

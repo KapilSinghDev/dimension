@@ -56,6 +56,7 @@ export class ProjectService {
     target_project.priority = project.priority;
     target_project.taget_date = project.target_date;
     target_project.status = project.status;
+    target_project.health = project.health;
     if (project.issue) {
       target_project.issues = await Promise.all(
         project.issue.map(async (item) => {

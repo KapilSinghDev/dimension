@@ -27,7 +27,7 @@ import { File } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { useCreateResource } from "@/hooks/apihooks";
+import { useCreateResource, useUpdateResource } from "@/hooks/apihooks";
 import { UpdateResourcePayload } from "@/lib/types";
 import { useQueryState } from "nuqs";
 interface resourceProps {
@@ -45,8 +45,15 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
   );
 
   const isFirstRender = useRef(true);
-  const [resourceId] = useQueryState("resourceId");
-  // console.log("resource content", resource_content);
+  const [resourceId, setResourceId] = useQueryState("resourceId");
+  const resourceRef = useRef(resourceId);
+  const updateResource = useUpdateResource();
+  const [newDocument, setNewDocument] = useState<boolean>(
+    resourceId === null ? true : false,
+  );
+  console.log("this is new document", newDocument);
+  const lastSavedPayload = useRef<any>(null);
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -57,23 +64,48 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
       !resourcePayload.resource_content?.replace(/<[^>]*>/g, "").trim() &&
       !resourcePayload.resource_name?.trim() &&
       !resourcePayload.resource_image;
+
     if (isEmpty) return;
 
-    const timer = setTimeout(() => {
-      const payload = {
-        ...resourcePayload,
-        resource_name: resourcePayload.resource_name || "Untitled",
-      };
+    const payload = {
+      ...resourcePayload,
+      resource_name: resourcePayload.resource_name || "Untitled",
+    };
 
-      if (!resourceId) {
-        createIssue.mutate({ payload });
-      } else {
-        // updateResource.mutate({ id: resourceId.current, payload });
+    if (JSON.stringify(payload) === JSON.stringify(lastSavedPayload.current)) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (!resourceRef.current && newDocument === true) {
+        createIssue.mutate(
+          { payload },
+          {
+            onSuccess: (data) => {
+              const newId = data.data.resource_id;
+              resourceRef.current = newId;
+              setResourceId(newId);
+              setNewDocument(false);
+              lastSavedPayload.current = payload;
+            },
+          },
+        );
+      } else if (resourceRef.current && newDocument === false) {
+        console.log("updating resource condition");
+        updateResource.mutate(
+          { resourceId: resourceRef.current, payload },
+          {
+            onSuccess: () => {
+              // 3. Mark this exact payload as saved
+              lastSavedPayload.current = payload;
+            },
+          },
+        );
       }
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [resourcePayload]);
+  }, [resourcePayload]); // Only depend on resourcePayload
   const editor = useEditor({
     extensions: [
       StarterKit,

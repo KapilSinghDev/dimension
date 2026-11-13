@@ -25,7 +25,7 @@ export class ResourceController {
   getResource = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.query;
-      if (!id) {
+      if (!id || id === "null") {
         return res.status(400).json({ error: "Resource id is required" });
       }
 
