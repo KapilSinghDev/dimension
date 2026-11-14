@@ -81,9 +81,13 @@ const IssueActivity = ({ updates = [] }: ActivityProps) => {
       },
     });
   };
-
+  const handleEnterKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      handleActivityUpdate();
+    }
+  };
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 space-y-6 text-slate-800 bg-white min-h-fit flex flex-col justify-between">
+    <div className="w-full max-w-3xl mx-auto  space-y-6 text-slate-800 bg-white min-h-fit flex flex-col justify-between">
       <div className="space-y-4 flex-1">
         <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
           Activity
@@ -233,11 +237,12 @@ const IssueActivity = ({ updates = [] }: ActivityProps) => {
               onChange={(e) =>
                 setActivity((prev) => ({ ...prev, comment: e.target.value }))
               }
+              onKeyDown={handleEnterKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder="Leave a reply..."
               rows={isFocused || activity.comment ? 3 : 1}
-              className="w-full text-sm text-slate-800 placeholder-slate-400 bg-transparent border-0 outline-none resize-none focus:ring-0 p-0 min-h-[24px] transition-all duration-150"
+              className="w-full text-sm text-slate-800 placeholder-slate-400 bg-transparent border-0 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none resize-none transition-all duration-150"
             />
 
             {/* Attached file preview tag */}

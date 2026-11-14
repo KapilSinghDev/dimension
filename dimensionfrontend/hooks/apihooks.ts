@@ -186,19 +186,6 @@ export const useGetProjectOverview = (projectId: string, enabled: boolean) => {
   });
   return { data: messgae, isLoading, error };
 };
-export const useGetSingleIssue = (issueId: string) => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["issue", issueId],
-    queryFn: () =>
-      issueApiClient.getIssue({ issueId }).then((res) => res.data.message),
-    retry: false,
-  });
-  return {
-    data,
-    isLoading,
-    error,
-  };
-};
 
 export const useUploadToS3 = () => {
   return useMutation({
@@ -231,6 +218,19 @@ export const useGetTeamPerUser = (teamId: string) => {
 
 // issue hooks
 
+export const useGetSingleIssue = (issueId: string) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["issue", issueId],
+    queryFn: () =>
+      issueApiClient.getIssue({ issueId }).then((res) => res.data.message),
+    retry: false,
+  });
+  return {
+    data,
+    isLoading,
+    error,
+  };
+};
 export const useCreateIssue = () => {
   const queryClient = useQueryClient();
 
@@ -371,9 +371,42 @@ export const useUpdateIssue = () => {
 };
 
 export const useUpdateIssueActivity = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: issueActivityType) =>
       issueApiClient.activityIssue(payload),
+
+    onMutate: async (payload) => {
+      const queryKey = ["issue", payload.issueId];
+
+      await queryClient.cancelQueries({ queryKey });
+      const prevIssue = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          activities: [...(old.activities || []), payload],
+        };
+      });
+
+      return { prevIssue };
+    },
+
+    onError: (_err, vars, context) => {
+      if (context?.prevIssue) {
+        queryClient.setQueryData(["issue", vars.issueId], context.prevIssue);
+      }
+      toast.error("Failure updating activity");
+    },
+
+    onSettled: (_data, _err, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["issue", vars.issueId] });
+    },
+
+    onSuccess: () => {
+      toast.success("Activity updated");
+    },
   });
 };
 

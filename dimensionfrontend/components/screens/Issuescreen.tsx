@@ -20,8 +20,9 @@ import IssueActivity from "../Issueactivity";
 import { useGetSingleIssue } from "@/hooks/apihooks";
 import { useQueryState } from "nuqs";
 import { IssueItems } from "@/lib/response.types";
+import { Propertytabs } from "../Propertytabs";
 
-type IssueDetail = IssueItems & {
+export type IssueDetail = IssueItems & {
   description?: string | null;
   lable?: string | null;
   label?: string | null;
@@ -101,6 +102,51 @@ const Issuescreen = () => {
       icon: CalendarDays,
     },
   ];
+  {
+    /* Shared rows: define once above the return */
+  }
+  const propertyRows = [
+    ...detailItems.map(({ label, value, icon }) => ({
+      label,
+      value,
+      icon,
+      capitalize: true,
+      muted: false,
+    })),
+    {
+      label: "Created by",
+      value: issueDetails?.created_by ?? "Not set",
+      icon: UserRound,
+      capitalize: false,
+      muted: issueDetails?.created_by == null,
+    },
+  ];
+
+  const propertiesList = (
+    <div className="p-1.5">
+      {propertyRows.map(({ label, value, icon: Icon, capitalize, muted }) => (
+        <div
+          key={label}
+          className="grid min-w-0 grid-cols-[92px_minmax(0,1fr)] items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-slate-50"
+        >
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <Icon
+              className="h-3.5 w-3.5 shrink-0 text-slate-400"
+              strokeWidth={1.75}
+            />
+            <span className="truncate">{label}</span>
+          </div>
+          <p
+            className={`wrap-break-word text-[13px] ${
+              capitalize ? "capitalize" : ""
+            } ${muted ? "font-normal text-slate-400" : "font-medium text-slate-800"}`}
+          >
+            {value}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
   return (
     <main className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 text-slate-900">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
@@ -131,7 +177,7 @@ const Issuescreen = () => {
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-6">
           {/* Scrollable left content */}
           <section className="min-h-0 min-w-0 space-y-5 overflow-y-auto pr-1 pb-6">
-            <article className="rounded-2xl border border-slate-200/70 bg-white/90 p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-7">
+            <article className="   p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)]  sm:p-7">
               {error && (
                 <p className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
                   Unable to load issue details.
@@ -141,7 +187,7 @@ const Issuescreen = () => {
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-indigo-600">
                 Overview
               </p>
-              <h1 className="wrap-break-word text-2xl font-semibold tracking-tight text-slate-950 sm:text-[1.75rem] sm:leading-snug">
+              <h1 className="wrap-break-word text-xl font-semibold tracking-tight text-slate-950 sm:text-[1.75rem] sm:leading-snug">
                 {issueDetails?.title ||
                   (isLoading ? "Loading issue..." : "Untitled issue")}
               </h1>
@@ -190,8 +236,8 @@ const Issuescreen = () => {
               </div>
             </article>
 
-            <section className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6">
-              <div className="mb-4">
+            <section className=" p-4 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6">
+              {/* <div className="mb-4">
                 <h2 className="text-base font-semibold text-slate-900">
                   Add an update
                 </h2>
@@ -199,6 +245,7 @@ const Issuescreen = () => {
                   Share progress or create another issue.
                 </p>
               </div>
+               */}
               <FastCreateIssue />
               <Separator className="my-5 bg-slate-100" />
               <IssueActivity updates={data?.issue_updates || []} />
@@ -207,89 +254,26 @@ const Issuescreen = () => {
           </section>
 
           {/* Fixed / sticky properties on the right */}
+          {/* Desktop */}
           <aside className="hidden min-h-0 lg:block">
-            <div className="sticky top-0 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-slate-200/70 bg-white/95 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] backdrop-blur-md sm:p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold tracking-tight text-slate-900">
-                  Properties
-                </h2>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">
-                  Details
-                </span>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {detailItems.map(({ label, value, icon: Icon }) => (
-                  <div
-                    key={label}
-                    className="flex min-w-0 items-start gap-3 py-3 first:pt-1 last:pb-1"
-                  >
-                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-400 ring-1 ring-slate-100">
-                      <Icon className="h-3.5 w-3.5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                        {label}
-                      </p>
-                      <p className="mt-1 wrap-break-word text-sm font-medium capitalize text-slate-800">
-                        {value}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="flex min-w-0 items-start gap-3 py-3 last:pb-1">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-400 ring-1 ring-slate-100">
-                    <UserRound className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                      Created by
-                    </p>
-                    <p className="mt-1 wrap-break-word text-sm font-medium text-slate-800">
-                      {issueDetails?.created_by ?? "Not set"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            <div className="sticky top-0 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-xl ">
+              <h2 className="border-b border-slate-100 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                Properties
+              </h2>
+              <Propertytabs
+                detailItems={detailItems}
+                issueDetails={issueDetails as IssueDetail}
+              />
             </div>
           </aside>
 
           {/* Mobile properties (not fixed) */}
-          <aside className="rounded-2xl border border-slate-200/70 bg-white/95 p-4 shadow-sm lg:hidden sm:p-5">
-            <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          {/* <aside className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:hidden">
+            <h2 className="border-b border-slate-100 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">
               Properties
             </h2>
-            <div className="divide-y divide-slate-100">
-              {detailItems.map(({ label, value, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="flex min-w-0 items-start gap-3 py-3 first:pt-1 last:pb-1"
-                >
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-slate-500">
-                      {label}
-                    </p>
-                    <p className="mt-1 wrap-break-word text-sm font-medium capitalize text-slate-800">
-                      {value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <div className="flex min-w-0 items-start gap-3 py-3">
-                <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-slate-500">
-                    Created by
-                  </p>
-                  <p className="mt-1 wrap-break-word text-sm font-medium text-slate-800">
-                    {issueDetails?.created_by ?? "Not set"}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
+            {propertiesList}
+          </aside> */}
         </div>
       </div>
     </main>
