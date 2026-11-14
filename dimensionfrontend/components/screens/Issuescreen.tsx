@@ -186,7 +186,7 @@ const Issuescreen = () => {
   }, [data, issueDetails]);
   const updateIssue = useUpdateIssue();
   const handleIssuePropertiesUpdate = (
-    field: keyof IssueResponseInterface,
+    field: keyof issueCreate_type,
     value: string,
   ) => {
     console.log("selected options are", field, " ", value);
