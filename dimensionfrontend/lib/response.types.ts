@@ -62,6 +62,7 @@ export interface IssueResponseInterface {
   status: issue_status_enum;
   issue_updates: UpdatesResponseInterface[];
 }
+
 export interface ProjectOverviewResponse {
   id: number;
   tittle: string;

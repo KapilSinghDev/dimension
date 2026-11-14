@@ -40,6 +40,7 @@ export class issueController {
       );
       return res.status(200).json({ message: issueUpdate });
     } catch (err) {
+      console.log("error in updating issue", err);
       if (!res.headersSent) {
         return res.status(500).json({ message: "An error occurred" });
       }

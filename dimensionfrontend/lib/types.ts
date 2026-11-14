@@ -60,7 +60,7 @@ export type issueCreate_type = {
   title: string;
   created_by: number;
   description?: string;
-  label?: string;
+  lable?: string;
   assignee?: string;
   team?: string;
   deadline: Date;

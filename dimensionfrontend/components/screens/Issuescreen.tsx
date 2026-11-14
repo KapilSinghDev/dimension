@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Button } from "../ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   FolderKanban,
   Hash,
   Paperclip,
+  Plus,
   Smile,
   Tag,
   UserRound,
@@ -19,9 +20,19 @@ import { Separator } from "@/components/ui/separator";
 import IssueActivity from "../Issueactivity";
 import { useGetSingleIssue } from "@/hooks/apihooks";
 import { useQueryState } from "nuqs";
-import { IssueItems } from "@/lib/response.types";
+import {
+  IssueItems,
+  IssueResponseInterface,
+  ProjectApiItem,
+} from "@/lib/response.types";
 import { Propertytabs } from "../Propertytabs";
-
+import { useUpdateIssue } from "@/hooks/apihooks";
+import { issueCreate_type } from "@/lib/types";
+import {
+  issue_status_enum,
+  IssueLabel_enums,
+  priority_enum,
+} from "@/lib/enums";
 export type IssueDetail = IssueItems & {
   description?: string | null;
   lable?: string | null;
@@ -88,9 +99,53 @@ const Issuescreen = () => {
       label: "Project",
       value: issueDetails?.project?.title || "No project",
       icon: FolderKanban,
+      optionComponent: (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={
+            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+          }
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+          Add project
+        </Button>
+      ),
     },
-    { label: "Assignee", value: assignee, icon: UserRound },
-    { label: "Team", value: team, icon: Users },
+    {
+      label: "Assignee",
+      value: assignee,
+      icon: UserRound,
+      optionComponent: (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={
+            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+          }
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+          Assign issue
+        </Button>
+      ),
+    },
+    {
+      label: "Team",
+      value: team,
+      icon: Users,
+      optionComponent: (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={
+            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+          }
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+          Add a team
+        </Button>
+      ),
+    },
     {
       label: "Created",
       value: formatIssueDate(issueDetails?.created_at),
@@ -102,51 +157,74 @@ const Issuescreen = () => {
       icon: CalendarDays,
     },
   ];
-  {
-    /* Shared rows: define once above the return */
-  }
-  const propertyRows = [
-    ...detailItems.map(({ label, value, icon }) => ({
-      label,
-      value,
-      icon,
-      capitalize: true,
-      muted: false,
-    })),
-    {
-      label: "Created by",
-      value: issueDetails?.created_by ?? "Not set",
-      icon: UserRound,
-      capitalize: false,
-      muted: issueDetails?.created_by == null,
-    },
-  ];
+  const [tempIssueData, setTempIssueData] = useState<issueCreate_type>({
+    title: issueDetails?.title as string,
+    created_by: issueDetails?.created_by as number,
+    description: issueDetails?.description as string,
+    lable: issueDetails?.label as string,
+    assignee: issueDetails?.assignee as string,
+    team: issueDetails?.team as string,
+    deadline: issueDetails?.deadline as Date,
+    priority: issueDetails?.priority as priority_enum,
+    status: issueDetails?.status as issue_status_enum,
+    project: issueDetails?.project as ProjectApiItem,
+  });
 
-  const propertiesList = (
-    <div className="p-1.5">
-      {propertyRows.map(({ label, value, icon: Icon, capitalize, muted }) => (
-        <div
-          key={label}
-          className="grid min-w-0 grid-cols-[92px_minmax(0,1fr)] items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-slate-50"
-        >
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Icon
-              className="h-3.5 w-3.5 shrink-0 text-slate-400"
-              strokeWidth={1.75}
-            />
-            <span className="truncate">{label}</span>
-          </div>
-          <p
-            className={`wrap-break-word text-[13px] ${
-              capitalize ? "capitalize" : ""
-            } ${muted ? "font-normal text-slate-400" : "font-medium text-slate-800"}`}
-          >
-            {value}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
+  useEffect(() => {
+    setTempIssueData({
+      title: issueDetails?.title as string,
+      created_by: issueDetails?.created_by as number,
+      description: issueDetails?.description as string,
+      lable: issueDetails?.label as string,
+      assignee: issueDetails?.assignee as string,
+      team: issueDetails?.team as string,
+      deadline: issueDetails?.deadline as Date,
+      priority: issueDetails?.priority as priority_enum,
+      status: issueDetails?.status as issue_status_enum,
+      project: issueDetails?.project as ProjectApiItem,
+    });
+  }, [data, issueDetails]);
+  const updateIssue = useUpdateIssue();
+  const handleIssuePropertiesUpdate = (
+    field: keyof IssueResponseInterface,
+    value: string,
+  ) => {
+    console.log("selected options are", field, " ", value);
+    setTempIssueData((prev) => {
+      return { ...prev, [field]: value };
+    });
+    // updateIssue.mutate({
+    //   issue_id: issueId as string,
+    //   updateIssuePayload: tempIssueData,
+    // });
+    // console.log("the updated data = ", tempIssueData);
+  };
+
+  const handlePushUpdate = () => {
+    updateIssue.mutate({
+      issue_id: issueId as string,
+      updateIssuePayload: tempIssueData,
+    });
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const hasChanged =
+        tempIssueData.status !== issueDetails?.status ||
+        tempIssueData.priority !== issueDetails?.priority ||
+        tempIssueData.lable !== issueDetails?.lable ||
+        tempIssueData.title !== issueDetails?.title ||
+        tempIssueData.description !== issueDetails?.description;
+
+      if (hasChanged) {
+        handlePushUpdate();
+      } else {
+        console.log("No change detected");
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [tempIssueData, issueDetails]);
   return (
     <main className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 text-slate-900">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">
@@ -263,17 +341,10 @@ const Issuescreen = () => {
               <Propertytabs
                 detailItems={detailItems}
                 issueDetails={issueDetails as IssueDetail}
+                onUpdate={handleIssuePropertiesUpdate}
               />
             </div>
           </aside>
-
-          {/* Mobile properties (not fixed) */}
-          {/* <aside className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:hidden">
-            <h2 className="border-b border-slate-100 px-3.5 py-2.5 text-[11px] font-medium uppercase tracking-wider text-slate-500">
-              Properties
-            </h2>
-            {propertiesList}
-          </aside> */}
         </div>
       </div>
     </main>
