@@ -189,15 +189,18 @@ const Issuescreen = () => {
     field: keyof issueCreate_type,
     value: string,
   ) => {
-    console.log("selected options are", field, " ", value);
-    setTempIssueData((prev) => {
-      return { ...prev, [field]: value };
+    const updatedData = {
+      ...tempIssueData,
+      [field]: value,
+    };
+
+    // 2. Update local state for the UI
+    setTempIssueData(updatedData);
+
+    updateIssue.mutate({
+      issue_id: issueId as string,
+      updateIssuePayload: updatedData,
     });
-    // updateIssue.mutate({
-    //   issue_id: issueId as string,
-    //   updateIssuePayload: tempIssueData,
-    // });
-    // console.log("the updated data = ", tempIssueData);
   };
 
   const handlePushUpdate = () => {
@@ -207,24 +210,33 @@ const Issuescreen = () => {
     });
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const hasChanged =
-        tempIssueData.status !== issueDetails?.status ||
-        tempIssueData.priority !== issueDetails?.priority ||
-        tempIssueData.lable !== issueDetails?.lable ||
-        tempIssueData.title !== issueDetails?.title ||
-        tempIssueData.description !== issueDetails?.description;
+  // useEffect(() => {
+  //   // const timer = setTimeout(() => {
+  //   //   const hasChanged =
+  //   //     tempIssueData.status !== issueDetails?.status ||
+  //   //     tempIssueData.priority !== issueDetails?.priority ||
+  //   //     tempIssueData.lable !== issueDetails?.lable ||
+  //   //     tempIssueData.title !== issueDetails?.title ||
+  //   //     tempIssueData.description !== issueDetails?.description;
 
-      if (hasChanged) {
-        handlePushUpdate();
-      } else {
-        console.log("No change detected");
-      }
-    }, 5000);
+  //   //   if (hasChanged) {
+  //   //     handlePushUpdate();
+  //   //   } else {
+  //   //     console.log("No change detected");
+  //   //   }
+  //   // }, 5000);
 
-    return () => clearTimeout(timer);
-  }, [tempIssueData, issueDetails]);
+  //   // return () => clearTimeout(timer);
+  //   const hasChanged =
+  //     tempIssueData.status !== issueDetails?.status ||
+  //     tempIssueData.priority !== issueDetails?.priority ||
+  //     tempIssueData.lable !== issueDetails?.lable ||
+  //     tempIssueData.title !== issueDetails?.title ||
+  //     tempIssueData.description !== issueDetails?.description;
+  //   if (hasChanged) {
+  //     handlePushUpdate();
+  //   }
+  // }, [tempIssueData]);
   return (
     <main className="h-full w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 text-slate-900">
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col px-4 py-5 sm:px-6 lg:px-8">

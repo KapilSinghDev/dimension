@@ -4,7 +4,7 @@ export enum IssuePriority_enums {
   LOW = "low",
 }
 export enum IssueLabel_enums {
-  NoLabel = "no_label",
+  NoLabel = "no_lable",
   Bug = "bug",
   Feature = "feature",
   Improvement = "improvement",

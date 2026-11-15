@@ -333,6 +333,7 @@ export const useUpdateIssue = () => {
     mutationFn: (payload: {
       issue_id: string;
       updateIssuePayload: issueCreate_type;
+      singleIssue?: boolean;
     }) =>
       issueApiClient.updateIssue({
         issue_id: payload.issue_id,
@@ -340,8 +341,25 @@ export const useUpdateIssue = () => {
       }),
 
     onMutate: async (payload) => {
+      if (payload.singleIssue === true) {
+        await queryClient.cancelQueries({
+          queryKey: ["issue", payload.issue_id],
+        });
+        const prevSingleIssueCache = queryClient.getQueryData([
+          "issue",
+          payload.issue_id,
+        ]);
+        queryClient.setQueryData(
+          ["issue", payload.issue_id],
+          (oldData: any) => ({
+            ...oldData,
+            ...payload,
+          }),
+        );
+      }
       await queryClient.cancelQueries({ queryKey: ISSUES_KEY });
       const previous = queryClient.getQueryData<IssueItems[]>(ISSUES_KEY);
+      console.log("the previous issue cache is ", previous);
       queryClient.setQueryData<IssueItems[]>(ISSUES_KEY, (old = []) =>
         old.map((issue) =>
           String(issue.issue_id) === String(payload.issue_id)
@@ -349,10 +367,22 @@ export const useUpdateIssue = () => {
             : issue,
         ),
       );
+      const updatedIssueCache =
+        queryClient.getQueryData<IssueItems[]>(ISSUES_KEY);
+      console.log("the cache after updation is", updatedIssueCache);
 
       return { previous };
     },
 
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["issue", variables?.issue_id],
+      });
+      queryClient.invalidateQueries({ queryKey: ISSUES_KEY });
+    },
+    onSuccess: () => {
+      toast.success("Issue successfully updated");
+    },
     onError: (err, _vars, context) => {
       if (context?.previous)
         queryClient.setQueryData(ISSUES_KEY, context.previous);
@@ -362,10 +392,6 @@ export const useUpdateIssue = () => {
         : "Something went wrong";
 
       toast.error(message);
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ISSUES_KEY });
     },
   });
 };
