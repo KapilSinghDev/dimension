@@ -84,3 +84,8 @@ export interface ResourceResponse {
   resource_made_by: userResponseinterface;
   resource_for?: ProjectApiItem;
 }
+
+export interface ProjectOptionResponse {
+  id: number;
+  title: string;
+}

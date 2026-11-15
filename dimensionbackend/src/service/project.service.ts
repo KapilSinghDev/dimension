@@ -86,4 +86,22 @@ export class ProjectService {
     });
     return projects;
   };
+
+  fetchAllProject = async (email: string) => {
+    try {
+      const userSearching = await this.authenticationSerive.searchUser(email);
+      const projects = await this.projectRepository.find({
+        select: {
+          id: true,
+          title: true,
+        },
+        where: {
+          created_by: { user_id: userSearching.user_id },
+        },
+      });
+      return projects;
+    } catch (err) {
+      throw err;
+    }
+  };
 }

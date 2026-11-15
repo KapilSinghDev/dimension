@@ -110,4 +110,20 @@ export class ProjectController {
       });
     }
   };
+
+  getAllProjects = async (req: Request, res: Response) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decodeToken = jwt.decode(token) as userPayloadInterface;
+    try {
+      const projects = await this.projectservices.fetchAllProject(
+        decodeToken.user_email,
+      );
+      res.status(200).send({ response: projects });
+    } catch (err) {
+      console.log("Error occured", err);
+      return res.status(500).send({
+        message: "An unknown error occured",
+      });
+    }
+  };
 }

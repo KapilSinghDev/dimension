@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Button } from "../ui/button";
 import {
+  Briefcase,
   CalendarDays,
   CircleDot,
   Flag,
@@ -18,7 +19,7 @@ import {
 import FastCreateIssue from "../Fastcreateissue";
 import { Separator } from "@/components/ui/separator";
 import IssueActivity from "../Issueactivity";
-import { useGetSingleIssue } from "@/hooks/apihooks";
+import { useGetProjectOptions, useGetSingleIssue } from "@/hooks/apihooks";
 import { useQueryState } from "nuqs";
 import {
   IssueItems,
@@ -33,6 +34,8 @@ import {
   IssueLabel_enums,
   priority_enum,
 } from "@/lib/enums";
+import Assignissue from "../Assignissue";
+import { HoverSearchDropdown } from "../Hoversearchdropdown";
 export type IssueDetail = IssueItems & {
   description?: string | null;
   lable?: string | null;
@@ -61,6 +64,11 @@ const formatIssueDate = (value?: Date | string | null) => {
         day: "numeric",
       });
 };
+const projectOptions = [
+  { id: "1", label: "Frontend Architecture", icon: FolderKanban },
+  { id: "2", label: "Backend API Gateway", icon: Briefcase },
+  { id: "3", label: "Design System Revamp", icon: FolderKanban },
+];
 
 const Issuescreen = () => {
   const [issueId] = useQueryState("id");
@@ -82,7 +90,9 @@ const Issuescreen = () => {
       ? issueDetails.team
       : issueDetails?.team?.name || "No team";
   const issueLabel = issueDetails?.lable || issueDetails?.label || "No label";
-
+  const projectOptionsList = useGetProjectOptions();
+  // const projectOptions = projectOptionsList.data?.data.response;
+  // console.log("the response is ", projectOptions);
   const detailItems = [
     {
       label: "Status",
@@ -100,50 +110,27 @@ const Issuescreen = () => {
       value: issueDetails?.project?.title || "No project",
       icon: FolderKanban,
       optionComponent: (
-        <Button
-          variant="ghost"
-          size="sm"
-          className={
-            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          }
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Add project
-        </Button>
+        <HoverSearchDropdown
+          buttonLabel="Add project"
+          options={projectOptionsList.data?.data.response}
+        />
       ),
     },
     {
       label: "Assignee",
       value: assignee,
       icon: UserRound,
-      optionComponent: (
-        <Button
-          variant="ghost"
-          size="sm"
-          className={
-            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          }
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Assign issue
-        </Button>
-      ),
+      optionComponent: <Assignissue />,
     },
     {
       label: "Team",
       value: team,
       icon: Users,
       optionComponent: (
-        <Button
-          variant="ghost"
-          size="sm"
-          className={
-            "-ml-2 h-7 w-full justify-start gap-1.5 rounded-md px-2 text-[13px] font-normal text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          }
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
-          Add a team
-        </Button>
+        <HoverSearchDropdown
+          buttonLabel="Add a team"
+          options={projectOptionsList.data?.data.response} //to be changed
+        />
       ),
     },
     {
@@ -200,13 +187,6 @@ const Issuescreen = () => {
     updateIssue.mutate({
       issue_id: issueId as string,
       updateIssuePayload: updatedData,
-    });
-  };
-
-  const handlePushUpdate = () => {
-    updateIssue.mutate({
-      issue_id: issueId as string,
-      updateIssuePayload: tempIssueData,
     });
   };
 

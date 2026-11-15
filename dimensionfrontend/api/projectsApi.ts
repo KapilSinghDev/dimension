@@ -45,4 +45,11 @@ export class projectApi {
       },
     });
   }
+
+  getProjectOptions() {
+    const token = localStorage.getItem("TOKEN");
+    return apiclient.get("project/all", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
 }

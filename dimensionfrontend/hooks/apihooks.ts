@@ -11,6 +11,7 @@ import {
   IssueItems,
   ProjectApiItem,
   ProjectBatchResponse,
+  ProjectOptionResponse,
   ProjectOverviewResponse,
 } from "@/lib/response.types";
 import {
@@ -152,6 +153,15 @@ export const useGetProjects = (projectId: string) => {
     enabled: projectId !== "new",
   });
   return { data, isLoading, error };
+};
+
+export const useGetProjectOptions = () => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["project-options"],
+    queryFn: () => projectApiClient.getProjectOptions(),
+    retry: false,
+  });
+  return { data, isLoading, isError };
 };
 
 export const useGetProjectsbyBatch = (page: string) => {
@@ -502,6 +512,7 @@ export const useUpdateResource = () => {
     }) => resourceApiClient.updateResource(resourceId, payload),
     // onMutate: async () => {
     // },
+
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["resource", data.data.resource_id],
