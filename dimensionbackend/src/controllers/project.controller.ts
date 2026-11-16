@@ -29,11 +29,13 @@ export class ProjectController {
   };
 
   updateProject = async (req: Request, res: Response) => {
+    console.log("request body => ", req.body.projectId, req.body.project);
     try {
       const update = this.projectservices.updateProject(
         req.body.projectId,
         req.body.project,
       );
+
       res.status(200).send({ message: " successfully" });
     } catch (err) {
       res.status(500).send({

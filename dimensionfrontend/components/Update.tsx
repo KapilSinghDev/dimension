@@ -220,7 +220,7 @@ const Update = ({
               <div className="space-y-1.5">
                 <Badge
                   variant="secondary"
-                  className="text-[11px] font-medium px-2 py-0.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0"
+                  className="text-[11px] font-medium px-2 py-0.5 bg-emerald-500/10 text-emerald-700 border-0"
                 >
                   On Track
                 </Badge>

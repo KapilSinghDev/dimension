@@ -19,7 +19,12 @@ import {
 import FastCreateIssue from "../Fastcreateissue";
 import { Separator } from "@/components/ui/separator";
 import IssueActivity from "../Issueactivity";
-import { useGetProjectOptions, useGetSingleIssue } from "@/hooks/apihooks";
+import {
+  useGetProjectOptions,
+  useGetProjects,
+  useGetSingleIssue,
+  useUpdateProject,
+} from "@/hooks/apihooks";
 import { useQueryState } from "nuqs";
 import {
   IssueItems,
@@ -28,10 +33,11 @@ import {
 } from "@/lib/response.types";
 import { Propertytabs } from "../Propertytabs";
 import { useUpdateIssue } from "@/hooks/apihooks";
-import { issueCreate_type } from "@/lib/types";
+import { issueCreate_type, project_type } from "@/lib/types";
 import {
   issue_status_enum,
   IssueLabel_enums,
+  IssuePriority_enums,
   priority_enum,
 } from "@/lib/enums";
 import Assignissue from "../Assignissue";
@@ -73,6 +79,61 @@ const projectOptions = [
 const Issuescreen = () => {
   const [issueId] = useQueryState("id");
   const { data, isLoading, error } = useGetSingleIssue(issueId as string);
+  // console.log("the raw title is ", data.title);
+  const updateIsssue = useUpdateIssue();
+
+  const [mutatePayload, setMutatePayload] = useState({
+    issue_id: "",
+    updateIssuePayload: {
+      title: "",
+      created_by: 0, // or null instead of NaN
+      description: "",
+      lable: "",
+      assignee: "",
+      team: "",
+      deadline: new Date(),
+      priority: priority_enum.LOW, // replace with your default enum value
+      status: issue_status_enum.BACKLOG, // replace with your default enum value
+      projectId: "",
+    },
+    singleIssue: true,
+  });
+
+  useEffect(() => {
+    if (!data) return; // Guard against initial undefined render
+
+    setMutatePayload((prev) => ({
+      ...prev,
+      issue_id: data.issue_id.toString(),
+      singleIssue: true,
+      updateIssuePayload: {
+        ...prev.updateIssuePayload,
+        title: data.title,
+        created_by: data.created_by,
+        description: data.description,
+        lable: data.lable,
+        assignee: data.assignee,
+        team: data.team,
+        deadline: new Date(data.deadline),
+        priority: data.priority,
+        status: data.status,
+        project: data.project,
+        issue_updates: data.issue_updates,
+      },
+    }));
+  }, [data]);
+  const handleIssueAttachToProject = (projectId: string, title: string) => {
+    const updatedPayload = {
+      ...mutatePayload,
+      updateIssuePayload: {
+        ...mutatePayload.updateIssuePayload,
+        projectId,
+      },
+      singleIssue: true as boolean,
+    };
+    setMutatePayload(updatedPayload);
+    updateIsssue.mutate(updatedPayload);
+  };
   const issueDetails = data as IssueDetail | null | undefined;
   const assignee =
     typeof issueDetails?.assignee === "string"
@@ -91,8 +152,7 @@ const Issuescreen = () => {
       : issueDetails?.team?.name || "No team";
   const issueLabel = issueDetails?.lable || issueDetails?.label || "No label";
   const projectOptionsList = useGetProjectOptions();
-  // const projectOptions = projectOptionsList.data?.data.response;
-  // console.log("the response is ", projectOptions);
+
   const detailItems = [
     {
       label: "Status",
@@ -113,6 +173,7 @@ const Issuescreen = () => {
         <HoverSearchDropdown
           buttonLabel="Add project"
           options={projectOptionsList.data?.data.response}
+          onSelect={handleIssueAttachToProject}
         />
       ),
     },

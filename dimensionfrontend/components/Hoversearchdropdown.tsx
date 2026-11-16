@@ -28,7 +28,7 @@ interface HoverSearchDropdownProps {
   buttonLabel: string;
   options: OptionItem[];
   selectedId?: string;
-  onSelect?: (option: OptionItem) => void;
+  onSelect?: (projectId: string, title: string) => void;
   searchPlaceholder?: string;
 }
 
@@ -80,7 +80,7 @@ export const HoverSearchDropdown: React.FC<HoverSearchDropdownProps> = ({
                     key={option.id}
                     value={option.title}
                     onSelect={() => {
-                      onSelect?.(option);
+                      onSelect?.(option.id.toString(), option.title);
                       setOpen(false);
                     }}
                     className="gap-2 rounded-md px-2 py-1.5 text-[13px] text-slate-700 data-[selected=true]:bg-slate-100 data-[selected=true]:text-slate-900"

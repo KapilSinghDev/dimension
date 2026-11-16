@@ -52,17 +52,17 @@ const priorityMap: Record<
 const statusStyles: Record<string, { badge: string; dot: string }> = {
   active: {
     badge:
-      "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-400",
+      "bg-emerald-500/10 text-emerald-700",
     dot: "bg-emerald-500",
   },
   closed: {
     badge:
-      "bg-violet-500/10 text-violet-700 dark:bg-violet-400/10 dark:text-violet-400",
+      "bg-violet-500/10 text-violet-700",
     dot: "bg-violet-500",
   },
   backlog: {
     badge:
-      "bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400",
+      "bg-amber-500/10 text-amber-700",
     dot: "bg-amber-500",
   },
 };

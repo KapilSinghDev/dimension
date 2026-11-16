@@ -76,36 +76,36 @@ const STATUS_STYLES: Record<
     label: "In progress",
     dot: "bg-blue-500",
     badge:
-      "bg-blue-50 text-blue-700 border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/40",
+      "bg-blue-50 text-blue-700 border-blue-200/60",
   },
   completed: {
     label: "Completed",
     dot: "bg-emerald-500",
     badge:
-      "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/40",
+      "bg-emerald-50 text-emerald-700 border-emerald-200/60",
   },
   backlog: {
     label: "Backlog",
     dot: "bg-slate-500",
     badge:
-      "bg-slate-50 text-slate-700 border-slate-200/60 dark:bg-slate-950/40 dark:text-slate-300 dark:border-slate-900/40",
+      "bg-slate-50 text-slate-700 border-slate-200/60",
   },
 };
 const DEFAULT_STATUS = {
   dot: "bg-slate-400",
   badge:
-    "bg-slate-50 text-slate-600 border-slate-200/70 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800",
+    "bg-slate-50 text-slate-600 border-slate-200/70",
 };
 
 const getInitials = (first?: string, last?: string) =>
   `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase() || "?";
 
 const headCell =
-  "h-11 text-[12px] font-medium text-slate-500 dark:text-slate-400 first:pl-6 last:pr-6";
+  "h-11 text-[12px] font-medium text-slate-500 first:pl-6 last:pr-6";
 
 const menuItem =
   "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium cursor-pointer " +
-  "text-slate-700 dark:text-slate-200 focus:bg-slate-100 dark:focus:bg-slate-900";
+  "text-slate-700 focus:bg-slate-100";
 const HeadLabel = ({
   icon: Icon,
   children,
@@ -182,9 +182,9 @@ export default function ProjectTable() {
       {projects?.length !== 0 && (
         <div className="flex flex-col h-[calc(100vh-4rem)]">
           <div className="flex-1 overflow-auto   ">
-            <div className="overflow-hidden rounded-sm shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-slate-800 dark:bg-slate-950 ">
+            <div className="overflow-hidden rounded-sm shadow-[0_1px_2px_rgba(15,23,42,0.04)] ">
               <Table>
-                <TableHeader className="bg-slate-50/70 dark:bg-slate-900/50 [&_tr]:border-b [&_tr]:border-slate-200/80 dark:[&_tr]:border-slate-800">
+                <TableHeader className="bg-slate-50/70 [&_tr]:border-b [&_tr]:border-slate-200/80">
                   <TableRow className="hover:bg-transparent">
                     <TableHead className={`${headCell} w-[72px]`}>Id</TableHead>
 
@@ -215,10 +215,10 @@ export default function ProjectTable() {
                     <TableRow className="hover:bg-transparent">
                       <TableCell colSpan={6} className="h-48">
                         <div className="flex flex-col items-center justify-center gap-2 text-center">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-900">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
                             <FolderOpen size={18} className="text-slate-400" />
                           </div>
-                          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                          <p className="text-sm font-medium text-slate-700">
                             No projects yet
                           </p>
                           <p className="text-xs text-slate-500">
@@ -243,18 +243,18 @@ export default function ProjectTable() {
                       <ContextMenu key={project.id}>
                         <ContextMenuTrigger asChild>
                           <TableRow
-                            className="group h-14 cursor-pointer border-slate-100 transition-colors hover:bg-slate-50/80 dark:border-slate-800/70 dark:hover:bg-slate-900/50"
+                            className="group h-14 cursor-pointer border-slate-100 transition-colors hover:bg-slate-50/80"
                             onClick={() => setProjectId(project.id.toString())}
                           >
                             {/* Id */}
                             <TableCell className="relative select-none pl-6 font-mono text-xs tabular-nums text-slate-400">
                               {/* hover accent bar */}
-                              <span className="absolute inset-y-3 left-0 w-[3px] origin-center scale-y-0 rounded-r-full bg-slate-900 transition-transform duration-200 group-hover:scale-y-100 dark:bg-slate-100" />
+                              <span className="absolute inset-y-3 left-0 w-[3px] origin-center scale-y-0 rounded-r-full bg-slate-900 transition-transform duration-200 group-hover:scale-y-100" />
                               #{project.id}
                             </TableCell>
 
                             {/* Project name */}
-                            <TableCell className="max-w-[320px] truncate text-sm font-light tracking-tight text-slate-900 dark:text-slate-100">
+                            <TableCell className="max-w-[320px] truncate text-sm font-light tracking-tight text-slate-900">
                               {project.title}
                             </TableCell>
 
@@ -273,7 +273,7 @@ export default function ProjectTable() {
 
                             {/* Health */}
                             <TableCell>
-                              <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                              <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
                                 <span
                                   className={`h-2 w-2 shrink-0 rounded-full ${healthMeta.bg}`}
                                 />
@@ -282,7 +282,7 @@ export default function ProjectTable() {
                             </TableCell>
 
                             {/* Target date */}
-                            <TableCell className="whitespace-nowrap text-xs tabular-nums text-slate-500 dark:text-slate-400">
+                            <TableCell className="whitespace-nowrap text-xs tabular-nums text-slate-500">
                               {project.taget_date
                                 ? format(
                                     new Date(project.taget_date),
@@ -294,10 +294,10 @@ export default function ProjectTable() {
                             {/* Created by */}
                             <TableCell className="pr-6">
                               <div className="flex items-center gap-2.5">
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200/70 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700">
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-600 ring-1 ring-slate-200/70">
                                   {getInitials(first, last)}
                                 </span>
-                                <span className="whitespace-nowrap text-xs font-medium text-slate-600 dark:text-slate-300">
+                                <span className="whitespace-nowrap text-xs font-medium text-slate-600">
                                   {fullName || "Unknown"}
                                 </span>
                               </div>
@@ -306,7 +306,7 @@ export default function ProjectTable() {
                         </ContextMenuTrigger>
 
                         {/* Context menu */}
-                        <ContextMenuContent className="w-56 rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-lg shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-950">
+                        <ContextMenuContent className="w-56 rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-lg shadow-slate-900/5">
                           <ContextMenuItem
                             className={menuItem}
                             onClick={() => {
@@ -347,7 +347,7 @@ export default function ProjectTable() {
                             <span className="flex-1">Manage team</span>
                           </ContextMenuItem>
 
-                          <ContextMenuSeparator className="mx-1 my-1.5 bg-slate-100 dark:bg-slate-800" />
+                          <ContextMenuSeparator className="mx-1 my-1.5 bg-slate-100" />
 
                           <ContextMenuItem className={menuItem}>
                             <Copy size={14} className="text-slate-400" />
@@ -359,10 +359,10 @@ export default function ProjectTable() {
                             <span>Edit details</span>
                           </ContextMenuItem>
 
-                          <ContextMenuSeparator className="mx-1 my-1.5 bg-slate-100 dark:bg-slate-800" />
+                          <ContextMenuSeparator className="mx-1 my-1.5 bg-slate-100" />
 
                           <ContextMenuItem
-                            className={`${menuItem} text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950/50 dark:focus:text-red-300`}
+                            className={`${menuItem} text-red-600 focus:bg-red-50 focus:text-red-700`}
                           >
                             <Trash2 size={14} />
                             <span className="flex-1">Delete project</span>
@@ -378,7 +378,7 @@ export default function ProjectTable() {
               </Table>
             </div>
           </div>
-          <div className=" border-slate-200 dark:border-slate-800 py-3 shrink-0">
+          <div className=" border-slate-200 py-3 shrink-0">
             <Button
               onClick={createNewProject}
               className="h-9 gap-2 rounded-md bg-white px-4 text-sm font-medium 

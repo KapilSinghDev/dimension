@@ -32,14 +32,15 @@ export interface ProjectApiItem {
 export interface IssueItems {
   issue_id: number;
   title: string;
+  description?: string;
   created_at: Date;
   created_by: number;
   deadline: Date;
   priority: string;
   status: string;
+  issue_updates?: UpdatesResponseInterface[];
   project?: ProjectApiItem; //changed;
 }
-
 export interface ProjectBatchResponse {
   projects: ProjectApiItem[];
 }
@@ -62,7 +63,6 @@ export interface IssueResponseInterface {
   status: issue_status_enum;
   issue_updates: UpdatesResponseInterface[];
 }
-
 export interface ProjectOverviewResponse {
   id: number;
   tittle: string;

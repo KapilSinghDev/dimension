@@ -34,7 +34,7 @@ export function IssuesEmptyState({
           <div className="flex flex-col items-center pb-8 pt-12 text-center">
             {/* Illustration with a soft halo behind it */}
             <div className="relative mb-6">
-              <div className="absolute inset-0 -z-10 scale-125 rounded-full bg-slate-200/60 blur-2xl dark:bg-slate-800/60" />
+              <div className="absolute inset-0 -z-10 scale-125 rounded-full bg-slate-200/60 blur-2xl" />
               <Image
                 src={no_issues}
                 alt=""
@@ -45,10 +45,10 @@ export function IssuesEmptyState({
               />
             </div>
 
-            <h3 className="text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            <h3 className="text-base font-semibold tracking-tight text-slate-900">
               {isEmpty ? "No issues yet" : "Start a new issue"}
             </h3>
-            <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+            <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-slate-500">
               {isEmpty
                 ? "Track bugs, tasks and ideas for this project. Add your first issue below."
                 : "Describe what needs to be done and add it to the project."}
@@ -58,7 +58,7 @@ export function IssuesEmptyState({
       </div>
 
       {/* Create box */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-shadow focus-within:border-slate-300 focus-within:shadow-md focus-within:shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-950 dark:focus-within:border-slate-700">
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-shadow focus-within:border-slate-300 focus-within:shadow-md focus-within:shadow-slate-900/5">
         <FastCreateIssue
           onOpen={() => setIsCreating("true")}
           onCancel={() => setIsCreating("false")}

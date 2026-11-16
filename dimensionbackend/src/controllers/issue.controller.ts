@@ -37,6 +37,7 @@ export class issueController {
       const issueUpdate = await this.issueService.updateIssue(
         Number(issue_id),
         issue,
+        req.body.issue?.projectId,
       );
       return res.status(200).json({ message: issueUpdate });
     } catch (err) {

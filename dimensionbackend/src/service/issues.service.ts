@@ -5,6 +5,7 @@ import { Teams } from "../entity/Teams";
 import { User } from "../entity/User";
 import { Projects } from "../entity/Project";
 import { Updates } from "@/entity/Updates";
+import { ProjectService } from "./project.service";
 class issueService {
   private issueRepository = AppDataSource.getRepository(Issues);
   private teamRepository = AppDataSource.getRepository(Teams);
@@ -66,19 +67,54 @@ class issueService {
     return deleteIssue;
   }
 
-  async updateIssue(issueId: number, issue: create_issue_dto_type) {
-    const existingIssue = await this.issueRepository.find({
+  async updateIssue(
+    issueId: number,
+    issue: create_issue_dto_type,
+    projectId?: string,
+  ) {
+    // FIX 1: Use findOne instead of find()[0] and validate the issue exists before updating
+    const existingIssue = await this.issueRepository.findOne({
       where: { issue_id: issueId },
     });
-    const updateIssue = { ...existingIssue[0], ...issue };
-    const { assignee, team, project, ...scalarFields } = issue;
+    if (!existingIssue) {
+      throw new Error(`Issue with ID ${issueId} not found`);
+    }
+
+    // FIX 2: Only query projectRepository if projectId is actually provided (avoids querying where: { id: NaN })
+    // Also removed heavy nested relations since we only need the Project entity reference to set the foreign key
+    let tarproject = undefined;
+    const resolvedProjectId = projectId ?? (issue as any).projectId;
+
+    if (resolvedProjectId) {
+      tarproject = await this.projectRepository.findOne({
+        where: { id: Number(resolvedProjectId) },
+      });
+      if (!tarproject) {
+        throw new Error(`Project with ID ${resolvedProjectId} not found`);
+      }
+      console.log(tarproject);
+    }
+
+    // FIX 3: Destructure `issue_updates` and `projectId` out of `issue` so `scalarFields`
+    // contains ONLY scalar table columns (prevents TypeORM "Cannot query across one-to-many" crash)
+    const {
+      issue_updates,
+      projectId: _ignoredProjectId,
+      assignee,
+      team,
+      project,
+      ...scalarFields
+    } = issue as any;
     const issueUpdated = await this.issueRepository.update(
-      issueId,
-      scalarFields,
+      { issue_id: issueId },
+      {
+        ...scalarFields,
+        ...(tarproject ? { project: tarproject } : {}),
+      },
     );
+
     return issueUpdated;
   }
-
   async findIssue(issueId?: number | null, title?: string) {
     try {
       const whereCondition = issueId ? { issue_id: issueId } : { title: title };

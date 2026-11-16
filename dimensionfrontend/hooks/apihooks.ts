@@ -102,47 +102,51 @@ export const useCreateProject = () => {
   });
 };
 
-export const useUpdateProject = (project_id: string) => {
+interface UpdateProjectVariables {
+  payload: project_type;
+  projectId: string;
+}
+
+export const useUpdateProject = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: project_type) =>
+    // 1. Single `variables` object containing both `payload` and `projectId`
+    mutationFn: ({ payload, projectId }: UpdateProjectVariables) =>
       projectApiClient.updateProject({
-        projectId: project_id,
+        projectId,
         project: payload,
       }),
 
-    onMutate: async (payload) => {
-      // 1. Cancel outgoing refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ["project", project_id] });
+    // 2. Destructure the same `variables` object in onMutate
+    onMutate: async ({ payload, projectId }) => {
+      await queryClient.cancelQueries({ queryKey: ["project", projectId] });
 
-      // 2. Snapshot the previous value for rollback
-      const previousProject = queryClient.getQueryData(["project", project_id]);
+      const previousProject = queryClient.getQueryData(["project", projectId]);
 
-      // 3. Optimistically update the cache
-      const optimisticProject = { id: project_id, ...payload };
-      queryClient.setQueryData(["project", project_id], optimisticProject);
+      const optimisticProject = { id: projectId, ...payload };
+      queryClient.setQueryData(["project", projectId], optimisticProject);
 
-      // 4. Return the snapshot wrapped in an object to pass it to onError
       return { previousProject };
     },
 
-    onError: (err, payload, context) => {
-      // 5. Rollback using the context snapshot (3rd argument)
+    // 3. `variables` is the 2nd parameter in onError
+    onError: (_err, { projectId }, context) => {
       if (context?.previousProject) {
         queryClient.setQueryData(
-          ["project", project_id],
+          ["project", projectId],
           context.previousProject,
         );
       }
     },
 
-    onSettled: () => {
-      // 6. Always refetch/invalidate after error or success to sync with server state
-      queryClient.invalidateQueries({ queryKey: ["project", project_id] });
+    // 4. `variables` is the 3rd parameter in onSettled
+    onSettled: (_data, _error, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },
   });
 };
+
 export const useGetProjects = (projectId: string) => {
   const [projectsId] = useQueryState("project");
   const { data, isLoading, error } = useQuery<ProjectApiItem>({

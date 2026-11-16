@@ -271,7 +271,7 @@ const Projectviewscreen = () => {
   }
 
   const createProject = useCreateProject();
-  const updateProject = useUpdateProject(project as string);
+  const updateProject = useUpdateProject();
 
   function updateAndSaveProject() {
     if (project === "new") {
@@ -280,10 +280,14 @@ const Projectviewscreen = () => {
         onError: () => toast.error("Error occurred: could not create"),
       });
     } else {
-      updateProject.mutate(projectInterface, {
-        onSuccess: () => toast.success("Project has been updated successfully"),
-        onError: () => toast.error("Error occurred: could not update"),
-      });
+      updateProject.mutate(
+        { payload: projectInterface, projectId: project as string },
+        {
+          onSuccess: () =>
+            toast.success("Project has been updated successfully"),
+          onError: () => toast.error("Error occurred: could not update"),
+        },
+      );
     }
   }
   const PROJECT_HEALTH_OPTIONS = [

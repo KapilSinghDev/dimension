@@ -97,16 +97,16 @@ const Addtarget = () => {
                 <DropdownMenuItem className="gap-2 text-xs hover:cursor-pointer">
                   <Pencil size={12} /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 text-xs text-destructive hover:bg-blue-50 dark:hover:bg-red-200 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950 hover:cursor-pointer">
+                <DropdownMenuItem className="gap-2 text-xs text-destructive hover:bg-blue-50 focus:text-red-600 focus:bg-red-50 hover:cursor-pointer">
                   <Trash2 size={12} /> Delete
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  className="gap-2 text-xs text-blue-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 focus:text-blue-600 focus:bg-blue-50 dark:focus:bg-blue-950 hover:cursor-pointer"
+                  className="gap-2 text-xs text-blue-600 hover:text-blue-600 hover:bg-blue-50 focus:text-blue-600 focus:bg-blue-50 hover:cursor-pointer"
                   onClick={() => handleTarget()}
                 >
                   <LifeBuoy
-                    className="hover:bg-blue-50 dark:hover:bg-blue-950 focus:text-blue-600 focus:bg-blue-50 dark:focus:bg-blue-950"
+                    className="hover:bg-blue-50 focus:text-blue-600 focus:bg-blue-50"
                     size={12}
                   />{" "}
                   Save

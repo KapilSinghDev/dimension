@@ -5,7 +5,11 @@ import {
   project_priority_enum,
   project_status_enum,
 } from "./enums";
-import { IssueItems, ProjectApiItem } from "./response.types";
+import {
+  IssueItems,
+  ProjectApiItem,
+  UpdatesResponseInterface,
+} from "./response.types";
 
 export type userCredentials_type = {
   firstname: string;
@@ -66,7 +70,9 @@ export type issueCreate_type = {
   deadline: Date;
   priority: priority_enum;
   status: issue_status_enum;
+  projectId?: string;
   project?: ProjectApiItem; //changed;
+  issue_updates?: UpdatesResponseInterface[];
 };
 // TODO : this and the above dto has to be same resolve the project type mismatch
 export type createNeIssue_type = {

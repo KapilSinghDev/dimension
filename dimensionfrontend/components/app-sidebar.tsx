@@ -21,6 +21,7 @@ import {
   UserPlus,
   UserRound,
   Users,
+  // UserGroup,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -89,13 +90,13 @@ const TOP_NAV: NavItem[] = [
 
 const TEAMS: Team[] = [
   {
-    id: "my-team",
-    name: "My Team",
+    id: "workspace",
+    name: "Workspace",
     color: "bg-emerald-500",
     items: [
       { label: "Issues", icon: AlertCircle, href: issue_route },
       { label: "Projects", icon: LayoutGrid, href: `${project_route}?page=1` },
-      { label: "Views", icon: Eye },
+      { label: "Teams", icon: Users, href: "/" },
     ],
   },
 ];
@@ -350,7 +351,7 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <Section label="Your teams">
+        <Section label="Kapil's Workspace">
           {TEAMS.map((team) => (
             <TeamNav key={team.id} team={team} isActive={isActive} />
           ))}

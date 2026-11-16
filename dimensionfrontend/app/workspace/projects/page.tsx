@@ -84,10 +84,10 @@ const Projects = () => {
           <>
             {/* Header moved inside the card, directly above the table */}
             <header className="flex shrink-0 items-center gap-3   px-4 py-6 md:px-6">
-              <div className="grid h-fit w-fit shrink-0 place-items-center rounded-lg bg-violet-100 ring-1 ring-inset ring-violet-200/60 dark:bg-violet-950 dark:ring-violet-900/50">
+              <div className="grid h-fit w-fit shrink-0 place-items-center rounded-lg bg-violet-100 ring-1 ring-inset ring-violet-200/60">
                 <LayoutGrid
                   size={16}
-                  className="text-violet-600 dark:text-violet-400"
+                  className="text-violet-600"
                 />
               </div>
               <div>
