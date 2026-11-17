@@ -30,6 +30,7 @@ import { Textarea } from "./ui/textarea";
 import { useCreateResource, useUpdateResource } from "@/hooks/apihooks";
 import { UpdateResourcePayload } from "@/lib/types";
 import { useQueryState } from "nuqs";
+import { useQuery } from "@tanstack/react-query";
 interface resourceProps {
   resource_name?: string;
   resource_content?: string;
@@ -41,6 +42,7 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
       resource_content: "",
       resource_name: "",
       resource_image: null,
+      project_id: "",
     }),
   );
 
@@ -48,6 +50,8 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
   const [resourceId, setResourceId] = useQueryState("resourceId");
   const resourceRef = useRef(resourceId);
   const updateResource = useUpdateResource();
+  const [projectId] = useQueryState("project");
+  console.log("the project id ", projectId);
   const [newDocument, setNewDocument] = useState<boolean>(
     resourceId === null ? true : false,
   );
@@ -70,6 +74,7 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
     const payload = {
       ...resourcePayload,
       resource_name: resourcePayload.resource_name || "Untitled",
+      project_id: projectId as string,
     };
 
     if (JSON.stringify(payload) === JSON.stringify(lastSavedPayload.current)) {
@@ -78,6 +83,7 @@ const Tiptap = ({ resource_name, resource_content }: resourceProps) => {
 
     const timer = setTimeout(() => {
       if (!resourceRef.current && newDocument === true) {
+        // console.log("the updated payload  ", payload);
         createIssue.mutate(
           { payload },
           {

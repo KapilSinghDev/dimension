@@ -81,7 +81,7 @@ const Issuescreen = () => {
   const { data, isLoading, error } = useGetSingleIssue(issueId as string);
   // console.log("the raw title is ", data.title);
   const updateIsssue = useUpdateIssue();
-
+  const [issueProject, setIssueProject] = useState<string>("");
   const [mutatePayload, setMutatePayload] = useState({
     issue_id: "",
     updateIssuePayload: {
@@ -121,6 +121,9 @@ const Issuescreen = () => {
         issue_updates: data.issue_updates,
       },
     }));
+    if (data.project) {
+      setIssueProject(data.project.title);
+    }
   }, [data]);
   const handleIssueAttachToProject = (projectId: string, title: string) => {
     const updatedPayload = {
@@ -167,9 +170,9 @@ const Issuescreen = () => {
     { label: "Label", value: issueLabel, icon: Tag },
     {
       label: "Project",
-      value: issueDetails?.project?.title || "No project",
+      value: issueProject !== "" ? issueDetails?.project?.title : "",
       icon: FolderKanban,
-      optionComponent: (
+      optionComponent: issueProject === "" && (
         <HoverSearchDropdown
           buttonLabel="Add project"
           options={projectOptionsList.data?.data.response}

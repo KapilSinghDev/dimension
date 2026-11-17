@@ -32,8 +32,8 @@ export class resourceApi {
     });
   };
 
-  getResourceBatch = (page: string) => {
-    return apiclient.get(`/resource/batch?page=${page}`, {
+  getResourceBatch = (projectId: string) => {
+    return apiclient.get(`/resource/batch/?project=${projectId}`, {
       headers: this.getAuthHeaders(),
     });
   };

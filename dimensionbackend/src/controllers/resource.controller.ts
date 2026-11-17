@@ -90,12 +90,12 @@ export class ResourceController {
 
   getProjectsByBatch = async (req: Request, res: Response) => {
     try {
-      const { page } = req.query;
-      if (!page) {
-        return res.status(400).json({ error: "Page is required" });
-      }
+      const projectId = req.query.project;
+      const token = req.headers.authorization.split(" ")[1];
+      const decodeToken = jwt.decode(token) as userPayloadInterface;
       const document_batch = await this.resourceService.fetchResourceByBatch(
-        Number(page),
+        decodeToken.user_id.toString(),
+        projectId as string,
       );
       return res.status(200).json(document_batch);
     } catch (err) {

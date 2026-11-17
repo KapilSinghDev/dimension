@@ -3,7 +3,7 @@ import React from "react";
 import Tiptap from "../Tiptap";
 import Mainpanel from "../Mainpanel";
 import { useSidebar } from "../ui/sidebar";
-import { useGetResourceByBatch, useGetResourceById } from "@/hooks/apihooks";
+import { useGetResourceByProject, useGetResourceById } from "@/hooks/apihooks";
 import { useQueryState } from "nuqs";
 import ResourceTable from "./ResourceTable";
 const Documentscreen = () => {

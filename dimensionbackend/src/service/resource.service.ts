@@ -10,13 +10,20 @@ export class ResourceServices {
       resource_name: string;
       resource_content?: string;
       resource_image?: string;
+      project_id: string;
     },
     user_id: number,
   ) => {
+    const { project_id, ...restData } = data;
+
     const resource = this.resourceRepository.create({
-      ...data,
+      ...restData,
       resource_made_by: { user_id: user_id },
+      resource_for: {
+        id: Number(project_id),
+      } as any,
     });
+
     return await this.resourceRepository.save(resource);
   };
 
@@ -54,13 +61,20 @@ export class ResourceServices {
     return (result.affected ?? 0) > 0;
   };
 
-  fetchResourceByBatch = async (page: number) => {
-    const batch = 10;
-    const skip = batch * (page - 1);
-    const documentlist = await this.resourceRepository.findAndCount({
-      take: batch,
-      skip: skip,
-      relations: { resource_made_by: true, resource_for: true },
+  fetchResourceByBatch = async (user_id: string, project_id: string) => {
+    const documentlist = await this.resourceRepository.find({
+      where: {
+        resource_made_by: {
+          user_id: Number(user_id),
+        },
+        resource_for: {
+          id: Number(project_id),
+        } as any,
+      },
+      relations: {
+        resource_made_by: true,
+        resource_for: true,
+      },
     });
     return documentlist;
   };

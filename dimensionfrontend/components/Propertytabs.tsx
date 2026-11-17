@@ -34,7 +34,7 @@ import {
 
 interface IssuePropertyItem {
   label: string;
-  value: string | number;
+  value?: string | number;
   icon: ElementType;
   optionComponent?: React.ReactNode;
 }

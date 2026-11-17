@@ -46,7 +46,7 @@ import FastCreateIssue from "../Fastcreateissue";
 import ResourceTable from "./ResourceTable";
 import {
   DropdownMenu,
-  DropdownMenuTrigger, // <--- Make sure this is included
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";

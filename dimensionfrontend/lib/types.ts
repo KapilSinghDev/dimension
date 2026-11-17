@@ -147,4 +147,5 @@ export type UpdateResourcePayload = {
   resource_name?: string;
   resource_content?: string;
   resource_image?: File | null;
+  project_id: string;
 };

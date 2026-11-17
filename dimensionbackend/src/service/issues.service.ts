@@ -124,6 +124,7 @@ class issueService {
           issue_updates: {
             updated_by: true,
           },
+          project: true,
         },
       });
       return issue;

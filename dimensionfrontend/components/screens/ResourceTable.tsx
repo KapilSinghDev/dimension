@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useGetResourceByBatch } from "@/hooks/apihooks";
+import { useGetResourceByProject } from "@/hooks/apihooks";
 import { ResourceResponse } from "@/lib/response.types";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
@@ -26,10 +26,14 @@ const tintFor = (seed: string) => {
 const ResourceTable = () => {
   const router = useRouter();
   const [resourceId, setResourceId] = useQueryState("resourceId");
+  const [projectId] = useQueryState("project");
   const [tab, setTab] = useQueryState("tab");
-  const { data, isLoading, isError } = useGetResourceByBatch("1");
+  const { data, isLoading, isError } = useGetResourceByProject(
+    projectId as string,
+  );
 
-  const resourceList: ResourceResponse[] = data?.data?.[0] ?? [];
+  const resourceList: ResourceResponse[] = data?.data ?? [];
+  console.log("the list is ", resourceList);
   const tiles = resourceList.slice(0, 10);
 
   return (

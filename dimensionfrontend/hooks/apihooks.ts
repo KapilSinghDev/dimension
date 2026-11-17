@@ -494,11 +494,11 @@ export const useGetResourceById = (id: string, enabled: boolean) => {
   return { data, isLoading, isError };
 };
 
-export const useGetResourceByBatch = (page: string) => {
+export const useGetResourceByProject = (projectId: string) => {
   const queryClient = useQueryClient();
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["resources-batch", page],
-    queryFn: () => resourceApiClient.getResourceBatch(page),
+    queryKey: ["resources-batch"],
+    queryFn: () => resourceApiClient.getResourceBatch(projectId),
     retry: false,
   });
   return { data, isLoading, isError };
