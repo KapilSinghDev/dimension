@@ -5,12 +5,13 @@ import { Teams } from "../entity/Teams";
 import { User } from "../entity/User";
 import authenticationService from "./authentication.service";
 import { issueService } from "./issues.service";
+import { team_status_enum } from "../../enums";
 export class teamService {
   teamRepostiory = AppDataSource.getRepository(Teams);
   userRepository = AppDataSource.getRepository(User);
   authService = new authenticationService();
   issueService = new issueService();
-  createTeam = async (team: create_team_dto_type) => {
+  createTeam = async (team: create_team_dto_type, user_id: number) => {
     const member =
       team.members.length != 0
         ? await Promise.all(
@@ -28,8 +29,10 @@ export class teamService {
 
     const newTeam = this.teamRepostiory.create({
       name: team.name,
+      status: team.status ?? team_status_enum.ACTIVE,
       issue_assigned: issues,
       members: member,
+      admin: { user_id },
     });
     const saveTeam = await this.teamRepostiory.save(newTeam);
     return saveTeam;
@@ -52,6 +55,9 @@ export class teamService {
     teamUpdate.name = team.name;
     teamUpdate.members = member;
     teamUpdate.issue_assigned = issues;
+    if (team.status !== undefined) {
+      teamUpdate.status = team.status;
+    }
     const update = await this.teamRepostiory.save(teamUpdate);
     return update;
   };

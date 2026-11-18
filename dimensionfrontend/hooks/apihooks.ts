@@ -15,6 +15,7 @@ import {
   ProjectOverviewResponse,
 } from "@/lib/response.types";
 import {
+  create_team_dto_type,
   createNeIssue_type,
   issueActivityType,
   issueCreate_type,
@@ -230,6 +231,19 @@ export const useGetTeamPerUser = (teamId: string) => {
   return { data, isLoading, error };
 };
 
+export const useCreateTeam = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: create_team_dto_type) =>
+      teamApiClient.createTeam(payload),
+    onSuccess() {
+      toast.success("Team successfully created");
+    },
+    onError: () => {
+      toast.error("Error creating team");
+    },
+  });
+};
 // issue hooks
 
 export const useGetSingleIssue = (issueId: string) => {

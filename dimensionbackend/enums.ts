@@ -35,3 +35,8 @@ export enum project_priority_enum {
   HIGH = "high",
   URGENT = "urgent",
 }
+
+export enum team_status_enum {
+  ACTIVE = "active",
+  ARCHIVED = "archived",
+}

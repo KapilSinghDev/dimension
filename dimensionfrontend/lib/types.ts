@@ -4,6 +4,7 @@ import {
   project_health_enum,
   project_priority_enum,
   project_status_enum,
+  team_status_enum,
 } from "./enums";
 import {
   IssueItems,
@@ -102,13 +103,17 @@ export type project_type = {
 export type team_dto_type = {
   team_id: number;
   name: string;
+  status: team_status_enum;
+  timezones?: string;
   members: userProfile_type[];
   issue_assigned: issue_type[];
 };
 export type create_team_dto_type = {
   name: string;
-  members: string[];
-  issues: number[];
+  status: team_status_enum;
+  timezones?: string;
+  members?: string[];
+  issues?: number[];
 };
 
 export interface issueInterface {

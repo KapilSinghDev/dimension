@@ -21,7 +21,7 @@ export class teamRoute {
   private getTeams = () => {
     this.teamRouter.get(
       "/team/:id",
-      authenticateUser,
+      // authenticateUser,
       this.teamController.getTeam,
     );
   };
@@ -35,21 +35,21 @@ export class teamRoute {
   private createNewTeamRoute = () => {
     this.teamRouter.post(
       "/team/create",
-      authenticateUser,
+      // authenticateUser,
       this.teamController.createNewTeam,
     );
   };
   private updateTeamRoute = () => {
     this.teamRouter.put(
       "/team/update",
-      authenticateUser,
+      // authenticateUser,
       this.teamController.updateTeam,
     );
   };
   private deleteTeamRoute = () => {
     this.teamRouter.delete(
       "/team/:id",
-      authenticateUser,
+      // authenticateUser,
       this.teamController.deleteTeam,
     );
   };

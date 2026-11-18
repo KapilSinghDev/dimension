@@ -1,11 +1,15 @@
 import { Request, Response } from "express";
+import * as jwt from "jsonwebtoken";
+import { userPayloadInterface } from "../middleware/authenticate";
 import { teamService } from "../service/team.service";
 export class teamController {
   private teamService = new teamService();
 
   createNewTeam = async (req: Request, res: Response) => {
     try {
-      const createTeam = await this.teamService.createTeam(req.body);
+      const token = req.headers.authorization?.split(" ")[1];
+      const { user_id } = jwt.decode(token as string) as userPayloadInterface;
+      const createTeam = await this.teamService.createTeam(req.body, user_id);
       res.send({ response: createTeam }).status(201);
     } catch (err) {
       console.error("Error occured", err);

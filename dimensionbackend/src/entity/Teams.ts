@@ -11,6 +11,7 @@ import { Issues } from "./Issue";
 import { User } from "./User";
 import { Credentials } from "./Credentials";
 import { Organisation } from "./Organisation";
+import { team_status_enum } from "../../enums";
 @Entity()
 export class Teams {
   @PrimaryGeneratedColumn()
@@ -18,6 +19,16 @@ export class Teams {
 
   @Column()
   name!: string;
+
+  @Column({
+    type: "enum",
+    enum: team_status_enum,
+    default: team_status_enum.ACTIVE,
+  })
+  status!: team_status_enum;
+
+  @Column({ type: "varchar", nullable: true })
+  timezone?: string;
 
   @ManyToOne(() => User, (user: User) => user.team_administer, {
     nullable: true,
@@ -30,6 +41,6 @@ export class Teams {
   @OneToMany(() => Issues, (issue) => issue.team)
   issue_assigned!: Issues[];
 
-  @ManyToOne(() => Organisation, (orgs) => orgs.teams)
+  @ManyToOne(() => Organisation, (orgs) => orgs.teams, { nullable: true })
   organisation: Organisation;
 }
