@@ -1,13 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { Users, ChevronDown, Lock } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,16 +16,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQueryState } from "nuqs";
+import { create_team_dto_type } from "@/lib/types";
+import { team_status_enum } from "@/lib/enums";
+
+/* ------------------------------- Types ---------------------------------- */
 
 /**
- * Reusable settings section: title + description on top, card with rows below.
+ * Only the fields the USER provides.
+ *
+ * Filled by the backend, never sent from the form:
+ *  - team_id       -> @PrimaryGeneratedColumn
+ *  - status        -> defaults to team_status_enum.ACTIVE
+ *  - admin         -> the authenticated user creating the team
+ *  - members       -> creator is added as the first member
+ *  - organisation  -> taken from the user's organisation / session
+ *  - issue_assigned-> empty until issues are assigned
  */
-interface sectionProps {
+
+interface BuildTeamScreenProps {
+  onBack?: () => void;
+  onSubmit?: (payload: create_team_dto_type) => Promise<void> | void;
+  onChangeTimezone?: (timeZone: string) => void;
+  onChangeName?: (teamName: string) => void;
+}
+
+interface RowProps {
+  label: string;
+  hint?: string;
+  htmlFor?: string;
+  children: React.ReactNode;
+}
+
+interface SectionProps {
   title: string;
   description: string;
   children: React.ReactNode;
 }
-function Section({ title, description, children }: sectionProps) {
+
+/* ----------------------------- Layout helpers --------------------------- */
+
+function Section({ title, description, children }: SectionProps) {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
@@ -38,16 +68,6 @@ function Section({ title, description, children }: sectionProps) {
       </Card>
     </section>
   );
-}
-
-/**
- * Row inside a settings card: label on the left, control on the right.
- */
-interface RowProps {
-  label: string;
-  hint?: string;
-  htmlFor?: string;
-  children: React.ReactNode;
 }
 
 function Row({ label, hint, htmlFor, children }: RowProps) {
@@ -64,158 +84,183 @@ function Row({ label, hint, htmlFor, children }: RowProps) {
   );
 }
 
-export default function BuildTeamScreen() {
-  const [name, setName] = useState("");
-  const [identifier, setIdentifier] = useState("");
-  const [timezone, setTimezone] = useState("Asia/Kolkata");
-  const [copyFrom, setCopyFrom] = useState("none");
+/* ------------------------------ Timezones ------------------------------- */
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+interface TimezoneOption {
+  value: string; // IANA name, stored in the `timezone` varchar column
+  label: string;
+}
+
+function getOffsetLabel(tz: string): string {
+  try {
+    const part = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "shortOffset",
+    })
+      .formatToParts(new Date())
+      .find((p) => p.type === "timeZoneName");
+    return part?.value ?? "GMT";
+  } catch {
+    return "GMT";
+  }
+}
+
+/* -------------------------------- Screen -------------------------------- */
+
+export default function BuildTeamScreen({
+  onBack,
+  onSubmit,
+  onChangeName,
+  onChangeTimezone,
+}: BuildTeamScreenProps) {
+  // Auto-detect the browser timezone so the user rarely has to touch it.
+  const detectedTimezone = useMemo<string>(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    [],
+  );
+
+  const timezoneOptions = useMemo<TimezoneOption[]>(() => {
+    const zones: string[] =
+      typeof Intl.supportedValuesOf === "function"
+        ? Intl.supportedValuesOf("timeZone")
+        : ["UTC"];
+    return zones.map((tz) => ({
+      value: tz,
+      label: `${getOffsetLabel(tz)} – ${tz.replace(/_/g, " ")}`,
+    }));
+  }, []);
+
+  const [name, setName] = useState<string>("");
+  const [timezones, setTimezone] = useState<string>(detectedTimezone);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const trimmedName = name.trim();
+  const canSubmit = trimmedName.length > 0 && !submitting;
+  const [teamId, setTeamId] = useQueryState("team");
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log({ name, identifier, timezone, copyFrom });
+    setTeamId(null);
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onSubmit?.({
+        name: trimmedName,
+        status: team_status_enum.ACTIVE,
+        timezones: timezones,
+      });
+      onBack?.();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not create the team.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="flex min-h-screen w-full justify-center bg-background px-4 py-12">
       <div className="flex w-full max-w-[640px] flex-col gap-8">
-        {/* Header */}
-        <header className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Create a new team
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Create a new team to manage separate cycles, workflows, and
-            notifications
-          </p>
+        <header className="flex flex-col gap-3">
+          {onBack && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="-ml-2 w-fit text-muted-foreground"
+            >
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              Teams
+            </Button>
+          )}
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Create a new team
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Create a new team to manage separate cycles, workflows, and
+              notifications
+            </p>
+          </div>
         </header>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          {/* Settings: icon, name, identifier, parent team */}
+          {/* name (required) */}
           <Card className="shadow-none">
             <CardContent className="p-0">
-              <Row label="Icon & Name" htmlFor="name">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label="Choose icon"
-                  className="h-7 w-7"
-                >
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </Button>
+              <Row label="Name" htmlFor="name">
                 <Input
                   id="name"
                   name="name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setName(e.target.value)
+                  }
+                  onBlur={() => onChangeName?.(name)}
                   placeholder="e.g. Engineering"
                   maxLength={48}
                   autoComplete="off"
-                  className="h-8 w-[220px]"
+                  required
+                  className="h-8 w-[260px]"
                 />
               </Row>
-
               <Separator />
-
               <Row
-                label="Identifier"
-                hint="Used as a prefix for team issues (e.g. ENG-123)"
-                htmlFor="team-identifier"
+                label="Team admin"
+                hint="You’ll be set as the admin and first member of this team"
               >
-                <Input
-                  id="team-identifier"
-                  name="key"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value.toUpperCase())}
-                  placeholder="e.g. ENG"
-                  maxLength={7}
-                  autoComplete="off"
-                  className="h-8 w-[100px]"
-                />
-              </Row>
-
-              <Separator />
-
-              <Row label="Parent team">
-                <Badge variant="secondary" className="font-normal">
-                  Available on Business
-                </Badge>
+                <span className="text-sm text-muted-foreground">You</span>
               </Row>
             </CardContent>
           </Card>
 
-          {/* Team access */}
-          <Section
-            title="Team access"
-            description="Control who can access the team and its content. Private teams are visible only to team members and workspace admins."
-          >
-            <Row label="Change team access">
-              <Badge variant="secondary" className="gap-1 font-normal">
-                <Lock className="h-3 w-3" />
-                Available on Business
-              </Badge>
-            </Row>
-          </Section>
-
-          {/* Timezone */}
+          {/* timezone (optional, auto-detected) */}
           <Section
             title="Timezone"
             description="Used for team schedules, dates, and cycle start times"
           >
             <Row label="Timezone" htmlFor="timezone-control">
-              <Select value={timezone} onValueChange={setTimezone}>
+              <Select value={timezones} onValueChange={setTimezone}>
                 <SelectTrigger
                   id="timezone-control"
                   aria-label="Set timezone"
-                  className="h-8 w-[280px]"
+                  className="h-8 w-[320px]"
                 >
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Asia/Kolkata">
-                    GMT+5:30 – India Standard Time - Kolkata
-                  </SelectItem>
-                  <SelectItem value="UTC">GMT+0:00 – UTC</SelectItem>
-                  <SelectItem value="Europe/London">
-                    GMT+0:00 – London
-                  </SelectItem>
-                  <SelectItem value="America/New_York">
-                    GMT-5:00 – Eastern Time - New York
-                  </SelectItem>
-                  <SelectItem value="America/Los_Angeles">
-                    GMT-8:00 – Pacific Time - Los Angeles
-                  </SelectItem>
-                  <SelectItem value="Asia/Tokyo">
-                    GMT+9:00 – Japan Standard Time - Tokyo
-                  </SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  {timezoneOptions.map((tz) => (
+                    <SelectItem
+                      key={tz.value}
+                      value={tz.value}
+                      onClick={() => onChangeTimezone?.(tz.value)}
+                    >
+                      {tz.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Row>
           </Section>
 
-          {/* Copy settings */}
-          <Section
-            title="Copy settings from existing team"
-            description="Copy workflows, cycle, and team settings from another team. Team members and Slack notification settings won't be copied."
-          >
-            <Row label="Copy from team">
-              <Select value={copyFrom} onValueChange={setCopyFrom} disabled>
-                <SelectTrigger
-                  aria-label="Copy from team"
-                  className="h-8 w-[200px]"
-                >
-                  <SelectValue placeholder="Don’t copy" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Don’t copy</SelectItem>
-                </SelectContent>
-              </Select>
-            </Row>
-          </Section>
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
 
-          {/* Submit */}
-          <div className="flex justify-end">
-            <Button type="submit" disabled={!name.trim() || !identifier.trim()}>
+          <div className="flex justify-end gap-2">
+            {onBack && (
+              <Button type="button" variant="outline" onClick={onBack}>
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" disabled={!canSubmit}>
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create team
             </Button>
           </div>

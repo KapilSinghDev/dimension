@@ -13,7 +13,7 @@ export class teamService {
   issueService = new issueService();
   createTeam = async (team: create_team_dto_type, user_id: number) => {
     const member =
-      team.members.length != 0
+      team?.members?.length != 0
         ? await Promise.all(
             team.members.map((email) =>
               this.userRepository.findOneBy({ email: email }),
@@ -21,7 +21,7 @@ export class teamService {
           )
         : [];
     const issues =
-      team.issues.length != 0
+      team?.issues.length != 0
         ? await Promise.all(
             team.issues.map((issueId) => this.issueService.findIssue(issueId)),
           )
@@ -32,6 +32,7 @@ export class teamService {
       status: team.status ?? team_status_enum.ACTIVE,
       issue_assigned: issues,
       members: member,
+      timezone: team.timezones,
       admin: { user_id },
     });
     const saveTeam = await this.teamRepostiory.save(newTeam);

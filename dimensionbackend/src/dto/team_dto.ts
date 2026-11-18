@@ -24,11 +24,18 @@ export const create_team_dto = z.object({
   issues: z.array(z.string()).optional(),
   target: z.string(),
 });
+// export type create_team_dto_type = {
+//   name: string;
+//   members: string[];
+//   issues: number[];
+//   status?: team_status_enum;
+//   // target: string;
+// };
 export type create_team_dto_type = {
   name: string;
-  members: string[];
-  issues: number[];
-  status?: team_status_enum;
-  // target: string;
+  status: team_status_enum;
+  timezones?: string;
+  members?: string[];
+  issues?: number[];
 };
 export { team_dto, team_dto_type };

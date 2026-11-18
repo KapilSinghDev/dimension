@@ -34,6 +34,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQueryState } from "nuqs";
+import BuildTeamScreen from "@/components/screens/Buildteamscreen";
+import { create_team_dto_type } from "@/lib/types";
+import { team_status_enum } from "@/lib/enums";
+import { useCreateTeam } from "@/hooks/apihooks";
 
 /* ----------------------------- Types & data ----------------------------- */
 
@@ -131,6 +136,7 @@ export default function TeamsScreen() {
   const [status, setStatus] = useState<TeamStatus>("active");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<SortDirection>("asc");
+  const [teamId, setTeamId] = useQueryState("team");
 
   const handleSort = (key: SortKey) => {
     if (key === sortKey) {
@@ -185,7 +191,46 @@ export default function TeamsScreen() {
     a.click();
     URL.revokeObjectURL(url);
   };
-  return (
+  const [teamPayload, seTeamPayload] = useState<create_team_dto_type>({
+    name: "",
+    status: team_status_enum.ACTIVE,
+    timezones: "",
+    members: [],
+    issues: [],
+  });
+  const createTeam = useCreateTeam();
+  const handleCreateTeam = (payload: create_team_dto_type) => {
+    createTeam.mutate(payload);
+  };
+  const handleChangeName = (name: string) => {
+    seTeamPayload((prev) => {
+      return {
+        ...prev,
+        ["name"]: name,
+      };
+    });
+  };
+  return teamId === "new" ? (
+    <BuildTeamScreen
+      onSubmit={() => handleCreateTeam(teamPayload)}
+      onChangeName={(teamName) =>
+        seTeamPayload((prev) => {
+          return {
+            ...prev,
+            ["name"]: teamName,
+          };
+        })
+      }
+      onChangeTimezone={(timeZone) =>
+        seTeamPayload((prev) => {
+          return {
+            ...prev,
+            ["timezones"]: timeZone,
+          };
+        })
+      }
+    />
+  ) : (
     <main className="flex min-h-screen w-full justify-center bg-background px-6 py-8">
       <div className="flex w-full max-w-[1100px] flex-col gap-6">
         {/* Header + toolbar */}
@@ -225,7 +270,11 @@ export default function TeamsScreen() {
             <Button variant="outline" size="sm" onClick={handleExportCsv}>
               Export CSV
             </Button>
-            <Button size="sm" aria-label="Create new team">
+            <Button
+              onClick={() => setTeamId("new")}
+              size="sm"
+              aria-label="Create new team"
+            >
               Create team
             </Button>
           </div>
@@ -294,7 +343,7 @@ export default function TeamsScreen() {
                   <TableCell className="text-sm">{team.issues}</TableCell>
                   <TableCell
                     className="text-sm text-muted-foreground"
-                    title={new Date(team.createdAt).toLocaleString()}
+                    // title={new Date(team.createdAt).toLocaleString()}
                   >
                     {formatCreated(team.createdAt)}
                   </TableCell>
