@@ -89,3 +89,20 @@ export interface ProjectOptionResponse {
   id: number;
   title: string;
 }
+
+export interface TeamListItem {
+  team_id: string;
+  name: string;
+  status: string;
+  timezone: string | null;
+  memberCount: number;
+  issueCount: number;
+}
+
+export interface TeamListResponse {
+  data: TeamListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

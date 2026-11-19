@@ -44,11 +44,31 @@ export class teamController {
 
   getAllTeams = async (req: Request, res: Response) => {
     try {
-      const team = await this.teamService.findallTeams();
-      res.send({ response: team }).status(201);
+      const requestedPage = Number(req.query.page);
+      const page =
+        Number.isSafeInteger(requestedPage) && requestedPage > 0
+          ? requestedPage
+          : 1;
+      const requestedLimit = Number(req.query.limit);
+      const limit =
+        Number.isSafeInteger(requestedLimit) && requestedLimit > 0
+          ? Math.min(requestedLimit, 50)
+          : 10;
+      const { data, total } = await this.teamService.findallTeams(
+        (page - 1) * limit,
+        limit,
+      );
+
+      return res.status(200).json({
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      });
     } catch (err) {
       console.error(err);
-      res.send({ message: "Error occured" }).status(500);
+      return res.status(500).json({ message: "Error occured" });
     }
   };
 

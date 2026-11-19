@@ -28,6 +28,7 @@ import { PropertyRow } from "./team/PropertyRow";
 import { StatCard } from "./team/StatCard";
 import { UserAvatar } from "./team/UserAvatar";
 import { CLOSED, fullName, norm, toTitle, tzParts } from "./team/team-utils";
+import { team_rotue } from "@/lib/routes";
 
 const TEAMS_HREF = "/teams";
 const EMPTY_MEMBERS: TeamUser[] = [];
@@ -82,7 +83,7 @@ export function TeamDetailsView({ team }: TeamDetailsViewProps) {
             className="flex items-center gap-1 text-sm text-muted-foreground"
           >
             <Link
-              href={TEAMS_HREF}
+              href={team_rotue}
               className="transition-colors hover:text-foreground"
             >
               Teams

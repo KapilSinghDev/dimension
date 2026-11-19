@@ -1,4 +1,4 @@
-import { team_dto_type, create_team_dto_type } from "@/lib/types";
+import { create_team_dto_type } from "@/lib/types";
 import { apiclient } from "./apiClient";
 
 export class teamApi {
@@ -6,8 +6,8 @@ export class teamApi {
     return apiclient.get(`/team/${id}`);
   }
 
-  getAllTeams() {
-    return apiclient.get("/team");
+  getAllTeams(page: number) {
+    return apiclient.get("/team", { params: { page } });
   }
 
   createTeam(payload: create_team_dto_type) {

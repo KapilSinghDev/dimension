@@ -75,9 +75,29 @@ export class teamService {
     });
     return team;
   };
-  findallTeams = async () => {
-    const teamList = await this.teamRepostiory.find();
-    return teamList;
+  findallTeams = async (offset: number, limit: number) => {
+    const [teams, total] = await this.teamRepostiory
+      .createQueryBuilder("team")
+      .loadRelationCountAndMap("team.memberCount", "team.members")
+      .loadRelationCountAndMap("team.issueCount", "team.issue_assigned")
+      .orderBy("team.team_id", "ASC")
+      .skip(offset)
+      .take(limit)
+      .getManyAndCount();
+    const data = teams.map((team) => {
+      const countedTeam = team as Teams & {
+        memberCount?: number;
+        issueCount?: number;
+      };
+      return {
+        ...team,
+        timezone: team.timezone ?? null,
+        memberCount: countedTeam.memberCount ?? 0,
+        issueCount: countedTeam.issueCount ?? 0,
+      };
+    });
+
+    return { data, total };
   };
   deleteTeam = async (id: string) => {
     const deleteTeam = await this.teamRepostiory.delete({ team_id: id });

@@ -11,9 +11,8 @@ import { TeamDetailsView } from "@/components/TeamDetailsView";
 import { TeamSkeleton } from "@/components/skeleton/TeamSkeleton";
 import { useGetTeamById } from "@/hooks/apihooks";
 import type { TeamDetails, TeamResponse } from "./types";
-
-const TEAMS_HREF = "/teams";
-
+import { team_rotue } from "@/lib/routes";
+console.log("the team is route ", team_rotue);
 /** The API wraps the team in `{ response }`; accept either shape. */
 function unwrapTeam(data: unknown): TeamDetails | undefined {
   if (!data || typeof data !== "object") return undefined;
@@ -46,7 +45,7 @@ function TeamView() {
             </AlertDescription>
           </Alert>
           <Button asChild variant="outline" className="w-fit">
-            <Link href={TEAMS_HREF}>Back to teams</Link>
+            <Link href={team_rotue}>Back to teams</Link>
           </Button>
         </div>
       </main>

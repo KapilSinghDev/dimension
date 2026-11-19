@@ -5,3 +5,5 @@ export const view_route = workspace_route + "/views";
 export const user_profile_route = workspace_route + "/profile";
 export const welcome_route = "/welcome";
 export const team_rotue = workspace_route + "/team";
+export const team_detail_route = (teamId: string) =>
+  `${team_rotue}/${encodeURIComponent(teamId)}`;

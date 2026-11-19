@@ -26,7 +26,13 @@ import {
   userSignup_type,
   userUpdateProfile_type,
 } from "@/lib/types";
-import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import type { TeamListResponse } from "@/lib/response.types";
+import {
+  keepPreviousData,
+  useQueryClient,
+  useMutation,
+  useQuery,
+} from "@tanstack/react-query";
 import axios from "axios";
 import { useQueryState } from "nuqs";
 import { toast } from "sonner";
@@ -237,6 +243,7 @@ export const useCreateTeam = () => {
     mutationFn: (payload: create_team_dto_type) =>
       teamApiClient.createTeam(payload),
     onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
       toast.success("Team successfully created");
     },
     onError: () => {
@@ -252,6 +259,16 @@ export const useGetTeamById = (teamId: string) => {
     retry: false,
   });
   return { data, isLoading, isError };
+};
+
+export const useGetTeamList = (page: number) => {
+  const { data, isLoading, isError, error } = useQuery<TeamListResponse>({
+    queryKey: ["teams", page],
+    queryFn: () =>
+      teamApiClient.getAllTeams(page).then((response) => response.data),
+    placeholderData: keepPreviousData,
+  });
+  return { data, isLoading, isError, error };
 };
 // issue hooks
 
