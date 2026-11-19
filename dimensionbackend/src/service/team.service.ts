@@ -39,7 +39,7 @@ export class teamService {
     return saveTeam;
   };
 
-  updateTeam = async (team: create_team_dto_type, id: number) => {
+  updateTeam = async (team: create_team_dto_type, id: string) => {
     const member =
       team.members.length != 0
         ? await Promise.all(
@@ -63,15 +63,23 @@ export class teamService {
     return update;
   };
 
-  findTeam = async (id: number) => {
-    const team = await this.teamRepostiory.findOneBy({ team_id: id });
+  findTeam = async (id: string) => {
+    const team = await this.teamRepostiory.findOne({
+      where: { team_id: id },
+      relations: {
+        members: true,
+        admin: true,
+        // organisation: true,
+        issue_assigned: true,
+      },
+    });
     return team;
   };
   findallTeams = async () => {
     const teamList = await this.teamRepostiory.find();
     return teamList;
   };
-  deleteTeam = async (id: number) => {
+  deleteTeam = async (id: string) => {
     const deleteTeam = await this.teamRepostiory.delete({ team_id: id });
     return deleteTeam;
   };

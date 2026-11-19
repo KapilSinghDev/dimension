@@ -21,7 +21,7 @@ export class teamController {
     try {
       const updateResult = await this.teamService.updateTeam(
         req.body,
-        +req.params.id,
+        req.params.id.toString(),
       );
       res.send({ response: updateResult }).status(201);
     } catch (err) {
@@ -32,7 +32,9 @@ export class teamController {
 
   getTeam = async (req: Request, res: Response) => {
     try {
-      const team = await this.teamService.findTeam(+req.params?.id || null);
+      const team = await this.teamService.findTeam(
+        req.params.id.toString() || null,
+      );
       res.send({ response: team }).status(201);
     } catch (err) {
       console.error("An error occured", err);
@@ -52,7 +54,9 @@ export class teamController {
 
   deleteTeam = async (req: Request, res: Response) => {
     try {
-      const deleteTeam = await this.teamService.deleteTeam(+req.params.id);
+      const deleteTeam = await this.teamService.deleteTeam(
+        req.params.id.toString(),
+      );
       res.send({ response: deleteTeam }).status(201);
     } catch (err) {
       console.error("An error occured", err);

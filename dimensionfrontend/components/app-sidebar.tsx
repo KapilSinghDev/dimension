@@ -61,6 +61,7 @@ import {
 import {
   issue_route,
   project_route,
+  team_rotue,
   user_profile_route,
   welcome_route,
 } from "@/lib/routes";
@@ -96,7 +97,7 @@ const TEAMS: Team[] = [
     items: [
       { label: "Issues", icon: AlertCircle, href: issue_route },
       { label: "Projects", icon: LayoutGrid, href: `${project_route}?page=1` },
-      { label: "Teams", icon: Users, href: "/" },
+      { label: "Teams", icon: Users, href: team_rotue },
     ],
   },
 ];

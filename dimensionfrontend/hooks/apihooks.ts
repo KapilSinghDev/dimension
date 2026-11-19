@@ -244,10 +244,19 @@ export const useCreateTeam = () => {
     },
   });
 };
+
+export const useGetTeamById = (teamId: string) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["team", teamId],
+    queryFn: () => teamApiClient.getTeam(teamId),
+    retry: false,
+  });
+  return { data, isLoading, isError };
+};
 // issue hooks
 
 export const useGetSingleIssue = (issueId: string) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["issue", issueId],
     queryFn: () =>
       issueApiClient.getIssue({ issueId }).then((res) => res.data.message),
@@ -256,7 +265,7 @@ export const useGetSingleIssue = (issueId: string) => {
   return {
     data,
     isLoading,
-    error,
+    isError,
   };
 };
 export const useCreateIssue = () => {

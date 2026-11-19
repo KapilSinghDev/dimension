@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME ?? "db",
   password: process.env.DB_PASSWORD ?? "test",
   database: process.env.DB_NAME ?? "dimensionbackend",
-  synchronize: !isProd,
+  synchronize: true,
   logging: false,
   entities: [
     User,

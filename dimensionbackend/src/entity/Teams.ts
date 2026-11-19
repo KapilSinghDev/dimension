@@ -14,8 +14,8 @@ import { Organisation } from "./Organisation";
 import { team_status_enum } from "../../enums";
 @Entity()
 export class Teams {
-  @PrimaryGeneratedColumn()
-  team_id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  team_id!: string;
 
   @Column()
   name!: string;

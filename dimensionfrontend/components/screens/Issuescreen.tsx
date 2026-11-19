@@ -78,7 +78,7 @@ const projectOptions = [
 
 const Issuescreen = () => {
   const [issueId] = useQueryState("id");
-  const { data, isLoading, error } = useGetSingleIssue(issueId as string);
+  const { data, isLoading, isError } = useGetSingleIssue(issueId as string);
   // console.log("the raw title is ", data.title);
   const updateIsssue = useUpdateIssue();
   const [issueProject, setIssueProject] = useState<string>("");
@@ -312,7 +312,7 @@ const Issuescreen = () => {
           {/* Scrollable left content */}
           <section className="min-h-0 min-w-0 space-y-5 overflow-y-auto pr-1 pb-6">
             <article className="   p-5 shadow-[0_8px_30px_rgba(15,23,42,0.04)]  sm:p-7">
-              {error && (
+              {isError && (
                 <p className="mb-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
                   Unable to load issue details.
                 </p>
