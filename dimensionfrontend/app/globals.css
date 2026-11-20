@@ -109,6 +109,9 @@
   pointer-events: none;
   height: 0;
 }
+* {
+  cursor: none !important;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;

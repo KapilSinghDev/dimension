@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Suspense } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { SmoothCursor } from "@/components/ui/smooth-cursor";
 
 const Workspacelayout = ({
   children,
@@ -15,7 +16,10 @@ const Workspacelayout = ({
         <AppSidebar />
         <main className="flex-1 min-w-0 ">
           <DndProvider backend={HTML5Backend}>
-            <Suspense>{children}</Suspense>
+            <Suspense>
+              <SmoothCursor />
+              {children}
+            </Suspense>
           </DndProvider>
         </main>
       </div>

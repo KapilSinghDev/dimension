@@ -10,6 +10,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { QueryProvider } from "@/hooks/queryProvider";
 import { Suspense } from "react";
 import { DndProvider } from "react-dnd";
+import { SmoothCursor } from "@/components/ui/smooth-cursor";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
             <TooltipProvider>
               <NuqsAdapter>
                 <QueryProvider>
+                  <SmoothCursor />
                   <Suspense>{children}</Suspense>
                 </QueryProvider>
               </NuqsAdapter>
